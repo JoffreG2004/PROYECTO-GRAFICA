@@ -1,4 +1,4 @@
-namespace REPRODUCTOR_MUSICAL
+﻿namespace REPRODUCTOR_MUSICAL
 {
     partial class FrmHome
     {
@@ -44,15 +44,17 @@ namespace REPRODUCTOR_MUSICAL
             this.lblVisualizador = new System.Windows.Forms.Label();
             this.panelControles = new REPRODUCTOR_MUSICAL.Views.RoundedPanel();
             this.panelCancion = new REPRODUCTOR_MUSICAL.Views.RoundedPanel();
-            this.panelIconoCancion = new REPRODUCTOR_MUSICAL.Views.MusicIconPanel();
-            this.lblIconoCancion = new System.Windows.Forms.Label();
             this.lblCancion = new System.Windows.Forms.Label();
-            this.lblEstado = new System.Windows.Forms.Label();
             this.lblAnalisis = new System.Windows.Forms.Label();
+            this.panelIconoCancion = new REPRODUCTOR_MUSICAL.Views.MusicIconPanel();
+            this.lblEstado = new System.Windows.Forms.Label();
             this.btnCargar = new REPRODUCTOR_MUSICAL.Views.GradientButton();
             this.btnReproducir = new REPRODUCTOR_MUSICAL.Views.GradientButton();
             this.btnPausar = new REPRODUCTOR_MUSICAL.Views.GradientButton();
             this.btnDetener = new REPRODUCTOR_MUSICAL.Views.GradientButton();
+            this.btnAnterior = new REPRODUCTOR_MUSICAL.Views.GradientButton();
+            this.btnSiguiente = new REPRODUCTOR_MUSICAL.Views.GradientButton();
+            this.chkAleatorio = new System.Windows.Forms.CheckBox();
             this.lblTiempoActual = new System.Windows.Forms.Label();
             this.trackPosicion = new REPRODUCTOR_MUSICAL.Views.NeonSlider();
             this.lblTiempoTotal = new System.Windows.Forms.Label();
@@ -61,21 +63,21 @@ namespace REPRODUCTOR_MUSICAL
             this.lblModo = new System.Windows.Forms.Label();
             this.cmbModoVisualizacion = new REPRODUCTOR_MUSICAL.Views.NeonComboBox();
             this.panelEncabezado = new System.Windows.Forms.Panel();
-            this.panelTituloIcono = new REPRODUCTOR_MUSICAL.Views.MusicIconPanel();
-            this.lblTitulo = new System.Windows.Forms.Label();
-            this.lblSubtitulo = new System.Windows.Forms.Label();
             this.panelMarca = new REPRODUCTOR_MUSICAL.Views.RoundedPanel();
             this.lblAutores = new System.Windows.Forms.Label();
             this.lblMateria = new System.Windows.Forms.Label();
             this.lblNrc = new System.Windows.Forms.Label();
             this.picLogoEspe = new System.Windows.Forms.PictureBox();
+            this.panelTituloIcono = new REPRODUCTOR_MUSICAL.Views.MusicIconPanel();
+            this.lblTitulo = new System.Windows.Forms.Label();
+            this.lblSubtitulo = new System.Windows.Forms.Label();
+            this.lblIconoCancion = new System.Windows.Forms.Label();
             this.menuPrincipal.SuspendLayout();
             this.panelPrincipal.SuspendLayout();
             this.panelContenido.SuspendLayout();
             this.panelVisualizador.SuspendLayout();
             this.panelControles.SuspendLayout();
             this.panelCancion.SuspendLayout();
-            this.panelIconoCancion.SuspendLayout();
             this.panelEncabezado.SuspendLayout();
             this.panelMarca.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picLogoEspe)).BeginInit();
@@ -93,7 +95,7 @@ namespace REPRODUCTOR_MUSICAL
             this.menuPrincipal.Location = new System.Drawing.Point(0, 0);
             this.menuPrincipal.Name = "menuPrincipal";
             this.menuPrincipal.Padding = new System.Windows.Forms.Padding(10, 3, 0, 3);
-            this.menuPrincipal.Size = new System.Drawing.Size(1280, 33);
+            this.menuPrincipal.Size = new System.Drawing.Size(1366, 33);
             this.menuPrincipal.TabIndex = 0;
             this.menuPrincipal.Text = "menuPrincipal";
             // 
@@ -110,13 +112,13 @@ namespace REPRODUCTOR_MUSICAL
             // menuCargarCancion
             // 
             this.menuCargarCancion.Name = "menuCargarCancion";
-            this.menuCargarCancion.Size = new System.Drawing.Size(224, 28);
+            this.menuCargarCancion.Size = new System.Drawing.Size(213, 28);
             this.menuCargarCancion.Text = "Cargar cancion";
             // 
             // menuSalir
             // 
             this.menuSalir.Name = "menuSalir";
-            this.menuSalir.Size = new System.Drawing.Size(224, 28);
+            this.menuSalir.Size = new System.Drawing.Size(213, 28);
             this.menuSalir.Text = "Salir";
             // 
             // menuVisualizacion
@@ -134,25 +136,25 @@ namespace REPRODUCTOR_MUSICAL
             // menuBarras
             // 
             this.menuBarras.Name = "menuBarras";
-            this.menuBarras.Size = new System.Drawing.Size(224, 28);
+            this.menuBarras.Size = new System.Drawing.Size(178, 28);
             this.menuBarras.Text = "Barras";
             // 
             // menuOndas
             // 
             this.menuOndas.Name = "menuOndas";
-            this.menuOndas.Size = new System.Drawing.Size(224, 28);
+            this.menuOndas.Size = new System.Drawing.Size(178, 28);
             this.menuOndas.Text = "Ondas";
             // 
             // menuParticulas
             // 
             this.menuParticulas.Name = "menuParticulas";
-            this.menuParticulas.Size = new System.Drawing.Size(224, 28);
+            this.menuParticulas.Size = new System.Drawing.Size(178, 28);
             this.menuParticulas.Text = "Particulas";
             // 
             // menuGeometria
             // 
             this.menuGeometria.Name = "menuGeometria";
-            this.menuGeometria.Size = new System.Drawing.Size(224, 28);
+            this.menuGeometria.Size = new System.Drawing.Size(178, 28);
             this.menuGeometria.Text = "Geometria";
             // 
             // panelPrincipal
@@ -164,7 +166,7 @@ namespace REPRODUCTOR_MUSICAL
             this.panelPrincipal.Location = new System.Drawing.Point(0, 33);
             this.panelPrincipal.Name = "panelPrincipal";
             this.panelPrincipal.Padding = new System.Windows.Forms.Padding(24);
-            this.panelPrincipal.Size = new System.Drawing.Size(1280, 687);
+            this.panelPrincipal.Size = new System.Drawing.Size(1366, 807);
             this.panelPrincipal.TabIndex = 1;
             // 
             // panelContenido
@@ -174,7 +176,7 @@ namespace REPRODUCTOR_MUSICAL
             this.panelContenido.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelContenido.Location = new System.Drawing.Point(24, 148);
             this.panelContenido.Name = "panelContenido";
-            this.panelContenido.Size = new System.Drawing.Size(1232, 515);
+            this.panelContenido.Size = new System.Drawing.Size(1318, 635);
             this.panelContenido.TabIndex = 1;
             // 
             // panelVisualizador
@@ -187,7 +189,7 @@ namespace REPRODUCTOR_MUSICAL
             this.panelVisualizador.Controls.Add(this.lblVisualizador);
             this.panelVisualizador.Location = new System.Drawing.Point(0, 0);
             this.panelVisualizador.Name = "panelVisualizador";
-            this.panelVisualizador.Size = new System.Drawing.Size(845, 515);
+            this.panelVisualizador.Size = new System.Drawing.Size(931, 635);
             this.panelVisualizador.TabIndex = 0;
             // 
             // lblVisualizador
@@ -196,7 +198,7 @@ namespace REPRODUCTOR_MUSICAL
             this.lblVisualizador.AutoSize = true;
             this.lblVisualizador.Font = new System.Drawing.Font("Segoe UI Semibold", 18F, System.Drawing.FontStyle.Bold);
             this.lblVisualizador.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(240)))), ((int)(((byte)(214)))));
-            this.lblVisualizador.Location = new System.Drawing.Point(259, 233);
+            this.lblVisualizador.Location = new System.Drawing.Point(302, 293);
             this.lblVisualizador.Name = "lblVisualizador";
             this.lblVisualizador.Size = new System.Drawing.Size(306, 41);
             this.lblVisualizador.TabIndex = 0;
@@ -208,12 +210,16 @@ namespace REPRODUCTOR_MUSICAL
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelControles.BackColor = System.Drawing.Color.Transparent;
             this.panelControles.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(38)))), ((int)(((byte)(58)))), ((int)(((byte)(88)))));
+            this.panelControles.BorderRadius = 14;
             this.panelControles.Controls.Add(this.panelCancion);
             this.panelControles.Controls.Add(this.lblEstado);
             this.panelControles.Controls.Add(this.btnCargar);
             this.panelControles.Controls.Add(this.btnReproducir);
             this.panelControles.Controls.Add(this.btnPausar);
             this.panelControles.Controls.Add(this.btnDetener);
+            this.panelControles.Controls.Add(this.btnAnterior);
+            this.panelControles.Controls.Add(this.btnSiguiente);
+            this.panelControles.Controls.Add(this.chkAleatorio);
             this.panelControles.Controls.Add(this.lblTiempoActual);
             this.panelControles.Controls.Add(this.trackPosicion);
             this.panelControles.Controls.Add(this.lblTiempoTotal);
@@ -221,17 +227,18 @@ namespace REPRODUCTOR_MUSICAL
             this.panelControles.Controls.Add(this.trackVolumen);
             this.panelControles.Controls.Add(this.lblModo);
             this.panelControles.Controls.Add(this.cmbModoVisualizacion);
-            this.panelControles.Location = new System.Drawing.Point(869, 0);
+            this.panelControles.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(22)))), ((int)(((byte)(39)))));
+            this.panelControles.Location = new System.Drawing.Point(955, 0);
             this.panelControles.Name = "panelControles";
             this.panelControles.Padding = new System.Windows.Forms.Padding(22);
-            this.panelControles.Size = new System.Drawing.Size(363, 515);
+            this.panelControles.Size = new System.Drawing.Size(363, 635);
             this.panelControles.TabIndex = 1;
-            this.panelControles.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(22)))), ((int)(((byte)(39)))));
             // 
             // panelCancion
             // 
             this.panelCancion.BackColor = System.Drawing.Color.Transparent;
             this.panelCancion.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(61)))), ((int)(((byte)(96)))));
+            this.panelCancion.BorderRadius = 14;
             this.panelCancion.Controls.Add(this.lblCancion);
             this.panelCancion.Controls.Add(this.lblAnalisis);
             this.panelCancion.Controls.Add(this.panelIconoCancion);
@@ -240,27 +247,6 @@ namespace REPRODUCTOR_MUSICAL
             this.panelCancion.Name = "panelCancion";
             this.panelCancion.Size = new System.Drawing.Size(313, 105);
             this.panelCancion.TabIndex = 14;
-            // 
-            // panelIconoCancion
-            // 
-            this.panelIconoCancion.BackColor = System.Drawing.Color.Transparent;
-            this.panelIconoCancion.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(118)))), ((int)(((byte)(64)))), ((int)(((byte)(210)))));
-            this.panelIconoCancion.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(26)))), ((int)(((byte)(77)))));
-            this.panelIconoCancion.Location = new System.Drawing.Point(15, 17);
-            this.panelIconoCancion.Name = "panelIconoCancion";
-            this.panelIconoCancion.Size = new System.Drawing.Size(70, 70);
-            this.panelIconoCancion.TabIndex = 2;
-            // 
-            // lblIconoCancion
-            // 
-            this.lblIconoCancion.Font = new System.Drawing.Font("Segoe UI Semibold", 28F, System.Drawing.FontStyle.Bold);
-            this.lblIconoCancion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(95)))), ((int)(((byte)(170)))));
-            this.lblIconoCancion.Location = new System.Drawing.Point(0, 1);
-            this.lblIconoCancion.Name = "lblIconoCancion";
-            this.lblIconoCancion.Size = new System.Drawing.Size(70, 66);
-            this.lblIconoCancion.TabIndex = 0;
-            this.lblIconoCancion.Text = "";
-            this.lblIconoCancion.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblCancion
             // 
@@ -273,6 +259,28 @@ namespace REPRODUCTOR_MUSICAL
             this.lblCancion.TabIndex = 0;
             this.lblCancion.Text = "Ninguna cancion cargada";
             // 
+            // lblAnalisis
+            // 
+            this.lblAnalisis.AutoSize = true;
+            this.lblAnalisis.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblAnalisis.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(183)))), ((int)(((byte)(190)))), ((int)(((byte)(210)))));
+            this.lblAnalisis.Location = new System.Drawing.Point(100, 66);
+            this.lblAnalisis.Name = "lblAnalisis";
+            this.lblAnalisis.Size = new System.Drawing.Size(178, 20);
+            this.lblAnalisis.TabIndex = 13;
+            this.lblAnalisis.Text = "Analisis: esperando audio";
+            // 
+            // panelIconoCancion
+            // 
+            this.panelIconoCancion.BackColor = System.Drawing.Color.Transparent;
+            this.panelIconoCancion.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(126)))), ((int)(((byte)(72)))), ((int)(((byte)(220)))));
+            this.panelIconoCancion.BorderRadius = 14;
+            this.panelIconoCancion.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(26)))), ((int)(((byte)(77)))));
+            this.panelIconoCancion.Location = new System.Drawing.Point(15, 17);
+            this.panelIconoCancion.Name = "panelIconoCancion";
+            this.panelIconoCancion.Size = new System.Drawing.Size(70, 70);
+            this.panelIconoCancion.TabIndex = 2;
+            // 
             // lblEstado
             // 
             this.lblEstado.AutoSize = true;
@@ -284,23 +292,13 @@ namespace REPRODUCTOR_MUSICAL
             this.lblEstado.TabIndex = 1;
             this.lblEstado.Text = "Detenido";
             // 
-            // lblAnalisis
-            // 
-            this.lblAnalisis.AutoSize = true;
-            this.lblAnalisis.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblAnalisis.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(183)))), ((int)(((byte)(190)))), ((int)(((byte)(210)))));
-            this.lblAnalisis.Location = new System.Drawing.Point(100, 66);
-            this.lblAnalisis.Name = "lblAnalisis";
-            this.lblAnalisis.Size = new System.Drawing.Size(167, 20);
-            this.lblAnalisis.TabIndex = 13;
-            this.lblAnalisis.Text = "Analisis: esperando audio";
-            // 
             // btnCargar
             // 
             this.btnCargar.BackColor = System.Drawing.Color.Transparent;
             this.btnCargar.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(53)))), ((int)(((byte)(229)))), ((int)(((byte)(239)))));
             this.btnCargar.BorderRadius = 12;
             this.btnCargar.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(13)))), ((int)(((byte)(117)))), ((int)(((byte)(185)))));
+            this.btnCargar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCargar.Font = new System.Drawing.Font("Segoe UI Semibold", 11F, System.Drawing.FontStyle.Bold);
             this.btnCargar.ForeColor = System.Drawing.Color.White;
             this.btnCargar.IconColor = System.Drawing.Color.White;
@@ -319,13 +317,14 @@ namespace REPRODUCTOR_MUSICAL
             this.btnReproducir.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(210)))), ((int)(((byte)(170)))));
             this.btnReproducir.BorderRadius = 10;
             this.btnReproducir.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(53)))), ((int)(((byte)(66)))));
+            this.btnReproducir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnReproducir.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.btnReproducir.ForeColor = System.Drawing.Color.White;
             this.btnReproducir.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
             this.btnReproducir.IconKind = REPRODUCTOR_MUSICAL.Views.ButtonIconKind.Play;
             this.btnReproducir.Location = new System.Drawing.Point(30, 238);
             this.btnReproducir.Name = "btnReproducir";
-            this.btnReproducir.Size = new System.Drawing.Size(98, 68);
+            this.btnReproducir.Size = new System.Drawing.Size(96, 69);
             this.btnReproducir.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(105)))), ((int)(((byte)(94)))));
             this.btnReproducir.TabIndex = 3;
             this.btnReproducir.Text = "Play";
@@ -337,13 +336,14 @@ namespace REPRODUCTOR_MUSICAL
             this.btnPausar.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(218)))), ((int)(((byte)(160)))), ((int)(((byte)(65)))));
             this.btnPausar.BorderRadius = 10;
             this.btnPausar.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(43)))), ((int)(((byte)(30)))));
+            this.btnPausar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPausar.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.btnPausar.ForeColor = System.Drawing.Color.White;
             this.btnPausar.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(190)))), ((int)(((byte)(72)))));
             this.btnPausar.IconKind = REPRODUCTOR_MUSICAL.Views.ButtonIconKind.Pause;
-            this.btnPausar.Location = new System.Drawing.Point(135, 238);
+            this.btnPausar.Location = new System.Drawing.Point(132, 238);
             this.btnPausar.Name = "btnPausar";
-            this.btnPausar.Size = new System.Drawing.Size(98, 68);
+            this.btnPausar.Size = new System.Drawing.Size(96, 69);
             this.btnPausar.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(80)))), ((int)(((byte)(34)))));
             this.btnPausar.TabIndex = 4;
             this.btnPausar.Text = "Pausa";
@@ -355,24 +355,76 @@ namespace REPRODUCTOR_MUSICAL
             this.btnDetener.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(214)))), ((int)(((byte)(73)))), ((int)(((byte)(103)))));
             this.btnDetener.BorderRadius = 10;
             this.btnDetener.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(27)))), ((int)(((byte)(45)))));
+            this.btnDetener.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDetener.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.btnDetener.ForeColor = System.Drawing.Color.White;
             this.btnDetener.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(247)))), ((int)(((byte)(83)))), ((int)(((byte)(111)))));
             this.btnDetener.IconKind = REPRODUCTOR_MUSICAL.Views.ButtonIconKind.Stop;
-            this.btnDetener.Location = new System.Drawing.Point(240, 238);
+            this.btnDetener.Location = new System.Drawing.Point(234, 238);
             this.btnDetener.Name = "btnDetener";
-            this.btnDetener.Size = new System.Drawing.Size(98, 68);
+            this.btnDetener.Size = new System.Drawing.Size(104, 69);
             this.btnDetener.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(106)))), ((int)(((byte)(37)))), ((int)(((byte)(61)))));
             this.btnDetener.TabIndex = 5;
             this.btnDetener.Text = "Stop";
             this.btnDetener.UseVisualStyleBackColor = false;
+            // 
+            // btnAnterior
+            // 
+            this.btnAnterior.BackColor = System.Drawing.Color.Transparent;
+            this.btnAnterior.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(126)))), ((int)(((byte)(214)))));
+            this.btnAnterior.BorderRadius = 10;
+            this.btnAnterior.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(34)))), ((int)(((byte)(58)))));
+            this.btnAnterior.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAnterior.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAnterior.ForeColor = System.Drawing.Color.White;
+            this.btnAnterior.IconColor = System.Drawing.Color.White;
+            this.btnAnterior.IconKind = REPRODUCTOR_MUSICAL.Views.ButtonIconKind.None;
+            this.btnAnterior.Location = new System.Drawing.Point(31, 453);
+            this.btnAnterior.Name = "btnAnterior";
+            this.btnAnterior.Size = new System.Drawing.Size(86, 38);
+            this.btnAnterior.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(45)))), ((int)(((byte)(72)))));
+            this.btnAnterior.TabIndex = 15;
+            this.btnAnterior.Text = "<<";
+            this.btnAnterior.UseVisualStyleBackColor = false;
+            // 
+            // btnSiguiente
+            // 
+            this.btnSiguiente.BackColor = System.Drawing.Color.Transparent;
+            this.btnSiguiente.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(126)))), ((int)(((byte)(214)))));
+            this.btnSiguiente.BorderRadius = 10;
+            this.btnSiguiente.EndColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(34)))), ((int)(((byte)(58)))));
+            this.btnSiguiente.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSiguiente.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
+            this.btnSiguiente.ForeColor = System.Drawing.Color.White;
+            this.btnSiguiente.IconColor = System.Drawing.Color.White;
+            this.btnSiguiente.IconKind = REPRODUCTOR_MUSICAL.Views.ButtonIconKind.None;
+            this.btnSiguiente.Location = new System.Drawing.Point(236, 453);
+            this.btnSiguiente.Name = "btnSiguiente";
+            this.btnSiguiente.Size = new System.Drawing.Size(86, 38);
+            this.btnSiguiente.StartColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(45)))), ((int)(((byte)(72)))));
+            this.btnSiguiente.TabIndex = 16;
+            this.btnSiguiente.Text = ">>";
+            this.btnSiguiente.UseVisualStyleBackColor = false;
+            // 
+            // chkAleatorio
+            // 
+            this.chkAleatorio.AutoSize = true;
+            this.chkAleatorio.BackColor = System.Drawing.Color.Transparent;
+            this.chkAleatorio.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.chkAleatorio.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(240)))), ((int)(((byte)(214)))));
+            this.chkAleatorio.Location = new System.Drawing.Point(129, 462);
+            this.chkAleatorio.Name = "chkAleatorio";
+            this.chkAleatorio.Size = new System.Drawing.Size(94, 24);
+            this.chkAleatorio.TabIndex = 17;
+            this.chkAleatorio.Text = "Aleatorio";
+            this.chkAleatorio.UseVisualStyleBackColor = false;
             // 
             // lblTiempoActual
             // 
             this.lblTiempoActual.AutoSize = true;
             this.lblTiempoActual.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.lblTiempoActual.ForeColor = System.Drawing.Color.White;
-            this.lblTiempoActual.Location = new System.Drawing.Point(27, 317);
+            this.lblTiempoActual.Location = new System.Drawing.Point(25, 321);
             this.lblTiempoActual.Name = "lblTiempoActual";
             this.lblTiempoActual.Size = new System.Drawing.Size(50, 23);
             this.lblTiempoActual.TabIndex = 6;
@@ -381,22 +433,26 @@ namespace REPRODUCTOR_MUSICAL
             // trackPosicion
             // 
             this.trackPosicion.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(22)))), ((int)(((byte)(39)))));
+            this.trackPosicion.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackPosicion.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
-            this.trackPosicion.Location = new System.Drawing.Point(30, 342);
+            this.trackPosicion.Location = new System.Drawing.Point(30, 347);
             this.trackPosicion.Maximum = 1;
+            this.trackPosicion.Minimum = 0;
             this.trackPosicion.Name = "trackPosicion";
-            this.trackPosicion.Size = new System.Drawing.Size(308, 34);
+            this.trackPosicion.Size = new System.Drawing.Size(308, 24);
             this.trackPosicion.TabIndex = 7;
+            this.trackPosicion.TabStop = false;
             this.trackPosicion.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
             this.trackPosicion.TickFrequency = 0;
             this.trackPosicion.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackPosicion.TrackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(55)))), ((int)(((byte)(77)))));
+            this.trackPosicion.Value = 0;
             // 
             // lblTiempoTotal
             // 
             this.lblTiempoTotal.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.lblTiempoTotal.ForeColor = System.Drawing.Color.White;
-            this.lblTiempoTotal.Location = new System.Drawing.Point(257, 317);
+            this.lblTiempoTotal.Location = new System.Drawing.Point(257, 321);
             this.lblTiempoTotal.Name = "lblTiempoTotal";
             this.lblTiempoTotal.Size = new System.Drawing.Size(81, 23);
             this.lblTiempoTotal.TabIndex = 8;
@@ -408,7 +464,7 @@ namespace REPRODUCTOR_MUSICAL
             this.lblVolumen.AutoSize = true;
             this.lblVolumen.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.lblVolumen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(240)))), ((int)(((byte)(214)))));
-            this.lblVolumen.Location = new System.Drawing.Point(27, 388);
+            this.lblVolumen.Location = new System.Drawing.Point(27, 374);
             this.lblVolumen.Name = "lblVolumen";
             this.lblVolumen.Size = new System.Drawing.Size(101, 23);
             this.lblVolumen.TabIndex = 9;
@@ -417,12 +473,15 @@ namespace REPRODUCTOR_MUSICAL
             // trackVolumen
             // 
             this.trackVolumen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(22)))), ((int)(((byte)(39)))));
+            this.trackVolumen.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackVolumen.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
-            this.trackVolumen.Location = new System.Drawing.Point(30, 419);
+            this.trackVolumen.Location = new System.Drawing.Point(25, 400);
             this.trackVolumen.Maximum = 100;
+            this.trackVolumen.Minimum = 0;
             this.trackVolumen.Name = "trackVolumen";
-            this.trackVolumen.Size = new System.Drawing.Size(308, 34);
+            this.trackVolumen.Size = new System.Drawing.Size(308, 24);
             this.trackVolumen.TabIndex = 10;
+            this.trackVolumen.TabStop = false;
             this.trackVolumen.ThumbColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
             this.trackVolumen.TickFrequency = 10;
             this.trackVolumen.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -434,7 +493,7 @@ namespace REPRODUCTOR_MUSICAL
             this.lblModo.AutoSize = true;
             this.lblModo.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
             this.lblModo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(200)))), ((int)(((byte)(87)))));
-            this.lblModo.Location = new System.Drawing.Point(27, 477);
+            this.lblModo.Location = new System.Drawing.Point(21, 512);
             this.lblModo.Name = "lblModo";
             this.lblModo.Size = new System.Drawing.Size(151, 23);
             this.lblModo.TabIndex = 11;
@@ -445,20 +504,21 @@ namespace REPRODUCTOR_MUSICAL
             this.cmbModoVisualizacion.AccentColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
             this.cmbModoVisualizacion.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(18)))), ((int)(((byte)(32)))));
             this.cmbModoVisualizacion.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(221)))), ((int)(((byte)(218)))));
+            this.cmbModoVisualizacion.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.cmbModoVisualizacion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbModoVisualizacion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmbModoVisualizacion.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
             this.cmbModoVisualizacion.ForeColor = System.Drawing.Color.White;
             this.cmbModoVisualizacion.FormattingEnabled = true;
+            this.cmbModoVisualizacion.IntegralHeight = false;
             this.cmbModoVisualizacion.ItemHeight = 30;
             this.cmbModoVisualizacion.Items.AddRange(new object[] {
             "Barras de espectro",
             "Ondas circulares",
             "Particulas ritmicas",
             "Escena geometrica"});
-            this.cmbModoVisualizacion.Location = new System.Drawing.Point(30, 502);
+            this.cmbModoVisualizacion.Location = new System.Drawing.Point(25, 538);
             this.cmbModoVisualizacion.Name = "cmbModoVisualizacion";
-            this.cmbModoVisualizacion.SelectedIndex = 3;
             this.cmbModoVisualizacion.Size = new System.Drawing.Size(308, 36);
             this.cmbModoVisualizacion.TabIndex = 12;
             // 
@@ -471,13 +531,74 @@ namespace REPRODUCTOR_MUSICAL
             this.panelEncabezado.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelEncabezado.Location = new System.Drawing.Point(24, 24);
             this.panelEncabezado.Name = "panelEncabezado";
-            this.panelEncabezado.Size = new System.Drawing.Size(1232, 124);
+            this.panelEncabezado.Size = new System.Drawing.Size(1318, 124);
             this.panelEncabezado.TabIndex = 0;
+            // 
+            // panelMarca
+            // 
+            this.panelMarca.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelMarca.BackColor = System.Drawing.Color.Transparent;
+            this.panelMarca.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(62)))), ((int)(((byte)(92)))));
+            this.panelMarca.BorderRadius = 14;
+            this.panelMarca.Controls.Add(this.lblAutores);
+            this.panelMarca.Controls.Add(this.lblMateria);
+            this.panelMarca.Controls.Add(this.lblNrc);
+            this.panelMarca.Controls.Add(this.picLogoEspe);
+            this.panelMarca.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(24)))), ((int)(((byte)(41)))));
+            this.panelMarca.Location = new System.Drawing.Point(704, 0);
+            this.panelMarca.Name = "panelMarca";
+            this.panelMarca.Size = new System.Drawing.Size(614, 104);
+            this.panelMarca.TabIndex = 2;
+            // 
+            // lblAutores
+            // 
+            this.lblAutores.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
+            this.lblAutores.ForeColor = System.Drawing.Color.White;
+            this.lblAutores.Location = new System.Drawing.Point(17, 13);
+            this.lblAutores.Name = "lblAutores";
+            this.lblAutores.Size = new System.Drawing.Size(376, 24);
+            this.lblAutores.TabIndex = 0;
+            this.lblAutores.Text = "AUTORES: GOMEZ JOFFRE, BLACIO JULIO";
+            // 
+            // lblMateria
+            // 
+            this.lblMateria.AutoSize = true;
+            this.lblMateria.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblMateria.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(183)))), ((int)(((byte)(190)))), ((int)(((byte)(210)))));
+            this.lblMateria.Location = new System.Drawing.Point(17, 42);
+            this.lblMateria.Name = "lblMateria";
+            this.lblMateria.Size = new System.Drawing.Size(188, 21);
+            this.lblMateria.TabIndex = 1;
+            this.lblMateria.Text = "COMPUTACION GRAFICA";
+            // 
+            // lblNrc
+            // 
+            this.lblNrc.AutoSize = true;
+            this.lblNrc.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblNrc.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(240)))), ((int)(((byte)(214)))));
+            this.lblNrc.Location = new System.Drawing.Point(17, 70);
+            this.lblNrc.Name = "lblNrc";
+            this.lblNrc.Size = new System.Drawing.Size(95, 21);
+            this.lblNrc.TabIndex = 2;
+            this.lblNrc.Text = "NRC: 29505";
+            // 
+            // picLogoEspe
+            // 
+            this.picLogoEspe.BackColor = System.Drawing.Color.White;
+            this.picLogoEspe.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picLogoEspe.ImageLocation = "Assets\\logo1.png";
+            this.picLogoEspe.Location = new System.Drawing.Point(414, 11);
+            this.picLogoEspe.Name = "picLogoEspe";
+            this.picLogoEspe.Size = new System.Drawing.Size(180, 82);
+            this.picLogoEspe.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picLogoEspe.TabIndex = 3;
+            this.picLogoEspe.TabStop = false;
             // 
             // panelTituloIcono
             // 
             this.panelTituloIcono.BackColor = System.Drawing.Color.Transparent;
             this.panelTituloIcono.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(126)))), ((int)(((byte)(72)))), ((int)(((byte)(220)))));
+            this.panelTituloIcono.BorderRadius = 14;
             this.panelTituloIcono.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(26)))), ((int)(((byte)(77)))));
             this.panelTituloIcono.Location = new System.Drawing.Point(0, 30);
             this.panelTituloIcono.Name = "panelTituloIcono";
@@ -506,71 +627,22 @@ namespace REPRODUCTOR_MUSICAL
             this.lblSubtitulo.TabIndex = 1;
             this.lblSubtitulo.Text = "Animaciones sincronizadas con audio en tiempo real";
             // 
-            // panelMarca
+            // lblIconoCancion
             // 
-            this.panelMarca.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelMarca.BackColor = System.Drawing.Color.Transparent;
-            this.panelMarca.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(62)))), ((int)(((byte)(92)))));
-            this.panelMarca.Controls.Add(this.lblAutores);
-            this.panelMarca.Controls.Add(this.lblMateria);
-            this.panelMarca.Controls.Add(this.lblNrc);
-            this.panelMarca.Controls.Add(this.picLogoEspe);
-            this.panelMarca.Location = new System.Drawing.Point(618, 0);
-            this.panelMarca.Name = "panelMarca";
-            this.panelMarca.Size = new System.Drawing.Size(614, 104);
-            this.panelMarca.TabIndex = 2;
-            this.panelMarca.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(24)))), ((int)(((byte)(41)))));
-            // 
-            // lblAutores
-            // 
-            this.lblAutores.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
-            this.lblAutores.ForeColor = System.Drawing.Color.White;
-            this.lblAutores.Location = new System.Drawing.Point(17, 13);
-            this.lblAutores.Name = "lblAutores";
-            this.lblAutores.Size = new System.Drawing.Size(376, 24);
-            this.lblAutores.TabIndex = 0;
-            this.lblAutores.Text = "AUTORES: GOMEZ JOFFRE, BLACIO JULIO";
-            // 
-            // lblMateria
-            // 
-            this.lblMateria.AutoSize = true;
-            this.lblMateria.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.lblMateria.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(183)))), ((int)(((byte)(190)))), ((int)(((byte)(210)))));
-            this.lblMateria.Location = new System.Drawing.Point(17, 42);
-            this.lblMateria.Name = "lblMateria";
-            this.lblMateria.Size = new System.Drawing.Size(192, 21);
-            this.lblMateria.TabIndex = 1;
-            this.lblMateria.Text = "COMPUTACION GRAFICA";
-            // 
-            // lblNrc
-            // 
-            this.lblNrc.AutoSize = true;
-            this.lblNrc.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
-            this.lblNrc.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(240)))), ((int)(((byte)(214)))));
-            this.lblNrc.Location = new System.Drawing.Point(17, 70);
-            this.lblNrc.Name = "lblNrc";
-            this.lblNrc.Size = new System.Drawing.Size(88, 21);
-            this.lblNrc.TabIndex = 2;
-            this.lblNrc.Text = "NRC: 29505";
-            // 
-            // picLogoEspe
-            // 
-            this.picLogoEspe.BackColor = System.Drawing.Color.White;
-            this.picLogoEspe.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picLogoEspe.ImageLocation = "Assets\\logo1.png";
-            this.picLogoEspe.Location = new System.Drawing.Point(414, 11);
-            this.picLogoEspe.Name = "picLogoEspe";
-            this.picLogoEspe.Size = new System.Drawing.Size(180, 82);
-            this.picLogoEspe.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picLogoEspe.TabIndex = 3;
-            this.picLogoEspe.TabStop = false;
+            this.lblIconoCancion.Font = new System.Drawing.Font("Segoe UI Semibold", 28F, System.Drawing.FontStyle.Bold);
+            this.lblIconoCancion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(95)))), ((int)(((byte)(170)))));
+            this.lblIconoCancion.Location = new System.Drawing.Point(0, 1);
+            this.lblIconoCancion.Name = "lblIconoCancion";
+            this.lblIconoCancion.Size = new System.Drawing.Size(70, 66);
+            this.lblIconoCancion.TabIndex = 0;
+            this.lblIconoCancion.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // FrmHome
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(8)))), ((int)(((byte)(13)))), ((int)(((byte)(25)))));
-            this.ClientSize = new System.Drawing.Size(1280, 720);
+            this.ClientSize = new System.Drawing.Size(1366, 840);
             this.Controls.Add(this.panelPrincipal);
             this.Controls.Add(this.menuPrincipal);
             this.MainMenuStrip = this.menuPrincipal;
@@ -578,6 +650,7 @@ namespace REPRODUCTOR_MUSICAL
             this.Name = "FrmHome";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Reproductor Musical";
+            this.Load += new System.EventHandler(this.FrmHome_Load);
             this.menuPrincipal.ResumeLayout(false);
             this.menuPrincipal.PerformLayout();
             this.panelPrincipal.ResumeLayout(false);
@@ -588,7 +661,6 @@ namespace REPRODUCTOR_MUSICAL
             this.panelControles.PerformLayout();
             this.panelCancion.ResumeLayout(false);
             this.panelCancion.PerformLayout();
-            this.panelIconoCancion.ResumeLayout(false);
             this.panelEncabezado.ResumeLayout(false);
             this.panelEncabezado.PerformLayout();
             this.panelMarca.ResumeLayout(false);
@@ -633,6 +705,9 @@ namespace REPRODUCTOR_MUSICAL
         private REPRODUCTOR_MUSICAL.Views.GradientButton btnReproducir;
         private REPRODUCTOR_MUSICAL.Views.GradientButton btnPausar;
         private REPRODUCTOR_MUSICAL.Views.GradientButton btnDetener;
+        private REPRODUCTOR_MUSICAL.Views.GradientButton btnAnterior;
+        private REPRODUCTOR_MUSICAL.Views.GradientButton btnSiguiente;
+        private System.Windows.Forms.CheckBox chkAleatorio;
         private System.Windows.Forms.Label lblTiempoActual;
         private REPRODUCTOR_MUSICAL.Views.NeonSlider trackPosicion;
         private System.Windows.Forms.Label lblTiempoTotal;
@@ -643,3 +718,7 @@ namespace REPRODUCTOR_MUSICAL
         private REPRODUCTOR_MUSICAL.Views.MusicIconPanel panelTituloIcono;
     }
 }
+
+
+
+

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Windows.Forms;
 using REPRODUCTOR_MUSICAL.Models;
@@ -20,6 +20,12 @@ namespace REPRODUCTOR_MUSICAL
 
         public event EventHandler StopRequested;
 
+        public event EventHandler PreviousSongRequested;
+
+        public event EventHandler NextSongRequested;
+
+        public event EventHandler ShuffleModeChanged;
+
         public event EventHandler<SeekRequestedEventArgs> SeekRequested;
 
         public event EventHandler VolumeChanged;
@@ -36,6 +42,8 @@ namespace REPRODUCTOR_MUSICAL
         }
 
         public int Volume => trackVolumen.Value;
+
+        public bool IsShuffleEnabled => chkAleatorio.Checked;
 
         public string SelectedVisualizationMode => cmbModoVisualizacion.Text;
 
@@ -116,6 +124,9 @@ namespace REPRODUCTOR_MUSICAL
             btnReproducir.Click += (sender, args) => PlayRequested?.Invoke(this, EventArgs.Empty);
             btnPausar.Click += (sender, args) => PauseRequested?.Invoke(this, EventArgs.Empty);
             btnDetener.Click += (sender, args) => StopRequested?.Invoke(this, EventArgs.Empty);
+            btnAnterior.Click += (sender, args) => PreviousSongRequested?.Invoke(this, EventArgs.Empty);
+            btnSiguiente.Click += (sender, args) => NextSongRequested?.Invoke(this, EventArgs.Empty);
+            chkAleatorio.CheckedChanged += (sender, args) => ShuffleModeChanged?.Invoke(this, EventArgs.Empty);
             trackPosicion.Scroll += (sender, args) => SeekRequested?.Invoke(this, new SeekRequestedEventArgs(TimeSpan.FromSeconds(trackPosicion.Value)));
             trackVolumen.Scroll += (sender, args) => VolumeChanged?.Invoke(this, EventArgs.Empty);
             cmbModoVisualizacion.SelectedIndexChanged += (sender, args) => VisualizationModeChanged?.Invoke(this, EventArgs.Empty);
@@ -157,5 +168,11 @@ namespace REPRODUCTOR_MUSICAL
             trackPosicion.Value = Math.Max(trackPosicion.Minimum, Math.Min(trackPosicion.Maximum, (int)(ratio * trackPosicion.Maximum)));
             SeekRequested?.Invoke(this, new SeekRequestedEventArgs(TimeSpan.FromSeconds(trackPosicion.Value)));
         }
+
+        private void FrmHome_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
+

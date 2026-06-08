@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using REPRODUCTOR_MUSICAL.Models;
 
@@ -18,6 +18,12 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         event EventHandler StopRequested;
 
+        event EventHandler PreviousSongRequested;
+
+        event EventHandler NextSongRequested;
+
+        event EventHandler ShuffleModeChanged;
+
         event EventHandler<SeekRequestedEventArgs> SeekRequested;
 
         event EventHandler VolumeChanged;
@@ -27,6 +33,8 @@ namespace REPRODUCTOR_MUSICAL.Views
         event EventHandler ExitRequested;
 
         int Volume { get; }
+
+        bool IsShuffleEnabled { get; }
 
         string SelectedVisualizationMode { get; }
 
@@ -49,3 +57,4 @@ namespace REPRODUCTOR_MUSICAL.Views
         void ShowError(string message);
     }
 }
+

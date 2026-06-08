@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using REPRODUCTOR_MUSICAL.Graphics;
 using REPRODUCTOR_MUSICAL.Models;
@@ -11,6 +12,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
 {
     public class HomeController
     {
+        private static readonly string[] SupportedAudioExtensions = { ".mp3", ".wav", ".wma", ".aac" };
         private readonly IHomeView view;
         private readonly IAudioPlayerService audioPlayer;
         private readonly IAudioAnalysisService audioAnalysis;
@@ -18,7 +20,11 @@ namespace REPRODUCTOR_MUSICAL.Controllers
         private readonly Timer playbackTimer;
         private readonly Timer animationTimer;
         private readonly Dictionary<string, IVisualizer> visualizers;
+        private readonly List<string> playlist = new List<string>();
         private IVisualizer currentVisualizer;
+        private int playlistIndex = -1;
+        private bool isChangingSong;
+        private readonly Random random = new Random();
 
         public HomeController(IHomeView view, IAudioPlayerService audioPlayer, IAudioAnalysisService audioAnalysis, PlayerState playerState)
         {
@@ -44,6 +50,9 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             view.PlayRequested += HandlePlayRequested;
             view.PauseRequested += HandlePauseRequested;
             view.StopRequested += HandleStopRequested;
+            view.PreviousSongRequested += HandlePreviousSongRequested;
+            view.NextSongRequested += HandleNextSongRequested;
+            view.ShuffleModeChanged += HandleShuffleModeChanged;
             view.SeekRequested += HandleSeekRequested;
             view.VolumeChanged += HandleVolumeChanged;
             view.VisualizationModeChanged += HandleVisualizationModeChanged;
@@ -62,6 +71,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             audioPlayer.Volume = view.Volume;
             SelectVisualizer(view.SelectedVisualizationMode);
             view.ShowVisualizerPlaceholder(false);
+            LoadDefaultPlaylist();
             animationTimer.Start();
         }
 
@@ -76,14 +86,8 @@ namespace REPRODUCTOR_MUSICAL.Controllers
 
             try
             {
-                audioPlayer.Load(filePath);
-                audioAnalysis.Load(filePath);
-                audioPlayer.Volume = view.Volume;
-                playerState.LoadFile(filePath);
-                view.ShowSongInfo(Path.GetFileName(filePath));
-                view.ShowStatus("Cancion cargada");
-                view.ShowAnalysisMode(audioAnalysis.HasRealSamples ? "Analisis: FFT en tiempo real" : "Analisis: sin FFT real");
-                view.ShowPlaybackTime(TimeSpan.Zero, audioPlayer.Duration);
+                BuildPlaylistFromFolder(Path.GetDirectoryName(filePath), filePath);
+                LoadSong(filePath, $"Cancion cargada ({playlistIndex + 1}/{Math.Max(1, playlist.Count)})");
             }
             catch (Exception exception)
             {
@@ -138,6 +142,21 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             view.ShowPlaybackTime(TimeSpan.Zero, audioPlayer.Duration);
         }
 
+        private void HandlePreviousSongRequested(object sender, EventArgs e)
+        {
+            ChangePlaylistSong(-1, false);
+        }
+
+        private void HandleNextSongRequested(object sender, EventArgs e)
+        {
+            ChangePlaylistSong(1, view.IsShuffleEnabled);
+        }
+
+        private void HandleShuffleModeChanged(object sender, EventArgs e)
+        {
+            view.ShowStatus(view.IsShuffleEnabled ? "Aleatorio activado" : "Aleatorio desactivado");
+        }
+
         private void HandleSeekRequested(object sender, SeekRequestedEventArgs e)
         {
             if (!HasLoadedSong())
@@ -170,6 +189,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
         private void HandlePlaybackTimerTick(object sender, EventArgs e)
         {
             view.ShowPlaybackTime(audioPlayer.CurrentTime, audioPlayer.Duration);
+            AdvancePlaylistIfSongFinished();
         }
 
         private void HandleAnimationTimerTick(object sender, EventArgs e)
@@ -206,6 +226,167 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             return audioAnalysis.Analyze(audioPlayer.CurrentTime, view.Volume);
         }
 
+        private void LoadDefaultPlaylist()
+        {
+            var songsFolder = FindSongsFolder();
+            if (string.IsNullOrWhiteSpace(songsFolder))
+            {
+                return;
+            }
+
+            BuildPlaylistFromFolder(songsFolder, null);
+            if (playlist.Count == 0)
+            {
+                return;
+            }
+
+            playlistIndex = 0;
+            LoadSong(playlist[playlistIndex], $"Lista cargada ({playlist.Count} canciones)");
+        }
+
+        private void BuildPlaylistFromFolder(string folderPath, string selectedFile)
+        {
+            playlist.Clear();
+            playlistIndex = -1;
+
+            if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+            {
+                return;
+            }
+
+            playlist.AddRange(Directory.GetFiles(folderPath)
+                .Where(IsSupportedAudioFile)
+                .OrderBy(Path.GetFileName, StringComparer.CurrentCultureIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(selectedFile))
+            {
+                playlistIndex = playlist.FindIndex(file => string.Equals(file, selectedFile, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (playlistIndex < 0 && playlist.Count > 0)
+            {
+                playlistIndex = 0;
+            }
+        }
+
+        private void LoadSong(string filePath, string status)
+        {
+            audioPlayer.Load(filePath);
+            audioAnalysis.Load(filePath);
+            audioPlayer.Volume = view.Volume;
+            playerState.LoadFile(filePath);
+            view.ShowSongInfo(Path.GetFileName(filePath));
+            view.ShowStatus(status);
+            view.ShowAnalysisMode(audioAnalysis.HasRealSamples ? "Analisis: FFT en tiempo real" : "Analisis: sin FFT real");
+            view.ShowPlaybackTime(TimeSpan.Zero, audioPlayer.Duration);
+        }
+
+        private void AdvancePlaylistIfSongFinished()
+        {
+            if (isChangingSong || playerState.Status != PlayerStatus.Playing || playlist.Count == 0 || audioPlayer.Duration <= TimeSpan.Zero)
+            {
+                return;
+            }
+
+            if (audioPlayer.CurrentTime < audioPlayer.Duration - TimeSpan.FromMilliseconds(650))
+            {
+                return;
+            }
+
+            PlayNextSong(view.IsShuffleEnabled);
+        }
+
+        private void PlayNextSong(bool useShuffle)
+        {
+            ChangePlaylistSong(1, useShuffle, true);
+        }
+
+        private void ChangePlaylistSong(int direction, bool useShuffle)
+        {
+            ChangePlaylistSong(direction, useShuffle, playerState.Status == PlayerStatus.Playing);
+        }
+
+        private void ChangePlaylistSong(int direction, bool useShuffle, bool shouldPlay)
+        {
+            if (isChangingSong || playlist.Count == 0)
+            {
+                view.ShowError("No hay canciones en la lista.");
+                return;
+            }
+
+            isChangingSong = true;
+
+            try
+            {
+                playlistIndex = GetNextPlaylistIndex(direction, useShuffle);
+                var song = playlist[playlistIndex];
+                LoadSong(song, $"Lista {(view.IsShuffleEnabled ? "aleatoria" : "normal")} ({playlistIndex + 1}/{playlist.Count})");
+
+                if (shouldPlay)
+                {
+                    audioPlayer.Play();
+                    playerState.MarkPlaying();
+                    playbackTimer.Start();
+                    view.ShowStatus($"Reproduciendo lista ({playlistIndex + 1}/{playlist.Count})");
+                }
+            }
+            catch (Exception exception)
+            {
+                playbackTimer.Stop();
+                playerState.MarkStopped();
+                view.ShowError(exception.Message);
+            }
+            finally
+            {
+                isChangingSong = false;
+            }
+        }
+
+        private int GetNextPlaylistIndex(int direction, bool useShuffle)
+        {
+            if (playlist.Count <= 1)
+            {
+                return 0;
+            }
+
+            if (useShuffle)
+            {
+                var nextIndex = playlistIndex;
+                while (nextIndex == playlistIndex)
+                {
+                    nextIndex = random.Next(playlist.Count);
+                }
+
+                return nextIndex;
+            }
+
+            return (playlistIndex + direction + playlist.Count) % playlist.Count;
+        }
+
+        private static string FindSongsFolder()
+        {
+            var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            while (directory != null)
+            {
+                var candidate = Path.Combine(directory.FullName, "CANCIONES");
+                if (Directory.Exists(candidate))
+                {
+                    return candidate;
+                }
+
+                directory = directory.Parent;
+            }
+
+            return string.Empty;
+        }
+
+        private static bool IsSupportedAudioFile(string filePath)
+        {
+            var extension = Path.GetExtension(filePath);
+            return SupportedAudioExtensions.Any(item => string.Equals(item, extension, StringComparison.OrdinalIgnoreCase));
+        }
+
         private bool HasLoadedSong()
         {
             if (!string.IsNullOrWhiteSpace(playerState.CurrentFilePath))
@@ -218,3 +399,5 @@ namespace REPRODUCTOR_MUSICAL.Controllers
         }
     }
 }
+
+

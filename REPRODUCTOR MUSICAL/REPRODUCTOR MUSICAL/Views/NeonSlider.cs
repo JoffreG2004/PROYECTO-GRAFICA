@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -13,16 +13,16 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         public NeonSlider()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.Selectable, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.Opaque, true);
             DoubleBuffered = true;
-            Height = 34;
+            Height = 24;
             BackColor = Color.FromArgb(12, 22, 39);
-            TrackColor = Color.FromArgb(40, 53, 72);
+            TrackColor = Color.FromArgb(43, 55, 77);
             FillColor = Color.FromArgb(41, 221, 218);
             ThumbColor = Color.FromArgb(41, 221, 218);
             TickStyle = TickStyle.None;
             Cursor = Cursors.Hand;
-            TabStop = true;
+            TabStop = false;
         }
 
         public event EventHandler Scroll;
@@ -67,33 +67,33 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         public Color ThumbColor { get; set; }
 
+        protected override bool ShowFocusCues => false;
+
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using (var background = new SolidBrush(BackColor))
-            {
-                e.Graphics.FillRectangle(background, ClientRectangle);
-            }
+            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+            e.Graphics.Clear(BackColor);
 
-            var trackRect = new RectangleF(12, Height / 2f - 3, Width - 24, 6);
+            var trackRect = new RectangleF(12, Height / 2f - 3, Math.Max(1, Width - 24), 6);
             var ratio = (Value - Minimum) / (float)(Maximum - Minimum);
-            var fillRect = new RectangleF(trackRect.X, trackRect.Y, trackRect.Width * ratio, trackRect.Height);
-            var thumbX = trackRect.X + trackRect.Width * ratio;
+            var fillWidth = Math.Max(0, trackRect.Width * ratio);
+            var thumbX = trackRect.X + fillWidth;
 
             using (var trackBrush = new SolidBrush(TrackColor))
-            using (var fillBrush = new LinearGradientBrush(trackRect, FillColor, Color.FromArgb(77, 178, 255), LinearGradientMode.Horizontal))
+            using (var fillBrush = new SolidBrush(FillColor))
             using (var thumbBrush = new SolidBrush(ThumbColor))
-            using (var glowBrush = new SolidBrush(Color.FromArgb(55, ThumbColor)))
-            using (var focusPen = new Pen(Color.FromArgb(Focused ? 80 : 0, FillColor), 1))
+            using (var thumbGlow = new SolidBrush(Color.FromArgb(46, ThumbColor)))
             {
                 FillRound(e.Graphics, trackBrush, trackRect, 3);
-                FillRound(e.Graphics, fillBrush, fillRect, 3);
-                e.Graphics.FillEllipse(glowBrush, thumbX - 9, Height / 2f - 9, 18, 18);
-                e.Graphics.FillEllipse(thumbBrush, thumbX - 6, Height / 2f - 6, 12, 12);
-                if (Focused)
+
+                if (fillWidth > 0.5f)
                 {
-                    e.Graphics.DrawRectangle(focusPen, 1, 1, Width - 3, Height - 3);
+                    FillRound(e.Graphics, fillBrush, new RectangleF(trackRect.X, trackRect.Y, fillWidth, trackRect.Height), 3);
                 }
+
+                e.Graphics.FillEllipse(thumbGlow, thumbX - 9, Height / 2f - 9, 18, 18);
+                e.Graphics.FillEllipse(thumbBrush, thumbX - 6, Height / 2f - 6, 12, 12);
             }
         }
 
@@ -103,7 +103,6 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            Focus();
             SetValueFromMouse(e.X);
             Scroll?.Invoke(this, EventArgs.Empty);
             base.OnMouseDown(e);
