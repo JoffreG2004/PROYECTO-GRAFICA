@@ -10,13 +10,25 @@ namespace REPRODUCTOR_MUSICAL.Infrastructure
         public static Form CreateHomeForm()
         {
             var view = new FrmHome();
-            var audioPlayer = new MciAudioPlayerService();
+            var audioPlayer = CreateAudioPlayer();
             var audioAnalysis = new WavAudioAnalysisService();
             var playerState = new PlayerState();
             var controller = new HomeController(view, audioPlayer, audioAnalysis, playerState);
             controller.Initialize();
 
             return view;
+        }
+
+        private static IAudioPlayerService CreateAudioPlayer()
+        {
+            try
+            {
+                return new WindowsMediaAudioPlayerService();
+            }
+            catch
+            {
+                return new MciAudioPlayerService();
+            }
         }
     }
 }

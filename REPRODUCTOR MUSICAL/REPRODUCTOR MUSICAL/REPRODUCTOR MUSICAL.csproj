@@ -63,6 +63,7 @@
     <Compile Include="Services\AudioDynamicsProcessor.cs" />
     <Compile Include="Services\FftAnalyzer.cs" />
     <Compile Include="Services\MciAudioPlayerService.cs" />
+    <Compile Include="Services\WindowsMediaAudioPlayerService.cs" />
     <Compile Include="Services\WavAudioAnalysisService.cs" />
     <Compile Include="Views\FrmHome.cs">
       <SubType>Form</SubType>

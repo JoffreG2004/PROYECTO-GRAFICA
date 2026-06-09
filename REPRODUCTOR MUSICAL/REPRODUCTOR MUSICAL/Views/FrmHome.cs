@@ -64,7 +64,7 @@ namespace REPRODUCTOR_MUSICAL
             using (var dialog = new OpenFileDialog())
             {
                 dialog.Title = "Seleccionar cancion";
-                dialog.Filter = "Archivos de audio|*.mp3;*.wav;*.wma;*.aac|Todos los archivos|*.*";
+                dialog.Filter = "Archivos de audio|*.mp3;*.wav;*.wma;*.aac;*.m4a;*.flac|Todos los archivos|*.*";
                 dialog.Multiselect = false;
 
                 return dialog.ShowDialog(this) == DialogResult.OK ? dialog.FileName : string.Empty;

@@ -12,7 +12,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
 {
     public class HomeController
     {
-        private static readonly string[] SupportedAudioExtensions = { ".mp3", ".wav", ".wma", ".aac" };
+        private static readonly string[] SupportedAudioExtensions = { ".mp3", ".wav", ".wma", ".aac", ".m4a", ".flac" };
         private readonly IHomeView view;
         private readonly IAudioPlayerService audioPlayer;
         private readonly IAudioAnalysisService audioAnalysis;

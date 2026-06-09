@@ -67,3 +67,7 @@ C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\
 C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexVolumeAnalysisVerify\REPRODUCTOR MUSICAL.exe.config
 C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexVolumeAnalysisVerify\REPRODUCTOR MUSICAL.exe
 C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexVolumeAnalysisVerify\REPRODUCTOR MUSICAL.pdb
+C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexWmpVerify\Assets\logo1.png
+C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexWmpVerify\REPRODUCTOR MUSICAL.exe.config
+C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexWmpVerify\REPRODUCTOR MUSICAL.exe
+C:\Users\jcbla\Desktop\ESPE\Sexto Semestre\Computacion Grafica\PROYECTO-GRAFICA\REPRODUCTOR MUSICAL\REPRODUCTOR MUSICAL\obj\CodexWmpVerify\REPRODUCTOR MUSICAL.pdb
