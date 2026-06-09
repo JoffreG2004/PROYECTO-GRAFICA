@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Drawing;
 using System.Windows.Forms;
 using REPRODUCTOR_MUSICAL.Models;
 using REPRODUCTOR_MUSICAL.Views;
@@ -8,6 +9,16 @@ namespace REPRODUCTOR_MUSICAL
 {
     public partial class FrmHome : Form, IHomeView
     {
+        private const int SongTitleStartPauseTicks = 28;
+        private const int SongTitleEndPauseTicks = 22;
+        private const int SongTitleStep = 1;
+
+        private readonly Timer songTitleTimer = new Timer { Interval = 45 };
+        private int songTitleHomeLeft;
+        private int songTitleViewportWidth;
+        private int songTitleMinimumLeft;
+        private int songTitlePauseTicks;
+
         public event EventHandler ViewLoaded;
 
         public event EventHandler<PaintEventArgs> VisualizerPaintRequested;
@@ -37,6 +48,7 @@ namespace REPRODUCTOR_MUSICAL
         public FrmHome()
         {
             InitializeComponent();
+            InitializeSongTitleMarquee();
             WireEvents();
             ShowVolume(Volume);
         }
@@ -64,6 +76,8 @@ namespace REPRODUCTOR_MUSICAL
             lblCancion.Text = string.IsNullOrWhiteSpace(songName)
                 ? "Ninguna cancion cargada"
                 : FormatSongTitle(Path.GetFileNameWithoutExtension(songName));
+
+            ResetSongTitleMarquee();
         }
 
         public void ShowStatus(string status)
@@ -89,6 +103,13 @@ namespace REPRODUCTOR_MUSICAL
                 trackPosicion.Maximum = totalSeconds;
                 trackPosicion.Value = currentSeconds;
             }
+        }
+
+        public void ShowPlaybackControls(PlayerStatus status)
+        {
+            btnReproducir.IsActive = status == PlayerStatus.Playing;
+            btnPausar.IsActive = status == PlayerStatus.Paused;
+            btnDetener.IsActive = status == PlayerStatus.Stopped;
         }
 
         public void ShowVolume(int volume)
@@ -126,6 +147,7 @@ namespace REPRODUCTOR_MUSICAL
             btnDetener.Click += (sender, args) => StopRequested?.Invoke(this, EventArgs.Empty);
             btnAnterior.Click += (sender, args) => PreviousSongRequested?.Invoke(this, EventArgs.Empty);
             btnSiguiente.Click += (sender, args) => NextSongRequested?.Invoke(this, EventArgs.Empty);
+            toolTipPrincipal.SetToolTip(chkAleatorio, "Aleatorio");
             chkAleatorio.CheckedChanged += (sender, args) => ShuffleModeChanged?.Invoke(this, EventArgs.Empty);
             trackPosicion.Scroll += (sender, args) => SeekRequested?.Invoke(this, new SeekRequestedEventArgs(TimeSpan.FromSeconds(trackPosicion.Value)));
             trackVolumen.Scroll += (sender, args) => VolumeChanged?.Invoke(this, EventArgs.Empty);
@@ -136,6 +158,59 @@ namespace REPRODUCTOR_MUSICAL
             menuGeometria.Click += (sender, args) => SelectVisualizationMode("Escena geometrica");
             menuSalir.Click += (sender, args) => ExitRequested?.Invoke(this, EventArgs.Empty);
             panelVisualizador.Paint += (sender, args) => VisualizerPaintRequested?.Invoke(this, args);
+        }
+
+        private void InitializeSongTitleMarquee()
+        {
+            songTitleHomeLeft = lblCancion.Left;
+            songTitleViewportWidth = lblCancion.Width;
+            lblCancion.AutoEllipsis = false;
+            songTitleTimer.Tick += HandleSongTitleTimerTick;
+            panelTituloCancion.Resize += (sender, args) =>
+            {
+                songTitleViewportWidth = panelTituloCancion.Width;
+                ResetSongTitleMarquee();
+            };
+            ResetSongTitleMarquee();
+        }
+
+        private void ResetSongTitleMarquee()
+        {
+            songTitleTimer.Stop();
+            lblCancion.Left = songTitleHomeLeft;
+
+            var measuredTitle = TextRenderer.MeasureText(
+                lblCancion.Text,
+                lblCancion.Font,
+                new Size(int.MaxValue, lblCancion.Height),
+                TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
+
+            lblCancion.Width = Math.Max(songTitleViewportWidth, measuredTitle.Width + 8);
+            songTitleMinimumLeft = songTitleHomeLeft - Math.Max(0, lblCancion.Width - songTitleViewportWidth);
+            songTitlePauseTicks = SongTitleStartPauseTicks;
+
+            if (lblCancion.Width > songTitleViewportWidth)
+            {
+                songTitleTimer.Start();
+            }
+        }
+
+        private void HandleSongTitleTimerTick(object sender, EventArgs e)
+        {
+            if (songTitlePauseTicks > 0)
+            {
+                songTitlePauseTicks--;
+                return;
+            }
+
+            if (lblCancion.Left > songTitleMinimumLeft)
+            {
+                lblCancion.Left -= SongTitleStep;
+                return;
+            }
+
+            lblCancion.Left = songTitleHomeLeft;
+            songTitlePauseTicks = SongTitleStartPauseTicks + SongTitleEndPauseTicks;
         }
 
         private void SelectVisualizationMode(string mode)

@@ -48,6 +48,8 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         void ShowPlaybackTime(TimeSpan currentTime, TimeSpan duration);
 
+        void ShowPlaybackControls(PlayerStatus status);
+
         void ShowVolume(int volume);
 
         void RefreshVisualizer();

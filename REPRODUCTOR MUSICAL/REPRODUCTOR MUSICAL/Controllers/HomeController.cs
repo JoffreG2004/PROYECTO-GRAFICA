@@ -66,6 +66,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
         {
             view.ShowStatus("Detenido");
             view.ShowAnalysisMode("Analisis: esperando audio");
+            view.ShowPlaybackControls(PlayerStatus.Stopped);
             view.ShowVolume(view.Volume);
             view.ShowPlaybackTime(TimeSpan.Zero, TimeSpan.Zero);
             audioPlayer.Volume = view.Volume;
@@ -107,6 +108,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
                 audioPlayer.Play();
                 playerState.MarkPlaying();
                 playbackTimer.Start();
+                view.ShowPlaybackControls(playerState.Status);
                 view.ShowStatus("Reproduciendo");
             }
             catch (Exception exception)
@@ -122,10 +124,18 @@ namespace REPRODUCTOR_MUSICAL.Controllers
                 return;
             }
 
-            audioPlayer.Pause();
-            playerState.MarkPaused();
-            playbackTimer.Stop();
-            view.ShowStatus("Pausado");
+            try
+            {
+                audioPlayer.Pause();
+                playerState.MarkPaused();
+                playbackTimer.Stop();
+                view.ShowPlaybackControls(playerState.Status);
+                view.ShowStatus("Pausado");
+            }
+            catch (Exception exception)
+            {
+                view.ShowError(exception.Message);
+            }
         }
 
         private void HandleStopRequested(object sender, EventArgs e)
@@ -135,11 +145,19 @@ namespace REPRODUCTOR_MUSICAL.Controllers
                 return;
             }
 
-            audioPlayer.Stop();
-            playerState.MarkStopped();
-            playbackTimer.Stop();
-            view.ShowStatus("Detenido");
-            view.ShowPlaybackTime(TimeSpan.Zero, audioPlayer.Duration);
+            try
+            {
+                audioPlayer.Stop();
+                playerState.MarkStopped();
+                playbackTimer.Stop();
+                view.ShowPlaybackControls(playerState.Status);
+                view.ShowStatus("Detenido");
+                view.ShowPlaybackTime(TimeSpan.Zero, audioPlayer.Duration);
+            }
+            catch (Exception exception)
+            {
+                view.ShowError(exception.Message);
+            }
         }
 
         private void HandlePreviousSongRequested(object sender, EventArgs e)
@@ -164,8 +182,15 @@ namespace REPRODUCTOR_MUSICAL.Controllers
                 return;
             }
 
-            audioPlayer.Seek(e.Position);
-            view.ShowPlaybackTime(e.Position, audioPlayer.Duration);
+            try
+            {
+                audioPlayer.Seek(e.Position);
+                view.ShowPlaybackTime(e.Position, audioPlayer.Duration);
+            }
+            catch (Exception exception)
+            {
+                view.ShowError(exception.Message);
+            }
         }
 
         private void HandleVolumeChanged(object sender, EventArgs e)
@@ -218,7 +243,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
 
         private AudioFrame CalculateAudioFrame()
         {
-            if (playerState.Status != PlayerStatus.Playing)
+            if (!audioPlayer.IsLoaded || playerState.Status == PlayerStatus.Stopped)
             {
                 return new AudioFrame(0.16f, 0.16f, 0.16f, 0.16f, false);
             }
@@ -275,6 +300,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             audioAnalysis.Load(filePath);
             audioPlayer.Volume = view.Volume;
             playerState.LoadFile(filePath);
+            view.ShowPlaybackControls(playerState.Status);
             view.ShowSongInfo(Path.GetFileName(filePath));
             view.ShowStatus(status);
             view.ShowAnalysisMode(audioAnalysis.HasRealSamples ? "Analisis: FFT en tiempo real" : "Analisis: sin FFT real");
@@ -303,7 +329,8 @@ namespace REPRODUCTOR_MUSICAL.Controllers
 
         private void ChangePlaylistSong(int direction, bool useShuffle)
         {
-            ChangePlaylistSong(direction, useShuffle, playerState.Status == PlayerStatus.Playing);
+            var shouldKeepPlaying = playerState.Status == PlayerStatus.Playing;
+            ChangePlaylistSong(direction, useShuffle, shouldKeepPlaying);
         }
 
         private void ChangePlaylistSong(int direction, bool useShuffle, bool shouldPlay)
@@ -327,6 +354,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
                     audioPlayer.Play();
                     playerState.MarkPlaying();
                     playbackTimer.Start();
+                    view.ShowPlaybackControls(playerState.Status);
                     view.ShowStatus($"Reproduciendo lista ({playlistIndex + 1}/{playlist.Count})");
                 }
             }
@@ -334,6 +362,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             {
                 playbackTimer.Stop();
                 playerState.MarkStopped();
+                view.ShowPlaybackControls(playerState.Status);
                 view.ShowError(exception.Message);
             }
             finally

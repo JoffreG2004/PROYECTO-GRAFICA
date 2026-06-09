@@ -17,6 +17,7 @@ namespace REPRODUCTOR_MUSICAL.Views
     {
         private bool isHovered;
         private bool isPressed;
+        private bool isActive;
 
         public GradientButton()
         {
@@ -44,21 +45,39 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         public ButtonIconKind IconKind { get; set; }
 
+        public bool IsActive
+        {
+            get => isActive;
+            set
+            {
+                if (isActive == value)
+                {
+                    return;
+                }
+
+                isActive = value;
+                Invalidate();
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs pevent)
         {
             pevent.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
+            var glowAlpha = IsActive ? 190 : isHovered ? 120 : 70;
+            var glowWidth = IsActive ? 3.2f : isHovered ? 2f : 1.4f;
+            var iconGlowAlpha = IsActive ? 88 : 42;
 
             using (var path = CreateRoundedRectangle(rect, BorderRadius))
             using (var brush = new LinearGradientBrush(rect, Adjust(StartColor, 1.05f), EndColor, LinearGradientMode.Vertical))
-            using (var pen = new Pen(BorderColor, 1))
-            using (var glowPen = new Pen(Color.FromArgb(isHovered ? 120 : 70, BorderColor), isHovered ? 2f : 1.4f))
-            using (var topBrush = new LinearGradientBrush(rect, Color.FromArgb(isPressed ? 18 : 46, Color.White), Color.Transparent, LinearGradientMode.Vertical))
+            using (var pen = new Pen(BorderColor, IsActive ? 1.4f : 1f))
+            using (var glowPen = new Pen(Color.FromArgb(glowAlpha, BorderColor), glowWidth))
+            using (var topBrush = new LinearGradientBrush(rect, Color.FromArgb(isPressed ? 18 : IsActive ? 72 : 46, Color.White), Color.Transparent, LinearGradientMode.Vertical))
             {
                 pevent.Graphics.Clear(ResolveSurfaceColor());
-                if (isHovered)
+                if (isHovered || IsActive)
                 {
-                    using (var glowBrush = new SolidBrush(Color.FromArgb(26, BorderColor)))
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(IsActive ? 44 : 26, BorderColor)))
                     {
                         pevent.Graphics.FillPath(glowBrush, path);
                     }
@@ -68,7 +87,7 @@ namespace REPRODUCTOR_MUSICAL.Views
                 pevent.Graphics.FillPath(topBrush, path);
                 pevent.Graphics.DrawPath(glowPen, path);
                 pevent.Graphics.DrawPath(pen, path);
-                DrawIcon(pevent.Graphics, rect);
+                DrawIcon(pevent.Graphics, rect, iconGlowAlpha);
                 DrawButtonText(pevent.Graphics, rect);
             }
         }
@@ -93,7 +112,7 @@ namespace REPRODUCTOR_MUSICAL.Views
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
-        private void DrawIcon(System.Drawing.Graphics graphics, Rectangle rect)
+        private void DrawIcon(System.Drawing.Graphics graphics, Rectangle rect, int glowAlpha)
         {
             if (IconKind == ButtonIconKind.None)
             {
@@ -104,7 +123,7 @@ namespace REPRODUCTOR_MUSICAL.Views
                 ? new PointF(rect.Left + 40, rect.Top + rect.Height / 2f)
                 : new PointF(rect.Left + rect.Width / 2f, rect.Top + 24);
 
-            using (var glowBrush = new SolidBrush(Color.FromArgb(42, IconColor)))
+            using (var glowBrush = new SolidBrush(Color.FromArgb(glowAlpha, IconColor)))
             using (var brush = new SolidBrush(IconColor))
             using (var pen = new Pen(IconColor, IconKind == ButtonIconKind.Upload ? 2.5f : 2.2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
             {

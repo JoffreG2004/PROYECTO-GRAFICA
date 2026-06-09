@@ -9,7 +9,7 @@ namespace REPRODUCTOR_MUSICAL.Services
     {
         private const string Alias = "ReproductorMusicalAudio";
         private bool isLoaded;
-        private int volume = 70;
+        private int volume = 50;
         private string cachedAudioPath = string.Empty;
 
         public TimeSpan CurrentTime => isLoaded ? TimeSpan.FromMilliseconds(GetStatusValue("position")) : TimeSpan.Zero;
@@ -51,27 +51,36 @@ namespace REPRODUCTOR_MUSICAL.Services
         public void Play()
         {
             EnsureLoaded();
-            SendCommand($"play {Alias}");
+            SendCommand($"play {Alias} from {Math.Max(0, (int)CurrentTime.TotalMilliseconds)}");
         }
 
         public void Pause()
         {
             EnsureLoaded();
-            SendCommand($"pause {Alias}");
+            if (GetMode() == "playing")
+            {
+                SendCommand($"pause {Alias}");
+            }
         }
 
         public void Stop()
         {
             EnsureLoaded();
-            SendCommand($"stop {Alias}");
-            SendCommand($"seek {Alias} to start");
+            TrySendCommand($"stop {Alias}");
+            Seek(TimeSpan.Zero);
         }
 
         public void Seek(TimeSpan position)
         {
             EnsureLoaded();
             var milliseconds = Math.Max(0, (int)position.TotalMilliseconds);
+            var shouldResume = GetMode() == "playing";
             SendCommand($"seek {Alias} to {milliseconds}");
+
+            if (shouldResume)
+            {
+                SendCommand($"play {Alias} from {milliseconds}");
+            }
         }
 
         private void CloseCurrentAudio()
@@ -81,16 +90,27 @@ namespace REPRODUCTOR_MUSICAL.Services
                 return;
             }
 
-            SendCommand($"close {Alias}");
+            TrySendCommand($"close {Alias}");
             isLoaded = false;
         }
 
         private int GetStatusValue(string statusName)
         {
             var buffer = new StringBuilder(128);
-            SendCommand($"status {Alias} {statusName}", buffer, buffer.Capacity);
+            if (!TrySendCommand($"status {Alias} {statusName}", buffer, buffer.Capacity))
+            {
+                return 0;
+            }
 
             return int.TryParse(buffer.ToString(), out var value) ? value : 0;
+        }
+
+        private string GetMode()
+        {
+            var buffer = new StringBuilder(64);
+            return TrySendCommand($"status {Alias} mode", buffer, buffer.Capacity)
+                ? buffer.ToString().Trim().ToLowerInvariant()
+                : string.Empty;
         }
 
         private static string BuildOpenCommand(string filePath)
@@ -146,6 +166,19 @@ namespace REPRODUCTOR_MUSICAL.Services
             try
             {
                 SendCommand(command);
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+        }
+
+        private static bool TrySendCommand(string command, StringBuilder returnValue, int returnLength)
+        {
+            try
+            {
+                SendCommand(command, returnValue, returnLength);
                 return true;
             }
             catch (InvalidOperationException)

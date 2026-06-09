@@ -29,6 +29,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.toolTipPrincipal = new System.Windows.Forms.ToolTip(this.components);
             this.menuPrincipal = new System.Windows.Forms.MenuStrip();
             this.menuArchivo = new System.Windows.Forms.ToolStripMenuItem();
             this.menuCargarCancion = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,6 +46,7 @@
             this.lblVisualizador = new System.Windows.Forms.Label();
             this.panelControles = new REPRODUCTOR_MUSICAL.Views.RoundedPanel();
             this.panelCancion = new REPRODUCTOR_MUSICAL.Views.RoundedPanel();
+            this.panelTituloCancion = new System.Windows.Forms.Panel();
             this.lblCancion = new System.Windows.Forms.Label();
             this.lblAnalisis = new System.Windows.Forms.Label();
             this.panelIconoCancion = new REPRODUCTOR_MUSICAL.Views.MusicIconPanel();
@@ -54,7 +57,7 @@
             this.btnDetener = new REPRODUCTOR_MUSICAL.Views.GradientButton();
             this.btnAnterior = new REPRODUCTOR_MUSICAL.Views.GradientButton();
             this.btnSiguiente = new REPRODUCTOR_MUSICAL.Views.GradientButton();
-            this.chkAleatorio = new System.Windows.Forms.CheckBox();
+            this.chkAleatorio = new REPRODUCTOR_MUSICAL.Views.ShuffleToggle();
             this.lblTiempoActual = new System.Windows.Forms.Label();
             this.trackPosicion = new REPRODUCTOR_MUSICAL.Views.NeonSlider();
             this.lblTiempoTotal = new System.Windows.Forms.Label();
@@ -78,6 +81,7 @@
             this.panelVisualizador.SuspendLayout();
             this.panelControles.SuspendLayout();
             this.panelCancion.SuspendLayout();
+            this.panelTituloCancion.SuspendLayout();
             this.panelEncabezado.SuspendLayout();
             this.panelMarca.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picLogoEspe)).BeginInit();
@@ -239,7 +243,7 @@
             this.panelCancion.BackColor = System.Drawing.Color.Transparent;
             this.panelCancion.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(61)))), ((int)(((byte)(96)))));
             this.panelCancion.BorderRadius = 14;
-            this.panelCancion.Controls.Add(this.lblCancion);
+            this.panelCancion.Controls.Add(this.panelTituloCancion);
             this.panelCancion.Controls.Add(this.lblAnalisis);
             this.panelCancion.Controls.Add(this.panelIconoCancion);
             this.panelCancion.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(27)))), ((int)(((byte)(48)))));
@@ -248,12 +252,21 @@
             this.panelCancion.Size = new System.Drawing.Size(313, 105);
             this.panelCancion.TabIndex = 14;
             // 
+            // panelTituloCancion
+            // 
+            this.panelTituloCancion.BackColor = System.Drawing.Color.Transparent;
+            this.panelTituloCancion.Controls.Add(this.lblCancion);
+            this.panelTituloCancion.Location = new System.Drawing.Point(99, 19);
+            this.panelTituloCancion.Name = "panelTituloCancion";
+            this.panelTituloCancion.Size = new System.Drawing.Size(198, 43);
+            this.panelTituloCancion.TabIndex = 15;
+            // 
             // lblCancion
             // 
             this.lblCancion.AutoEllipsis = true;
             this.lblCancion.Font = new System.Drawing.Font("Segoe UI Semibold", 11.5F, System.Drawing.FontStyle.Bold);
             this.lblCancion.ForeColor = System.Drawing.Color.White;
-            this.lblCancion.Location = new System.Drawing.Point(99, 19);
+            this.lblCancion.Location = new System.Drawing.Point(0, 0);
             this.lblCancion.Name = "lblCancion";
             this.lblCancion.Size = new System.Drawing.Size(198, 43);
             this.lblCancion.TabIndex = 0;
@@ -408,15 +421,19 @@
             // 
             // chkAleatorio
             // 
-            this.chkAleatorio.AutoSize = true;
+            this.chkAleatorio.Appearance = System.Windows.Forms.Appearance.Button;
+            this.chkAleatorio.AutoSize = false;
             this.chkAleatorio.BackColor = System.Drawing.Color.Transparent;
+            this.chkAleatorio.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.chkAleatorio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkAleatorio.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.chkAleatorio.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(240)))), ((int)(((byte)(214)))));
-            this.chkAleatorio.Location = new System.Drawing.Point(129, 462);
+            this.chkAleatorio.Location = new System.Drawing.Point(146, 453);
             this.chkAleatorio.Name = "chkAleatorio";
-            this.chkAleatorio.Size = new System.Drawing.Size(94, 24);
+            this.chkAleatorio.Size = new System.Drawing.Size(52, 38);
             this.chkAleatorio.TabIndex = 17;
-            this.chkAleatorio.Text = "Aleatorio";
+            this.chkAleatorio.Text = "";
+            this.chkAleatorio.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.chkAleatorio.UseVisualStyleBackColor = false;
             // 
             // lblTiempoActual
@@ -468,7 +485,7 @@
             this.lblVolumen.Name = "lblVolumen";
             this.lblVolumen.Size = new System.Drawing.Size(101, 23);
             this.lblVolumen.TabIndex = 9;
-            this.lblVolumen.Text = "Volumen 70";
+            this.lblVolumen.Text = "Volumen 50";
             // 
             // trackVolumen
             // 
@@ -486,7 +503,7 @@
             this.trackVolumen.TickFrequency = 10;
             this.trackVolumen.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackVolumen.TrackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(55)))), ((int)(((byte)(77)))));
-            this.trackVolumen.Value = 70;
+            this.trackVolumen.Value = 50;
             // 
             // lblModo
             // 
@@ -661,6 +678,7 @@
             this.panelControles.PerformLayout();
             this.panelCancion.ResumeLayout(false);
             this.panelCancion.PerformLayout();
+            this.panelTituloCancion.ResumeLayout(false);
             this.panelEncabezado.ResumeLayout(false);
             this.panelEncabezado.PerformLayout();
             this.panelMarca.ResumeLayout(false);
@@ -682,6 +700,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuOndas;
         private System.Windows.Forms.ToolStripMenuItem menuParticulas;
         private System.Windows.Forms.ToolStripMenuItem menuGeometria;
+        private System.Windows.Forms.ToolTip toolTipPrincipal;
         private System.Windows.Forms.Panel panelPrincipal;
         private System.Windows.Forms.Panel panelEncabezado;
         private System.Windows.Forms.Label lblTitulo;
@@ -696,6 +715,7 @@
         private System.Windows.Forms.Label lblVisualizador;
         private REPRODUCTOR_MUSICAL.Views.RoundedPanel panelControles;
         private REPRODUCTOR_MUSICAL.Views.RoundedPanel panelCancion;
+        private System.Windows.Forms.Panel panelTituloCancion;
         private REPRODUCTOR_MUSICAL.Views.MusicIconPanel panelIconoCancion;
         private System.Windows.Forms.Label lblIconoCancion;
         private System.Windows.Forms.Label lblCancion;
@@ -707,7 +727,7 @@
         private REPRODUCTOR_MUSICAL.Views.GradientButton btnDetener;
         private REPRODUCTOR_MUSICAL.Views.GradientButton btnAnterior;
         private REPRODUCTOR_MUSICAL.Views.GradientButton btnSiguiente;
-        private System.Windows.Forms.CheckBox chkAleatorio;
+        private REPRODUCTOR_MUSICAL.Views.ShuffleToggle chkAleatorio;
         private System.Windows.Forms.Label lblTiempoActual;
         private REPRODUCTOR_MUSICAL.Views.NeonSlider trackPosicion;
         private System.Windows.Forms.Label lblTiempoTotal;
