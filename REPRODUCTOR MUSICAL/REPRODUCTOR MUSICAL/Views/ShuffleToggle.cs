@@ -20,15 +20,21 @@ namespace REPRODUCTOR_MUSICAL.Views
             BackColor = Color.Transparent;
             FlatStyle = FlatStyle.Flat;
             Size = new Size(52, 38);
+            AccentColor = Color.FromArgb(41, 221, 218);
+            SecondaryColor = Color.FromArgb(74, 126, 214);
         }
+
+        public Color AccentColor { get; set; }
+
+        public Color SecondaryColor { get; set; }
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
             pevent.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
-            var borderColor = Checked ? Color.FromArgb(41, 221, 218) : Color.FromArgb(74, 126, 214);
-            var startColor = Checked ? Color.FromArgb(18, 104, 111) : Color.FromArgb(16, 45, 72);
-            var endColor = Checked ? Color.FromArgb(13, 58, 75) : Color.FromArgb(18, 34, 58);
+            var borderColor = Checked ? AccentColor : SecondaryColor;
+            var startColor = Checked ? Blend(AccentColor, Color.Black, 0.48f) : Blend(SecondaryColor, Color.Black, 0.58f);
+            var endColor = Checked ? Blend(AccentColor, Color.Black, 0.70f) : Blend(SecondaryColor, Color.Black, 0.74f);
             var iconColor = Checked ? Color.White : Color.FromArgb(226, 241, 255);
 
             using (var path = CreateRoundedRectangle(rect, 10))
@@ -166,6 +172,15 @@ namespace REPRODUCTOR_MUSICAL.Views
             path.CloseFigure();
 
             return path;
+        }
+
+        private static Color Blend(Color first, Color second, float amount)
+        {
+            amount = Math.Max(0, Math.Min(1, amount));
+            return Color.FromArgb(
+                (int)(first.R + (second.R - first.R) * amount),
+                (int)(first.G + (second.G - first.G) * amount),
+                (int)(first.B + (second.B - first.B) * amount));
         }
     }
 }

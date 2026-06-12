@@ -5,15 +5,31 @@ namespace REPRODUCTOR_MUSICAL.Views
 {
     public class MusicIconPanel : RoundedPanel
     {
+        public MusicIconPanel()
+        {
+            ShowBarsIcon = true;
+            BarsPrimaryColor = Color.FromArgb(41, 221, 218);
+            BarsSecondaryColor = Color.FromArgb(255, 95, 170);
+        }
+
+        public bool ShowBarsIcon { get; set; }
+
+        public Color BarsPrimaryColor { get; set; }
+
+        public Color BarsSecondaryColor { get; set; }
+
         protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
         {
-            FillColor = Color.FromArgb(39, 26, 77);
-            BorderColor = Color.FromArgb(126, 72, 220);
             base.OnPaint(e);
 
+            if (!ShowBarsIcon)
+            {
+                return;
+            }
+
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using (var pen = new Pen(Color.FromArgb(41, 221, 218), 3) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-            using (var pinkPen = new Pen(Color.FromArgb(255, 95, 170), 3) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            using (var pen = new Pen(BarsPrimaryColor, 3) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            using (var pinkPen = new Pen(BarsSecondaryColor, 3) { StartCap = LineCap.Round, EndCap = LineCap.Round })
             {
                 var centerY = Height / 2;
                 for (var i = 0; i < 7; i++)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using REPRODUCTOR_MUSICAL.Models;
@@ -7,19 +7,18 @@ namespace REPRODUCTOR_MUSICAL.Graphics
 {
     public class ParticleVisualizer : IVisualizer
     {
-        private const int StreamCount = 7;
-        private const int StreamParticles = 46;
-        private const int ConstellationNodes = 54;
-        private const int CrystalCount = 18;
+        private const int RoadLineCount = 26;
+        private const int BuildingCount = 34;
+        private const int StarCount = 80;
         private float phase;
         private AudioFrame currentFrame = new AudioFrame(0.16f, 0.16f, 0.16f, 0.16f, false);
 
-        public string Name => "Particulas ritmicas";
+        public string Name => "Autopista Neon";
 
         public void Update(AudioFrame audioFrame)
         {
             currentFrame = audioFrame;
-            phase += 0.050f + audioFrame.Intensity * 0.10f + audioFrame.Pulse * 0.16f;
+            phase += 0.030f + audioFrame.Intensity * 0.10f + audioFrame.Bass * 0.09f + audioFrame.Pulse * 0.16f;
         }
 
         public void Render(System.Drawing.Graphics graphics, Rectangle bounds)
@@ -27,217 +26,256 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
 
-            DrawBackground(graphics, bounds);
-            DrawAuroraVeils(graphics, bounds);
-            DrawConstellation(graphics, bounds);
-            DrawEnergyStreams(graphics, bounds);
-            DrawBeatCrystals(graphics, bounds);
-            DrawFineSparkles(graphics, bounds);
+            DrawSky(graphics, bounds);
+            DrawSunAndHorizon(graphics, bounds);
+            DrawCity(graphics, bounds);
+            DrawRoad(graphics, bounds);
+            DrawLaneLines(graphics, bounds);
+            DrawSpeedTrails(graphics, bounds);
+            DrawBeatHeadlights(graphics, bounds);
         }
 
-        private void DrawBackground(System.Drawing.Graphics graphics, Rectangle bounds)
+        private void DrawSky(System.Drawing.Graphics graphics, Rectangle bounds)
         {
             using (var brush = new LinearGradientBrush(
                 bounds,
-                Color.FromArgb(5, 8, 16),
-                Color.FromArgb(18, 13, 34),
-                LinearGradientMode.ForwardDiagonal))
+                Color.FromArgb(4, 6, 18),
+                Color.FromArgb(28, 8, 45),
+                LinearGradientMode.Vertical))
             {
                 graphics.FillRectangle(brush, bounds);
             }
 
-            DrawGlow(graphics, bounds, bounds.Width * 0.25f, bounds.Height * 0.35f, Color.FromArgb(255, 95, 170), 0.34f);
-            DrawGlow(graphics, bounds, bounds.Width * 0.78f, bounds.Height * 0.28f, Color.FromArgb(41, 221, 218), 0.34f);
-            DrawGlow(graphics, bounds, bounds.Width * 0.50f, bounds.Height * 0.78f, Color.FromArgb(255, 215, 86), 0.28f);
-        }
+            DrawGlow(graphics, bounds, bounds.Width * 0.50f, bounds.Height * 0.36f, Color.FromArgb(255, 67, 181), 0.40f);
+            DrawGlow(graphics, bounds, bounds.Width * 0.72f, bounds.Height * 0.18f, Color.FromArgb(48, 225, 255), 0.22f);
 
-        private void DrawGlow(System.Drawing.Graphics graphics, Rectangle bounds, float x, float y, Color color, float scale)
-        {
-            var radius = Math.Min(bounds.Width, bounds.Height) * (scale + currentFrame.Intensity * 0.05f + currentFrame.Pulse * 0.06f);
-            using (var path = new GraphicsPath())
+            for (var i = 0; i < StarCount; i++)
             {
-                path.AddEllipse(x - radius, y - radius, radius * 2, radius * 2);
-                using (var brush = new PathGradientBrush(path))
-                {
-                    brush.CenterColor = Color.FromArgb(34 + (int)(currentFrame.Pulse * 34), color);
-                    brush.SurroundColors = new[] { Color.FromArgb(0, color) };
-                    graphics.FillPath(brush, path);
-                }
-            }
-        }
-
-        private void DrawAuroraVeils(System.Drawing.Graphics graphics, Rectangle bounds)
-        {
-            for (var layer = 0; layer < 4; layer++)
-            {
-                var points = new PointF[90];
-                var baseY = bounds.Height * (0.28f + layer * 0.14f);
-                var color = layer == 0 ? Color.FromArgb(255, 95, 170)
-                    : layer == 1 ? Color.FromArgb(255, 215, 86)
-                    : layer == 2 ? Color.FromArgb(41, 221, 218)
-                    : Color.FromArgb(126, 118, 255);
-
-                for (var i = 0; i < points.Length; i++)
-                {
-                    var t = i / (float)(points.Length - 1);
-                    var band = GetSpectrumValue((t + layer * 0.17f) % 1f);
-                    var x = t * bounds.Width;
-                    var wave = Math.Sin(phase * (1.2f + layer * 0.22f) + t * Math.PI * (3.5f + layer));
-                    var y = baseY + (float)wave * (22 + band * 95 + currentFrame.Pulse * 28);
-                    points[i] = new PointF(x, y);
-                }
-
-                using (var glowPen = new Pen(Color.FromArgb(28 + layer * 4, color), 16 - layer * 2) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round })
-                using (var pen = new Pen(Color.FromArgb(110, color), 1.6f + currentFrame.Pulse * 1.2f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round })
-                {
-                    graphics.DrawLines(glowPen, points);
-                    graphics.DrawLines(pen, points);
-                }
-            }
-        }
-
-        private void DrawEnergyStreams(System.Drawing.Graphics graphics, Rectangle bounds)
-        {
-            for (var stream = 0; stream < StreamCount; stream++)
-            {
-                var offset = stream / (float)(StreamCount - 1);
-                var streamColor = GetParticleColor(offset, 220);
-
-                for (var i = 0; i < StreamParticles; i++)
-                {
-                    var t = i / (float)(StreamParticles - 1);
-                    var band = GetSpectrumValue((t * 0.75f + offset * 0.38f) % 1f);
-                    var flow = (t + phase * (0.045f + stream * 0.004f) + offset) % 1f;
-                    var x = bounds.Width * flow;
-                    var diagonal = bounds.Height * (0.18f + offset * 0.68f) + (flow - 0.5f) * bounds.Height * 0.30f;
-                    var y = diagonal + (float)Math.Sin(phase * 2.0f + i * 0.34f + stream) * (24 + band * 90);
-                    var size = 2.2f + band * 13 + currentFrame.Pulse * 3.5f + (stream % 3) * 0.8f;
-                    var alpha = ClampAlpha(78 + band * 140 + currentFrame.Pulse * 35);
-                    var color = BlendColor(streamColor, GetParticleColor(t, 255), 0.38f + band * 0.28f);
-
-                    DrawGlowParticle(graphics, x, y, size, Color.FromArgb(alpha, color));
-
-                    if (i > 0 && i % 4 == 0)
-                    {
-                        var trailX = x - bounds.Width * 0.035f;
-                        var trailY = y - 10 - band * 20;
-                        using (var pen = new Pen(Color.FromArgb(28 + (int)(band * 55), color), 1.1f + band * 1.3f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-                        {
-                            graphics.DrawLine(pen, trailX, trailY, x, y);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void DrawConstellation(System.Drawing.Graphics graphics, Rectangle bounds)
-        {
-            var points = new PointF[ConstellationNodes];
-            var energies = new float[ConstellationNodes];
-
-            for (var i = 0; i < ConstellationNodes; i++)
-            {
-                var t = i / (float)ConstellationNodes;
+                var t = i / (float)StarCount;
                 var band = GetSpectrumValue(t);
-                var baseX = bounds.Width * (0.12f + 0.76f * Hash01(i * 11.7f));
-                var baseY = bounds.Height * (0.16f + 0.68f * Hash01(i * 29.4f));
-                var driftX = (float)Math.Sin(phase * 1.1f + i * 0.61f) * (12 + band * 45 + currentFrame.Treble * 20);
-                var driftY = (float)Math.Cos(phase * 1.3f + i * 0.48f) * (10 + band * 38 + currentFrame.Mid * 18);
-                points[i] = new PointF(baseX + driftX, baseY + driftY);
-                energies[i] = band;
-            }
-
-            for (var i = 0; i < ConstellationNodes; i++)
-            {
-                for (var step = 1; step <= 2; step++)
-                {
-                    var other = (i + 9 * step) % ConstellationNodes;
-                    var dx = points[i].X - points[other].X;
-                    var dy = points[i].Y - points[other].Y;
-                    var distance = Math.Sqrt(dx * dx + dy * dy);
-                    if (distance > bounds.Width * 0.20f)
-                    {
-                        continue;
-                    }
-
-                    var energy = (energies[i] + energies[other]) * 0.5f;
-                    var alpha = ClampAlpha(14 + energy * 65 + currentFrame.Pulse * 16);
-                    using (var pen = new Pen(Color.FromArgb(alpha, 109, 240, 214), 1f + energy * 1.1f))
-                    {
-                        graphics.DrawLine(pen, points[i], points[other]);
-                    }
-                }
-            }
-
-            for (var i = 0; i < ConstellationNodes; i++)
-            {
-                var color = GetParticleColor(i / (float)ConstellationNodes, ClampAlpha(82 + energies[i] * 120));
-                DrawGlowParticle(graphics, points[i].X, points[i].Y, 3.5f + energies[i] * 12 + currentFrame.Pulse * 2.5f, color);
-            }
-        }
-
-        private void DrawBeatCrystals(System.Drawing.Graphics graphics, Rectangle bounds)
-        {
-            for (var i = 0; i < CrystalCount; i++)
-            {
-                var t = i / (float)CrystalCount;
-                var band = GetSpectrumValue((t + 0.2f) % 1f);
-                var x = bounds.Width * (0.10f + Hash01(i * 7.13f) * 0.80f);
-                var y = bounds.Height * (0.14f + Hash01(i * 5.91f) * 0.72f);
-                var radius = 8 + band * 28 + currentFrame.Pulse * 24;
-                var rotation = phase * (0.8f + i * 0.02f) + i;
-                var color = GetParticleColor(t, ClampAlpha(42 + band * 95 + currentFrame.Pulse * 115));
-
-                DrawCrystal(graphics, new PointF(x, y), radius, rotation, color);
-            }
-        }
-
-        private void DrawCrystal(System.Drawing.Graphics graphics, PointF center, float radius, float rotation, Color color)
-        {
-            var points = new PointF[4];
-            for (var i = 0; i < points.Length; i++)
-            {
-                var angle = rotation + Math.PI / 4 + i * Math.PI * 2 / points.Length;
-                var r = i % 2 == 0 ? radius : radius * 0.48f;
-                points[i] = new PointF(center.X + (float)Math.Cos(angle) * r, center.Y + (float)Math.Sin(angle) * r);
-            }
-
-            using (var brush = new SolidBrush(Color.FromArgb(Math.Min(50, color.A / 3), color)))
-            using (var pen = new Pen(color, 1.2f + currentFrame.Pulse * 1.2f) { LineJoin = LineJoin.Round })
-            {
-                graphics.FillPolygon(brush, points);
-                graphics.DrawPolygon(pen, points);
-            }
-        }
-
-        private void DrawFineSparkles(System.Drawing.Graphics graphics, Rectangle bounds)
-        {
-            for (var i = 0; i < 85; i++)
-            {
-                var t = i / 85f;
-                var band = GetSpectrumValue(t);
-                var x = bounds.Width * Hash01(i * 37.1f) + (float)Math.Sin(phase + i) * 12;
-                var y = bounds.Height * Hash01(i * 53.8f) + (float)Math.Cos(phase * 1.4f + i) * 10;
-                var size = 1f + band * 3.4f + currentFrame.Pulse * 1.4f;
-                var color = GetParticleColor(t, ClampAlpha(18 + band * 95 + currentFrame.Treble * 60));
-
-                using (var brush = new SolidBrush(color))
+                var x = bounds.Left + bounds.Width * Hash01(i * 18.17f);
+                var y = bounds.Top + bounds.Height * (0.04f + 0.38f * Hash01(i * 43.91f));
+                var size = 1f + currentFrame.Treble * 2.1f + band * 2.6f;
+                var alpha = ClampAlpha(28 + band * 105 + currentFrame.Pulse * 60);
+                using (var brush = new SolidBrush(Color.FromArgb(alpha, 210, 245, 255)))
                 {
                     graphics.FillEllipse(brush, x, y, size, size);
                 }
             }
         }
 
-        private void DrawGlowParticle(System.Drawing.Graphics graphics, float x, float y, float size, Color color)
+        private void DrawSunAndHorizon(System.Drawing.Graphics graphics, Rectangle bounds)
         {
-            using (var glowBrush = new SolidBrush(Color.FromArgb(Math.Min(72, (int)color.A / 3), color)))
-            using (var brush = new SolidBrush(color))
-            using (var hotBrush = new SolidBrush(Color.FromArgb(Math.Min(230, (int)color.A), 255, 255, 245)))
+            var horizonY = bounds.Top + bounds.Height * 0.43f;
+            var centerX = bounds.Left + bounds.Width * 0.50f;
+            var radius = Math.Min(bounds.Width, bounds.Height) * (0.12f + currentFrame.Bass * 0.035f + currentFrame.Pulse * 0.04f);
+
+            using (var path = new GraphicsPath())
             {
-                graphics.FillEllipse(glowBrush, x - size * 1.8f, y - size * 1.8f, size * 3.6f, size * 3.6f);
-                graphics.FillEllipse(brush, x - size / 2f, y - size / 2f, size, size);
-                var hot = Math.Max(1f, size * 0.26f);
-                graphics.FillEllipse(hotBrush, x - hot / 2f, y - hot / 2f, hot, hot);
+                path.AddEllipse(centerX - radius, horizonY - radius * 0.95f, radius * 2, radius * 1.9f);
+                using (var brush = new PathGradientBrush(path))
+                {
+                    brush.CenterColor = Color.FromArgb(210, 255, 184, 70);
+                    brush.SurroundColors = new[] { Color.FromArgb(0, 255, 75, 176) };
+                    graphics.FillPath(brush, path);
+                }
+            }
+
+            for (var i = 0; i < 7; i++)
+            {
+                var y = horizonY - radius * 0.7f + i * radius * 0.22f;
+                using (var pen = new Pen(Color.FromArgb(70, 7, 9, 25), 3.5f))
+                {
+                    graphics.DrawLine(pen, centerX - radius, y, centerX + radius, y);
+                }
+            }
+
+            using (var horizonPen = new Pen(Color.FromArgb(170, 48, 225, 255), 2f + currentFrame.Pulse * 2f))
+            using (var glowPen = new Pen(Color.FromArgb(60, 255, 67, 181), 8f + currentFrame.Pulse * 8f))
+            {
+                graphics.DrawLine(glowPen, bounds.Left, horizonY, bounds.Right, horizonY);
+                graphics.DrawLine(horizonPen, bounds.Left, horizonY, bounds.Right, horizonY);
+            }
+        }
+
+        private void DrawCity(System.Drawing.Graphics graphics, Rectangle bounds)
+        {
+            var horizonY = bounds.Top + bounds.Height * 0.43f;
+            var centerX = bounds.Left + bounds.Width * 0.50f;
+
+            for (var i = 0; i < BuildingCount; i++)
+            {
+                var side = i % 2 == 0 ? -1 : 1;
+                var depth = (i / 2) / (float)(BuildingCount / 2);
+                var band = GetSpectrumValue(depth);
+                var width = 18 + depth * 42;
+                var height = 34 + band * 130 + currentFrame.Mid * 40 + Hash01(i * 7.2f) * 70;
+                var gap = 70 + depth * bounds.Width * 0.42f;
+                var x = centerX + side * gap - (side < 0 ? width : 0);
+                var y = horizonY - height;
+                var color = side < 0 ? Color.FromArgb(60, 48, 225, 255) : Color.FromArgb(65, 255, 67, 181);
+
+                using (var brush = new LinearGradientBrush(
+                    new RectangleF(x, y, width, height),
+                    Color.FromArgb(20, 12, 18, 32),
+                    Color.FromArgb(120, color),
+                    LinearGradientMode.Vertical))
+                using (var pen = new Pen(Color.FromArgb(110, color), 1.1f + band * 1.4f))
+                {
+                    graphics.FillRectangle(brush, x, y, width, height);
+                    graphics.DrawRectangle(pen, x, y, width, height);
+                }
+
+                DrawWindows(graphics, x, y, width, height, band, color);
+            }
+        }
+
+        private void DrawWindows(System.Drawing.Graphics graphics, float x, float y, float width, float height, float band, Color color)
+        {
+            var columns = Math.Max(2, (int)(width / 10));
+            var rows = Math.Max(2, (int)(height / 18));
+            using (var brush = new SolidBrush(Color.FromArgb(ClampAlpha(35 + band * 135 + currentFrame.Treble * 65), color)))
+            {
+                for (var row = 0; row < rows; row++)
+                {
+                    for (var col = 0; col < columns; col++)
+                    {
+                        if (Hash01(row * 13.7f + col * 9.3f + width) < 0.42f + band * 0.18f)
+                        {
+                            var wx = x + 5 + col * (width - 10) / columns;
+                            var wy = y + 8 + row * (height - 16) / rows;
+                            graphics.FillRectangle(brush, wx, wy, 3.5f, 6f);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DrawRoad(System.Drawing.Graphics graphics, Rectangle bounds)
+        {
+            var horizonY = bounds.Top + bounds.Height * 0.43f;
+            var centerX = bounds.Left + bounds.Width * 0.50f;
+            var roadTopWidth = bounds.Width * (0.10f + currentFrame.Pulse * 0.015f);
+            var roadBottomWidth = bounds.Width * (0.92f + currentFrame.Bass * 0.05f);
+            var bottomY = bounds.Bottom;
+
+            var road = new[]
+            {
+                new PointF(centerX - roadTopWidth / 2f, horizonY),
+                new PointF(centerX + roadTopWidth / 2f, horizonY),
+                new PointF(centerX + roadBottomWidth / 2f, bottomY),
+                new PointF(centerX - roadBottomWidth / 2f, bottomY)
+            };
+
+            using (var brush = new LinearGradientBrush(
+                bounds,
+                Color.FromArgb(20, 10, 12, 24),
+                Color.FromArgb(210, 8, 11, 24),
+                LinearGradientMode.Vertical))
+            {
+                graphics.FillPolygon(brush, road);
+            }
+
+            DrawRoadEdge(graphics, centerX - roadTopWidth / 2f, horizonY, centerX - roadBottomWidth / 2f, bottomY, Color.FromArgb(48, 225, 255));
+            DrawRoadEdge(graphics, centerX + roadTopWidth / 2f, horizonY, centerX + roadBottomWidth / 2f, bottomY, Color.FromArgb(255, 67, 181));
+        }
+
+        private void DrawRoadEdge(System.Drawing.Graphics graphics, float x1, float y1, float x2, float y2, Color color)
+        {
+            using (var glowPen = new Pen(Color.FromArgb(75, color), 10f + currentFrame.Pulse * 6f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            using (var pen = new Pen(Color.FromArgb(220, color), 2.2f + currentFrame.Bass * 2.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            {
+                graphics.DrawLine(glowPen, x1, y1, x2, y2);
+                graphics.DrawLine(pen, x1, y1, x2, y2);
+            }
+        }
+
+        private void DrawLaneLines(System.Drawing.Graphics graphics, Rectangle bounds)
+        {
+            var horizonY = bounds.Top + bounds.Height * 0.43f;
+            var centerX = bounds.Left + bounds.Width * 0.50f;
+            var speed = phase * (0.60f + currentFrame.Intensity * 1.6f + currentFrame.Pulse * 1.3f);
+
+            for (var i = 0; i < RoadLineCount; i++)
+            {
+                var raw = (i / (float)RoadLineCount + speed) % 1f;
+                var depth = raw * raw;
+                var y = horizonY + depth * (bounds.Bottom - horizonY);
+                var nextDepth = Math.Min(1f, depth + 0.035f + currentFrame.Bass * 0.025f);
+                var y2 = horizonY + nextDepth * (bounds.Bottom - horizonY);
+                var laneOffset = bounds.Width * (0.014f + depth * 0.15f);
+                var alpha = ClampAlpha(35 + depth * 190 + currentFrame.Pulse * 50);
+                var width = 1.2f + depth * 8f + currentFrame.Bass * 2f;
+
+                DrawLaneSegment(graphics, centerX - laneOffset, y, centerX - laneOffset * 1.10f, y2, Color.FromArgb(alpha, 255, 244, 118), width);
+                DrawLaneSegment(graphics, centerX + laneOffset, y, centerX + laneOffset * 1.10f, y2, Color.FromArgb(alpha, 255, 244, 118), width);
+                DrawLaneSegment(graphics, centerX, y, centerX, y2, Color.FromArgb(alpha, 255, 255, 255), Math.Max(1f, width * 0.65f));
+            }
+        }
+
+        private static void DrawLaneSegment(System.Drawing.Graphics graphics, float x1, float y1, float x2, float y2, Color color, float width)
+        {
+            using (var glowPen = new Pen(Color.FromArgb(Math.Min(80, color.A / 2), color), width + 5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            using (var pen = new Pen(color, width) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            {
+                graphics.DrawLine(glowPen, x1, y1, x2, y2);
+                graphics.DrawLine(pen, x1, y1, x2, y2);
+            }
+        }
+
+        private void DrawSpeedTrails(System.Drawing.Graphics graphics, Rectangle bounds)
+        {
+            var horizonY = bounds.Top + bounds.Height * 0.43f;
+            var intensity = Math.Max(currentFrame.Intensity, currentFrame.Pulse);
+
+            for (var i = 0; i < 28; i++)
+            {
+                var t = (Hash01(i * 12.31f) + phase * (0.35f + intensity)) % 1f;
+                var side = i % 2 == 0 ? -1 : 1;
+                var y = horizonY + t * (bounds.Bottom - horizonY);
+                var x = bounds.Width * (side < 0 ? 0.04f + t * 0.20f : 0.96f - t * 0.20f);
+                var length = 26 + t * 100 + intensity * 80;
+                var color = side < 0 ? Color.FromArgb(48, 225, 255) : Color.FromArgb(255, 67, 181);
+                var alpha = ClampAlpha(20 + t * 90 + intensity * 80);
+
+                using (var pen = new Pen(Color.FromArgb(alpha, color), 1.2f + t * 3.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    graphics.DrawLine(pen, x, y, x - side * length, y + length * 0.15f);
+                }
+            }
+        }
+
+        private void DrawBeatHeadlights(System.Drawing.Graphics graphics, Rectangle bounds)
+        {
+            var beat = Math.Max(currentFrame.Bass, currentFrame.Pulse);
+            var y = bounds.Bottom - bounds.Height * 0.16f;
+            var centerX = bounds.Left + bounds.Width * 0.50f;
+            var spread = bounds.Width * (0.055f + beat * 0.025f);
+            var size = 16 + beat * 38;
+
+            DrawGlow(graphics, bounds, centerX - spread, y, Color.FromArgb(48, 225, 255), 0.10f + beat * 0.06f);
+            DrawGlow(graphics, bounds, centerX + spread, y, Color.FromArgb(255, 67, 181), 0.10f + beat * 0.06f);
+
+            using (var cyan = new SolidBrush(Color.FromArgb(190, 48, 225, 255)))
+            using (var pink = new SolidBrush(Color.FromArgb(190, 255, 67, 181)))
+            {
+                graphics.FillEllipse(cyan, centerX - spread - size / 2f, y - size / 2f, size, size * 0.55f);
+                graphics.FillEllipse(pink, centerX + spread - size / 2f, y - size / 2f, size, size * 0.55f);
+            }
+        }
+
+        private void DrawGlow(System.Drawing.Graphics graphics, Rectangle bounds, float x, float y, Color color, float scale)
+        {
+            var radius = Math.Min(bounds.Width, bounds.Height) * (scale + currentFrame.Intensity * 0.04f + currentFrame.Pulse * 0.05f);
+            using (var path = new GraphicsPath())
+            {
+                path.AddEllipse(x - radius, y - radius, radius * 2, radius * 2);
+                using (var brush = new PathGradientBrush(path))
+                {
+                    brush.CenterColor = Color.FromArgb(32 + (int)(currentFrame.Pulse * 42), color);
+                    brush.SurroundColors = new[] { Color.FromArgb(0, color) };
+                    graphics.FillPath(brush, path);
+                }
             }
         }
 
@@ -245,7 +283,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             if (currentFrame.Spectrum.Length == 0)
             {
-                return currentFrame.Intensity * 0.24f;
+                return Math.Max(0.04f, currentFrame.Intensity * 0.30f);
             }
 
             normalizedIndex = normalizedIndex - (float)Math.Floor(normalizedIndex);
@@ -254,26 +292,6 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             var right = Math.Min(currentFrame.Spectrum.Length - 1, left + 1);
             var fraction = exactIndex - left;
             return Clamp((float)(currentFrame.Spectrum[left] * (1 - fraction) + currentFrame.Spectrum[right] * fraction));
-        }
-
-        private static Color GetParticleColor(float t, int alpha)
-        {
-            if (t < 0.20f)
-            {
-                return Color.FromArgb(alpha, BlendColor(Color.FromArgb(255, 95, 170), Color.FromArgb(255, 108, 105), t / 0.20f));
-            }
-
-            if (t < 0.44f)
-            {
-                return Color.FromArgb(alpha, BlendColor(Color.FromArgb(255, 108, 105), Color.FromArgb(255, 215, 86), (t - 0.20f) / 0.24f));
-            }
-
-            if (t < 0.72f)
-            {
-                return Color.FromArgb(alpha, BlendColor(Color.FromArgb(255, 215, 86), Color.FromArgb(41, 221, 218), (t - 0.44f) / 0.28f));
-            }
-
-            return Color.FromArgb(alpha, BlendColor(Color.FromArgb(41, 221, 218), Color.FromArgb(126, 118, 255), (t - 0.72f) / 0.28f));
         }
 
         private static Color BlendColor(Color from, Color to, float amount)

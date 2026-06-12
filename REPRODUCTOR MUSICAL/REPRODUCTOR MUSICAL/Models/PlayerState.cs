@@ -19,6 +19,12 @@ namespace REPRODUCTOR_MUSICAL.Models
             Status = PlayerStatus.Stopped;
         }
 
+        public void ClearFile()
+        {
+            CurrentFilePath = string.Empty;
+            Status = PlayerStatus.Stopped;
+        }
+
         public void MarkPlaying()
         {
             Status = PlayerStatus.Playing;

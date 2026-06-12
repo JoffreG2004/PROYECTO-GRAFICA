@@ -13,16 +13,26 @@ namespace REPRODUCTOR_MUSICAL.Controllers
     public class HomeController
     {
         private static readonly string[] SupportedAudioExtensions = { ".mp3", ".wav", ".wma", ".aac", ".m4a", ".flac" };
+        private static readonly string[] AutoVisualizationModes =
+        {
+            "Barras de espectro",
+            "Ondas circulares",
+            "Autopista Neon",
+            "Orbitas cosmicas"
+        };
         private readonly IHomeView view;
         private readonly IAudioPlayerService audioPlayer;
         private readonly IAudioAnalysisService audioAnalysis;
         private readonly PlayerState playerState;
         private readonly Timer playbackTimer;
         private readonly Timer animationTimer;
+        private readonly Timer autoModeTimer;
         private readonly Dictionary<string, IVisualizer> visualizers;
         private readonly List<string> playlist = new List<string>();
+        private readonly HashSet<string> favoriteSongs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private IVisualizer currentVisualizer;
         private int playlistIndex = -1;
+        private int autoVisualizationIndex;
         private bool isChangingSong;
         private readonly Random random = new Random();
 
@@ -34,12 +44,13 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             this.playerState = playerState ?? throw new ArgumentNullException(nameof(playerState));
             playbackTimer = new Timer { Interval = 250 };
             animationTimer = new Timer { Interval = 33 };
+            autoModeTimer = new Timer { Interval = 13000 };
             visualizers = new Dictionary<string, IVisualizer>
             {
                 { "Barras de espectro", new SpectrumBarsVisualizer() },
                 { "Ondas circulares", new CircularWavesVisualizer() },
-                { "Particulas ritmicas", new ParticleVisualizer() },
-                { "Escena geometrica", new GeometrySceneVisualizer() }
+                { "Autopista Neon", new ParticleVisualizer() },
+                { "Orbitas cosmicas", new GeometrySceneVisualizer() }
             };
         }
 
@@ -56,10 +67,16 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             view.SeekRequested += HandleSeekRequested;
             view.VolumeChanged += HandleVolumeChanged;
             view.VisualizationModeChanged += HandleVisualizationModeChanged;
+            view.MoodChanged += HandleMoodChanged;
+            view.AutoModeChanged += HandleAutoModeChanged;
+            view.PlaylistSongSelected += HandlePlaylistSongSelected;
+            view.PlaylistSongRemoveRequested += HandlePlaylistSongRemoveRequested;
+            view.PlaylistFavoriteToggled += HandlePlaylistFavoriteToggled;
             view.ExitRequested += HandleExitRequested;
             view.VisualizerPaintRequested += HandleVisualizerPaintRequested;
             playbackTimer.Tick += HandlePlaybackTimerTick;
             animationTimer.Tick += HandleAnimationTimerTick;
+            autoModeTimer.Tick += HandleAutoModeTimerTick;
         }
 
         private void HandleViewLoaded(object sender, EventArgs e)
@@ -69,6 +86,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             view.ShowPlaybackControls(PlayerStatus.Stopped);
             view.ShowVolume(view.Volume);
             view.ShowPlaybackTime(TimeSpan.Zero, TimeSpan.Zero);
+            RefreshPlaylistView();
             audioPlayer.Volume = view.Volume;
             SelectVisualizer(view.SelectedVisualizationMode);
             view.ShowVisualizerPlaceholder(false);
@@ -203,7 +221,129 @@ namespace REPRODUCTOR_MUSICAL.Controllers
         {
             view.ShowStatus($"Visualizacion: {view.SelectedVisualizationMode}");
             SelectVisualizer(view.SelectedVisualizationMode);
+            SyncAutoIndexes();
             view.RefreshVisualizer();
+        }
+
+        private void HandleMoodChanged(object sender, EventArgs e)
+        {
+            view.ShowStatus($"Ambiente: {view.SelectedMood}");
+            SyncAutoIndexes();
+            view.RefreshVisualizer();
+            RefreshPlaylistView();
+        }
+
+        private void HandleAutoModeChanged(object sender, EventArgs e)
+        {
+            if (view.IsAutoModeEnabled)
+            {
+                SyncAutoIndexes();
+                autoModeTimer.Start();
+                view.ShowStatus("Auto figuras activado");
+                return;
+            }
+
+            autoModeTimer.Stop();
+            view.ShowStatus("Auto figuras desactivado");
+        }
+
+        private void HandleAutoModeTimerTick(object sender, EventArgs e)
+        {
+            autoVisualizationIndex = (autoVisualizationIndex + 1) % AutoVisualizationModes.Length;
+            view.SetVisualizationMode(AutoVisualizationModes[autoVisualizationIndex]);
+            view.ShowStatus($"Auto figuras: {AutoVisualizationModes[autoVisualizationIndex]}");
+        }
+
+        private void HandlePlaylistSongSelected(object sender, int index)
+        {
+            if (index < 0 || index >= playlist.Count)
+            {
+                return;
+            }
+
+            var shouldPlay = playerState.Status == PlayerStatus.Playing;
+            playlistIndex = index;
+            LoadSong(playlist[playlistIndex], $"Cancion seleccionada ({playlistIndex + 1}/{playlist.Count})");
+
+            if (shouldPlay)
+            {
+                audioPlayer.Play();
+                playerState.MarkPlaying();
+                playbackTimer.Start();
+                view.ShowPlaybackControls(playerState.Status);
+                view.ShowStatus($"Reproduciendo lista ({playlistIndex + 1}/{playlist.Count})");
+            }
+        }
+
+        private void HandlePlaylistSongRemoveRequested(object sender, int index)
+        {
+            if (index < 0 || index >= playlist.Count)
+            {
+                return;
+            }
+
+            var removingCurrent = index == playlistIndex;
+            var shouldKeepPlaying = playerState.Status == PlayerStatus.Playing;
+            favoriteSongs.Remove(playlist[index]);
+            playlist.RemoveAt(index);
+
+            if (playlist.Count == 0)
+            {
+                playlistIndex = -1;
+                audioPlayer.Stop();
+                playerState.ClearFile();
+                playbackTimer.Stop();
+                view.ShowSongInfo(string.Empty);
+                view.ShowStatus("Lista vacia");
+                view.ShowAnalysisMode("Analisis: esperando audio");
+                view.ShowPlaybackTime(TimeSpan.Zero, TimeSpan.Zero);
+                view.ShowPlaybackControls(playerState.Status);
+                RefreshPlaylistView();
+                return;
+            }
+
+            if (index < playlistIndex)
+            {
+                playlistIndex--;
+            }
+            else if (playlistIndex >= playlist.Count)
+            {
+                playlistIndex = playlist.Count - 1;
+            }
+
+            if (removingCurrent)
+            {
+                LoadSong(playlist[playlistIndex], $"Cancion removida ({playlistIndex + 1}/{playlist.Count})");
+                if (shouldKeepPlaying)
+                {
+                    audioPlayer.Play();
+                    playerState.MarkPlaying();
+                    playbackTimer.Start();
+                    view.ShowPlaybackControls(playerState.Status);
+                    view.ShowStatus($"Reproduciendo lista ({playlistIndex + 1}/{playlist.Count})");
+                }
+            }
+            else
+            {
+                RefreshPlaylistView();
+                view.ShowStatus($"Cancion removida ({playlist.Count} en lista)");
+            }
+        }
+
+        private void HandlePlaylistFavoriteToggled(object sender, int index)
+        {
+            if (index < 0 || index >= playlist.Count)
+            {
+                return;
+            }
+
+            var song = playlist[index];
+            if (!favoriteSongs.Add(song))
+            {
+                favoriteSongs.Remove(song);
+            }
+
+            RefreshPlaylistView();
         }
 
         private void HandleExitRequested(object sender, EventArgs e)
@@ -224,7 +364,9 @@ namespace REPRODUCTOR_MUSICAL.Controllers
                 return;
             }
 
-            currentVisualizer.Update(CalculateAudioFrame());
+            var audioFrame = CalculateAudioFrame();
+            currentVisualizer.Update(audioFrame);
+            view.ShowAudioPulse(audioFrame);
             view.RefreshVisualizer();
         }
 
@@ -238,6 +380,15 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             if (!visualizers.TryGetValue(mode, out currentVisualizer))
             {
                 currentVisualizer = visualizers["Barras de espectro"];
+            }
+        }
+
+        private void SyncAutoIndexes()
+        {
+            var visualizationIndex = Array.IndexOf(AutoVisualizationModes, view.SelectedVisualizationMode);
+            if (visualizationIndex >= 0)
+            {
+                autoVisualizationIndex = visualizationIndex;
             }
         }
 
@@ -262,6 +413,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             BuildPlaylistFromFolder(songsFolder, null);
             if (playlist.Count == 0)
             {
+                RefreshPlaylistView();
                 return;
             }
 
@@ -292,6 +444,8 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             {
                 playlistIndex = 0;
             }
+
+            RefreshPlaylistView();
         }
 
         private void LoadSong(string filePath, string status)
@@ -305,6 +459,12 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             view.ShowStatus(status);
             view.ShowAnalysisMode(audioAnalysis.HasRealSamples ? "Analisis: FFT en tiempo real" : "Analisis: sin FFT real");
             view.ShowPlaybackTime(TimeSpan.Zero, audioPlayer.Duration);
+            RefreshPlaylistView();
+        }
+
+        private void RefreshPlaylistView()
+        {
+            view.ShowPlaylist(playlist, playlistIndex, favoriteSongs);
         }
 
         private void AdvancePlaylistIfSongFinished()

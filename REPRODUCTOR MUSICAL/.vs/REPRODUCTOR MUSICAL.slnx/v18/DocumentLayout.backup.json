@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\jcbla\\Desktop\\ESPE\\Sexto Semestre\\Computacion Grafica\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\",
+  "WorkspaceRootPath": "C:\\Users\\Joffre\\Desktop\\JOFFRE\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\",
   "Documents": [],
   "DocumentGroupContainers": [
     {
@@ -38,6 +38,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             }
           ]
         }

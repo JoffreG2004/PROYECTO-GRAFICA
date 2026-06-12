@@ -8,11 +8,12 @@ namespace REPRODUCTOR_MUSICAL.Graphics
     public class GeometrySceneVisualizer : IVisualizer
     {
         private const int NodeCount = 32;
+        private const int StarCount = 150;
         private readonly PointF[] nodes = new PointF[NodeCount];
         private AudioFrame currentFrame = new AudioFrame(0.16f, 0.16f, 0.16f, 0.16f, false);
         private float angle;
 
-        public string Name => "Escena geometrica";
+        public string Name => "Orbitas cosmicas";
 
         public void Update(AudioFrame audioFrame)
         {
@@ -27,6 +28,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             graphics.Clear(Color.FromArgb(7, 9, 15));
 
             DrawBackdrop(graphics, bounds);
+            DrawReactiveStars(graphics, bounds);
             CalculateNodes(bounds);
             DrawConstellation(graphics);
             DrawOrbitingPolygons(graphics, bounds);
@@ -38,8 +40,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             using (var brush = new LinearGradientBrush(
                 bounds,
-                Color.FromArgb(8, 10, 16),
-                Color.FromArgb(24, 20, 38),
+                Color.FromArgb(4, 6, 14),
+                Color.FromArgb(20, 14, 38),
                 LinearGradientMode.ForwardDiagonal))
             {
                 graphics.FillRectangle(brush, bounds);
@@ -55,6 +57,39 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                     brush.CenterColor = Color.FromArgb(80 + (int)(currentFrame.Pulse * 90), 109, 240, 214);
                     brush.SurroundColors = new[] { Color.FromArgb(0, 109, 240, 214) };
                     graphics.FillPath(brush, path);
+                }
+            }
+        }
+
+        private void DrawReactiveStars(System.Drawing.Graphics graphics, Rectangle bounds)
+        {
+            for (var i = 0; i < StarCount; i++)
+            {
+                var t = i / (float)StarCount;
+                var band = GetSpectrumValue(i, StarCount);
+                var x = bounds.Left + bounds.Width * Hash01(i * 19.17f);
+                var y = bounds.Top + bounds.Height * Hash01(i * 43.91f);
+                var twinkle = 0.5f + 0.5f * (float)Math.Sin(angle * (2.5f + Hash01(i) * 2.2f) + i * 0.73f);
+                var size = 1.0f + band * 3.8f + currentFrame.Treble * 1.8f + currentFrame.Pulse * 2.2f;
+                var alpha = ClampAlpha(30 + twinkle * 85 + band * 110 + currentFrame.Pulse * 55);
+                var starColor = i % 5 == 0
+                    ? Color.FromArgb(alpha, 255, 204, 105)
+                    : i % 3 == 0
+                        ? Color.FromArgb(alpha, 156, 230, 255)
+                        : Color.FromArgb(alpha, 235, 240, 255);
+
+                using (var brush = new SolidBrush(starColor))
+                {
+                    graphics.FillEllipse(brush, x - size / 2f, y - size / 2f, size, size);
+                }
+
+                if (band + currentFrame.Pulse > 0.72f && i % 13 == 0)
+                {
+                    var trail = 12 + band * 34 + currentFrame.Pulse * 18;
+                    using (var pen = new Pen(Color.FromArgb(Math.Min(160, alpha), starColor), 1f + band * 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                    {
+                        graphics.DrawLine(pen, x, y, x - trail, y - trail * 0.32f);
+                    }
                 }
             }
         }
@@ -239,6 +274,17 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             }
 
             return count == 0 ? 0 : total / count;
+        }
+
+        private static float Hash01(float value)
+        {
+            var raw = Math.Sin(value * 12.9898) * 43758.5453;
+            return (float)(raw - Math.Floor(raw));
+        }
+
+        private static int ClampAlpha(float value)
+        {
+            return Math.Max(0, Math.Min(255, (int)value));
         }
     }
 }

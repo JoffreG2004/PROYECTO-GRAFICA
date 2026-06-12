@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using REPRODUCTOR_MUSICAL.Models;
 
@@ -30,13 +31,27 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         event EventHandler VisualizationModeChanged;
 
+        event EventHandler MoodChanged;
+
+        event EventHandler AutoModeChanged;
+
+        event EventHandler<int> PlaylistSongSelected;
+
+        event EventHandler<int> PlaylistSongRemoveRequested;
+
+        event EventHandler<int> PlaylistFavoriteToggled;
+
         event EventHandler ExitRequested;
 
         int Volume { get; }
 
         bool IsShuffleEnabled { get; }
 
+        bool IsAutoModeEnabled { get; }
+
         string SelectedVisualizationMode { get; }
+
+        string SelectedMood { get; }
 
         string ShowAudioFileDialog();
 
@@ -50,6 +65,16 @@ namespace REPRODUCTOR_MUSICAL.Views
 
         void ShowPlaybackControls(PlayerStatus status);
 
+        void ShowPlaylist(IReadOnlyList<string> songs, int activeIndex, ISet<string> favorites);
+
+        void ShowAudioPulse(AudioFrame frame);
+
+        void SetVisualizationMode(string mode);
+
+        void SetMood(string mood);
+
+        void StartVisualizerTransition();
+
         void ShowVolume(int volume);
 
         void RefreshVisualizer();
@@ -59,4 +84,3 @@ namespace REPRODUCTOR_MUSICAL.Views
         void ShowError(string message);
     }
 }
-
