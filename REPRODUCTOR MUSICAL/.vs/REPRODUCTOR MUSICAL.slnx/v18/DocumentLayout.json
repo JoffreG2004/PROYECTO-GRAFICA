@@ -1,7 +1,12 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Joffre\\Desktop\\JOFFRE\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\",
-  "Documents": [],
+  "WorkspaceRootPath": "D:\\5TO SEMESTRE\\GRAFICA\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|d:\\5to semestre\\grafica\\proyecto-grafica\\reproductor musical\\reproductor musical\\graphics\\geometryscenevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\graphics\\geometryscenevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -18,10 +23,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
               "$type": "Bookmark",
@@ -41,7 +42,20 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GeometrySceneVisualizer.cs",
+              "DocumentMoniker": "D:\\5TO SEMESTRE\\GRAFICA\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "ToolTip": "D:\\5TO SEMESTRE\\GRAFICA\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T02:55:55.194Z",
+              "EditorCaption": ""
             }
           ]
         }
