@@ -1,0 +1,6 @@
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\DeliverablesGenerator\bin\Debug\DeliverablesGenerator.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\DeliverablesGenerator\bin\Debug\DeliverablesGenerator.pdb
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\DeliverablesGenerator\obj\Debug\DeliverablesGenerator.csproj.AssemblyReference.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\DeliverablesGenerator\obj\Debug\DeliverablesGenerator.csproj.CoreCompileInputs.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\DeliverablesGenerator\obj\Debug\DeliverablesGenerator.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\DeliverablesGenerator\obj\Debug\DeliverablesGenerator.pdb

@@ -1,0 +1,10 @@
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\PRUEBA_GRAFICA.csproj.AssemblyReference.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\PRUEBA_GRAFICA.csproj.GenerateResource.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\PRUEBA_GRAFICA.csproj.CoreCompileInputs.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\bin\Debug\proyectoPaint.exe.config
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\bin\Debug\proyectoPaint.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\bin\Debug\proyectoPaint.pdb
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\proyectoPaint.Form1.resources
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\proyectoPaint.Properties.Resources.resources
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\proyectoPaint.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\PRUEBA_GRAFICA\obj\Debug\proyectoPaint.pdb

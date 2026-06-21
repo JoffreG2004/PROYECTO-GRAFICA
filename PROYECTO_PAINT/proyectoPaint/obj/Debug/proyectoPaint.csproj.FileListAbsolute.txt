@@ -1,0 +1,29 @@
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\bin\Debug\proyectoPaint.exe.config
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\bin\Debug\proyectoPaint.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\bin\Debug\proyectoPaint.pdb
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.csproj.AssemblyReference.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.Form1.resources
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.Properties.Resources.resources
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.csproj.GenerateResource.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.csproj.CoreCompileInputs.cache
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.pdb
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\StudioVerify\proyectoPaint.exe.config
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\StudioVerify\proyectoPaint.exe
+C:\Users\joffr\Desktop\PRUEBA_GRAFICA\proyectoPaint\obj\StudioVerify\proyectoPaint.pdb
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\bin\Debug\proyectoPaint.exe.config
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\bin\Debug\proyectoPaint.exe
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\bin\Debug\proyectoPaint.pdb
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.csproj.AssemblyReference.cache
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.Form1.resources
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.Properties.Resources.resources
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.csproj.GenerateResource.cache
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.csproj.CoreCompileInputs.cache
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.exe
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Debug\proyectoPaint.pdb
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FunctionalVerify\proyectoPaint.exe.config
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FunctionalVerify\proyectoPaint.exe
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FunctionalVerify\proyectoPaint.pdb
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FinalVerify\proyectoPaint.exe.config
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FinalVerify\proyectoPaint.exe
+D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FinalVerify\proyectoPaint.pdb

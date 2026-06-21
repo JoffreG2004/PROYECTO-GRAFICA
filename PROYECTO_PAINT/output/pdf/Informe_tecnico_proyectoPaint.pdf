@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R ] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 1101 >>
+stream
+BT /F2 22 Tf 50 790 Td (Informe tecnico - proyectoPaint) Tj ET
+BT /F1 11 Tf 58 742 Td (Aplicacion grafica interactiva tipo Paint desarrollada en C# Windows Forms y .NET Framework 4.7.2.) Tj ET
+BT /F1 11 Tf 58 714 Td (Autor: Gomez Joffre. Materia: Computacion Grafica.) Tj ET
+BT /F1 11 Tf 58 696 Td (El sistema permite crear dibujos digitales en un lienzo, manipular figuras y guardar el trabajo como imagen o proyecto editable.) Tj ET
+BT /F2 12 Tf 58 654 Td (Funcionalidades implementadas:) Tj ET
+BT /F1 10 Tf 58 636 Td (- Lienzo interactivo con eventos MouseDown, MouseMove, MouseUp y DoubleClick.) Tj ET
+BT /F1 10 Tf 58 618 Td (- Herramientas: lapiz, linea, rectangulo, circulo/elipse, poligono, curva Bezier, relleno, borrador y seleccion.) Tj ET
+BT /F1 10 Tf 58 590 Td (- Color de linea, color de relleno, grosor, limpieza completa, guardado PNG/JPG y archivo .ppaint.) Tj ET
+BT /F1 10 Tf 58 562 Td (- Transformaciones: traslacion por arrastre, rotacion de 15 grados y escala +10% / -10% sobre la figura seleccionada.) Tj ET
+BT /F1 9 Tf 50 36 Td (proyectoPaint - Informe tecnico - pagina 1) Tj ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 1154 >>
+stream
+BT /F2 22 Tf 50 790 Td (Arquitectura de software y POO) Tj ET
+BT /F2 12 Tf 58 742 Td (La solucion se organiza en capas simples:) Tj ET
+BT /F1 10 Tf 58 724 Td (- Form1: interfaz grafica, comandos, eventos y retroalimentacion visual.) Tj ET
+BT /F1 10 Tf 58 706 Td (- PaintCanvas: componente visual de lienzo con doble buffer y seleccion.) Tj ET
+BT /F1 10 Tf 58 688 Td (- CanvasDocument: documento que almacena figuras y renderiza el bitmap final.) Tj ET
+BT /F1 10 Tf 58 670 Td (- DrawableShape: clase abstracta base para todas las figuras.) Tj ET
+BT /F1 10 Tf 58 652 Td (- Shapes concretas: LineShape, RectangleShape, EllipseShape, PolygonShape, PolylineShape, BezierShape y FloodFillShape.) Tj ET
+BT /F1 10 Tf 58 624 Td (- GraphicsAlgorithms: algoritmos de rasterizacion, relleno y transformacion.) Tj ET
+BT /F1 10 Tf 58 606 Td (- ProjectStorage: persistencia XML del archivo .ppaint.) Tj ET
+BT /F1 11 Tf 58 574 Td (Evidencia POO: encapsulamiento de propiedades, herencia desde DrawableShape, polimorfismo en Draw/Translate/Rotate/Scale y reutilizacion de algoritmos comunes.) Tj ET
+BT /F1 9 Tf 50 36 Td (proyectoPaint - Informe tecnico - pagina 2) Tj ET
+
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 1116 >>
+stream
+BT /F2 22 Tf 50 790 Td (Algoritmos de computacion grafica) Tj ET
+BT /F1 11 Tf 58 742 Td (1. Rasterizacion de lineas: algoritmo de Bresenham, usando coordenadas enteras y escritura de pixeles.) Tj ET
+BT /F1 11 Tf 58 714 Td (2. Circulo: algoritmo de punto medio para el caso circular.) Tj ET
+BT /F1 11 Tf 58 696 Td (3. Elipse: recorrido parametrico y relleno por ecuacion normalizada.) Tj ET
+BT /F1 11 Tf 58 678 Td (4. Poligonos: rasterizado de bordes con Bresenham y relleno scanline.) Tj ET
+BT /F1 11 Tf 58 660 Td (5. Relleno: flood fill con cola BFS desde una semilla, comparando el color objetivo.) Tj ET
+BT /F1 11 Tf 58 642 Td (6. Curva Bezier cubica: evaluacion por parametro t y union de puntos consecutivos.) Tj ET
+BT /F1 11 Tf 58 624 Td (7. Transformaciones: traslacion por delta del mouse, rotacion con matriz trigonometrica y escala respecto al centro de la figura.) Tj ET
+BT /F1 11 Tf 58 582 Td (El proyecto no se limita a DrawLine/DrawRectangle: las figuras se convierten a pixeles mediante Bitmap.SetPixel y rutinas propias.) Tj ET
+BT /F1 9 Tf 50 36 Td (proyectoPaint - Informe tecnico - pagina 3) Tj ET
+
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 1197 >>
+stream
+BT /F2 22 Tf 50 790 Td (UI/UX, evidencias y conclusiones) Tj ET
+BT /F2 12 Tf 58 742 Td (Diseno UI/UX:) Tj ET
+BT /F1 10 Tf 58 724 Td (- Barra superior para acciones frecuentes: guardar imagen, guardar proyecto, abrir y limpiar.) Tj ET
+BT /F1 10 Tf 58 696 Td (- Panel lateral con herramientas, grosor, relleno y colores visibles.) Tj ET
+BT /F1 10 Tf 58 678 Td (- Barra de estado con coordenadas y mensajes de uso.) Tj ET
+BT /F1 10 Tf 58 660 Td (- Seleccion visual con rectangulo punteado y transformaciones accesibles.) Tj ET
+BT /F2 12 Tf 58 628 Td (Problemas encontrados y soluciones:) Tj ET
+BT /F1 10 Tf 58 610 Td (- Persistencia del relleno: se resolvio modelandolo como FloodFillShape para conservar la operacion en el documento.) Tj ET
+BT /F1 10 Tf 58 582 Td (- Evitar parpadeo: PaintCanvas usa doble buffer y render centralizado.) Tj ET
+BT /F1 10 Tf 58 564 Td (- Separacion de responsabilidades: se movio la logica grafica fuera del formulario.) Tj ET
+BT /F1 11 Tf 58 532 Td (Conclusion: proyectoPaint integra interaccion, POO y algoritmos clasicos de Computacion Grafica en una aplicacion funcional y extensible.) Tj ET
+BT /F1 9 Tf 50 36 Td (proyectoPaint - Informe tecnico - pagina 4) Tj ET
+
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000134 00000 n 
+0000000373 00000 n 
+0000001526 00000 n 
+0000001765 00000 n 
+0000002971 00000 n 
+0000003210 00000 n 
+0000004378 00000 n 
+0000004618 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+5868
+%%EOF
