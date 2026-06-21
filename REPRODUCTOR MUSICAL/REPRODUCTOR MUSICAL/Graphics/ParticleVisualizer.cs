@@ -39,15 +39,17 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             using (var brush = new LinearGradientBrush(
                 bounds,
+                // Color fondo cielo arriba.
                 Color.FromArgb(4, 6, 18),
+                // Color fondo cielo abajo.
                 Color.FromArgb(28, 8, 45),
                 LinearGradientMode.Vertical))
             {
                 graphics.FillRectangle(brush, bounds);
             }
 
-            DrawGlow(graphics, bounds, bounds.Width * 0.50f, bounds.Height * 0.36f, Color.FromArgb(255, 67, 181), 0.40f);
-            DrawGlow(graphics, bounds, bounds.Width * 0.72f, bounds.Height * 0.18f, Color.FromArgb(48, 225, 255), 0.22f);
+            DrawGlow(graphics, bounds, bounds.Width * 0.50f, bounds.Height * 0.36f, Color.FromArgb(255, 67, 181), 0.40f); // Color brillo rosa del cielo.
+            DrawGlow(graphics, bounds, bounds.Width * 0.72f, bounds.Height * 0.18f, Color.FromArgb(48, 225, 255), 0.22f); // Color brillo celeste del cielo.
 
             for (var i = 0; i < StarCount; i++)
             {
@@ -57,7 +59,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var y = bounds.Top + bounds.Height * (0.04f + 0.38f * Hash01(i * 43.91f));
                 var size = 1f + currentFrame.Treble * 2.1f + band * 2.6f;
                 var alpha = ClampAlpha(28 + band * 105 + currentFrame.Pulse * 60);
-                using (var brush = new SolidBrush(Color.FromArgb(alpha, 210, 245, 255)))
+                using (var brush = new SolidBrush(Color.FromArgb(alpha, 210, 245, 255))) // Color estrellas.
                 {
                     graphics.FillEllipse(brush, x, y, size, size);
                 }
@@ -75,8 +77,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 path.AddEllipse(centerX - radius, horizonY - radius * 0.95f, radius * 2, radius * 1.9f);
                 using (var brush = new PathGradientBrush(path))
                 {
-                    brush.CenterColor = Color.FromArgb(210, 255, 184, 70);
-                    brush.SurroundColors = new[] { Color.FromArgb(0, 255, 75, 176) };
+                    brush.CenterColor = Color.FromArgb(210, 255, 184, 70); // Color centro del sol.
+                    brush.SurroundColors = new[] { Color.FromArgb(0, 255, 75, 176) }; // Color borde/brillo del sol.
                     graphics.FillPath(brush, path);
                 }
             }
@@ -84,14 +86,14 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             for (var i = 0; i < 7; i++)
             {
                 var y = horizonY - radius * 0.7f + i * radius * 0.22f;
-                using (var pen = new Pen(Color.FromArgb(70, 7, 9, 25), 3.5f))
+                using (var pen = new Pen(Color.FromArgb(70, 7, 9, 25), 3.5f)) // Color franjas oscuras del sol.
                 {
                     graphics.DrawLine(pen, centerX - radius, y, centerX + radius, y);
                 }
             }
 
-            using (var horizonPen = new Pen(Color.FromArgb(170, 48, 225, 255), 2f + currentFrame.Pulse * 2f))
-            using (var glowPen = new Pen(Color.FromArgb(60, 255, 67, 181), 8f + currentFrame.Pulse * 8f))
+            using (var horizonPen = new Pen(Color.FromArgb(170, 48, 225, 255), 2f + currentFrame.Pulse * 2f)) // Color linea horizonte.
+            using (var glowPen = new Pen(Color.FromArgb(60, 255, 67, 181), 8f + currentFrame.Pulse * 8f)) // Color brillo horizonte.
             {
                 graphics.DrawLine(glowPen, bounds.Left, horizonY, bounds.Right, horizonY);
                 graphics.DrawLine(horizonPen, bounds.Left, horizonY, bounds.Right, horizonY);
@@ -113,11 +115,13 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var gap = 70 + depth * bounds.Width * 0.42f;
                 var x = centerX + side * gap - (side < 0 ? width : 0);
                 var y = horizonY - height;
-                var color = side < 0 ? Color.FromArgb(60, 48, 225, 255) : Color.FromArgb(65, 255, 67, 181);
+                // Color edificios: izquierda celeste, derecha rosa.
+                var color = side < 0 ? Color.FromArgb(
+69, 255, 28) : Color.FromArgb(65, 255, 67, 181);
 
                 using (var brush = new LinearGradientBrush(
                     new RectangleF(x, y, width, height),
-                    Color.FromArgb(20, 12, 18, 32),
+                    Color.FromArgb(20, 12, 18, 32), // Color base oscuro edificios.
                     Color.FromArgb(120, color),
                     LinearGradientMode.Vertical))
                 using (var pen = new Pen(Color.FromArgb(110, color), 1.1f + band * 1.4f))
@@ -134,7 +138,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             var columns = Math.Max(2, (int)(width / 10));
             var rows = Math.Max(2, (int)(height / 18));
-            using (var brush = new SolidBrush(Color.FromArgb(ClampAlpha(35 + band * 135 + currentFrame.Treble * 65), color)))
+            using (var brush = new SolidBrush(Color.FromArgb(ClampAlpha(35 + band * 135 + currentFrame.Treble * 65), color))) // Color ventanas.
             {
                 for (var row = 0; row < rows; row++)
                 {
@@ -169,15 +173,17 @@ namespace REPRODUCTOR_MUSICAL.Graphics
 
             using (var brush = new LinearGradientBrush(
                 bounds,
+                // Color carretera arriba.
                 Color.FromArgb(20, 10, 12, 24),
+                // Color carretera abajo.
                 Color.FromArgb(210, 8, 11, 24),
                 LinearGradientMode.Vertical))
             {
                 graphics.FillPolygon(brush, road);
             }
 
-            DrawRoadEdge(graphics, centerX - roadTopWidth / 2f, horizonY, centerX - roadBottomWidth / 2f, bottomY, Color.FromArgb(48, 225, 255));
-            DrawRoadEdge(graphics, centerX + roadTopWidth / 2f, horizonY, centerX + roadBottomWidth / 2f, bottomY, Color.FromArgb(255, 67, 181));
+            DrawRoadEdge(graphics, centerX - roadTopWidth / 2f, horizonY, centerX - roadBottomWidth / 2f, bottomY, Color.FromArgb(48, 225, 255)); // Color borde izquierdo carretera.
+            DrawRoadEdge(graphics, centerX + roadTopWidth / 2f, horizonY, centerX + roadBottomWidth / 2f, bottomY, Color.FromArgb(255, 67, 181)); // Color borde derecho carretera.
         }
 
         private void DrawRoadEdge(System.Drawing.Graphics graphics, float x1, float y1, float x2, float y2, Color color)
@@ -207,9 +213,9 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var alpha = ClampAlpha(35 + depth * 190 + currentFrame.Pulse * 50);
                 var width = 1.2f + depth * 8f + currentFrame.Bass * 2f;
 
-                DrawLaneSegment(graphics, centerX - laneOffset, y, centerX - laneOffset * 1.10f, y2, Color.FromArgb(alpha, 255, 244, 118), width);
-                DrawLaneSegment(graphics, centerX + laneOffset, y, centerX + laneOffset * 1.10f, y2, Color.FromArgb(alpha, 255, 244, 118), width);
-                DrawLaneSegment(graphics, centerX, y, centerX, y2, Color.FromArgb(alpha, 255, 255, 255), Math.Max(1f, width * 0.65f));
+                DrawLaneSegment(graphics, centerX - laneOffset, y, centerX - laneOffset * 1.10f, y2, Color.FromArgb(alpha, 255, 244, 118), width); // Color linea amarilla izquierda.
+                DrawLaneSegment(graphics, centerX + laneOffset, y, centerX + laneOffset * 1.10f, y2, Color.FromArgb(alpha, 255, 244, 118), width); // Color linea amarilla derecha.
+                DrawLaneSegment(graphics, centerX, y, centerX, y2, Color.FromArgb(alpha, 255, 255, 255), Math.Max(1f, width * 0.65f)); // Color linea blanca central.
             }
         }
 
@@ -235,7 +241,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var y = horizonY + t * (bounds.Bottom - horizonY);
                 var x = bounds.Width * (side < 0 ? 0.04f + t * 0.20f : 0.96f - t * 0.20f);
                 var length = 26 + t * 100 + intensity * 80;
-                var color = side < 0 ? Color.FromArgb(48, 225, 255) : Color.FromArgb(255, 67, 181);
+                var color = side < 0 ? Color.FromArgb(48, 225, 255) : Color.FromArgb(255, 67, 181); // Color estelas laterales.
                 var alpha = ClampAlpha(20 + t * 90 + intensity * 80);
 
                 using (var pen = new Pen(Color.FromArgb(alpha, color), 1.2f + t * 3.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
@@ -253,11 +259,11 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             var spread = bounds.Width * (0.055f + beat * 0.025f);
             var size = 16 + beat * 38;
 
-            DrawGlow(graphics, bounds, centerX - spread, y, Color.FromArgb(48, 225, 255), 0.10f + beat * 0.06f);
-            DrawGlow(graphics, bounds, centerX + spread, y, Color.FromArgb(255, 67, 181), 0.10f + beat * 0.06f);
+            DrawGlow(graphics, bounds, centerX - spread, y, Color.FromArgb(48, 225, 255), 0.10f + beat * 0.06f); // Color brillo faro izquierdo.
+            DrawGlow(graphics, bounds, centerX + spread, y, Color.FromArgb(255, 67, 181), 0.10f + beat * 0.06f); // Color brillo faro derecho.
 
-            using (var cyan = new SolidBrush(Color.FromArgb(190, 48, 225, 255)))
-            using (var pink = new SolidBrush(Color.FromArgb(190, 255, 67, 181)))
+            using (var cyan = new SolidBrush(Color.FromArgb(190, 48, 225, 255))) // Color faro izquierdo.
+            using (var pink = new SolidBrush(Color.FromArgb(190, 255, 67, 181))) // Color faro derecho.
             {
                 graphics.FillEllipse(cyan, centerX - spread - size / 2f, y - size / 2f, size, size * 0.55f);
                 graphics.FillEllipse(pink, centerX + spread - size / 2f, y - size / 2f, size, size * 0.55f);
