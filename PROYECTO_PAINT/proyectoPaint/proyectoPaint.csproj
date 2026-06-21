@@ -50,16 +50,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GraphicsCore\CanvasDocument.cs" />
-    <Compile Include="GraphicsCore\DocumentController.cs" />
-    <Compile Include="GraphicsCore\GraphicsAlgorithms.cs" />
-    <Compile Include="GraphicsCore\PaintCanvas.cs">
+    <Compile Include="GraphicsCore\Models\CanvasDocument.cs" />
+    <Compile Include="GraphicsCore\Controllers\DocumentController.cs" />
+    <Compile Include="GraphicsCore\Services\GraphicsAlgorithms.cs" />
+    <Compile Include="GraphicsCore\Views\PaintCanvas.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="GraphicsCore\PaintEnums.cs" />
-    <Compile Include="GraphicsCore\ProjectStorage.cs" />
-    <Compile Include="GraphicsCore\Shapes.cs" />
-    <Compile Include="GraphicsCore\StudioControls.cs">
+    <Compile Include="GraphicsCore\Models\PaintEnums.cs" />
+    <Compile Include="GraphicsCore\Services\ProjectStorage.cs" />
+    <Compile Include="GraphicsCore\Models\Shapes.cs" />
+    <Compile Include="GraphicsCore\Views\StudioControls.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Form1.cs">

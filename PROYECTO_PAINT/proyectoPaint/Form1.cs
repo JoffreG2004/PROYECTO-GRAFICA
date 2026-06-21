@@ -23,10 +23,17 @@ namespace proyectoPaint
         private TrackBar brushSize;
         private Panel strokePreview;
         private Panel fillPreview;
+        private Panel propertyFillPreview;
+        private Panel propertyStrokePreview;
         private Label status;
         private CheckBox chkFill;
-        private Color strokeColor = Color.White;
-        private Color fillColor = Color.FromArgb(103, 82, 255);
+        private Color strokeColor = Color.Black;
+        private Color fillColor = Color.FromArgb(59, 130, 246);
+        private StrokeRenderStyle currentStrokeStyle = StrokeRenderStyle.Solid;
+        private int opacityPercent = 100;
+        private int flowPercent = 80;
+        private int smoothingValue = 60;
+        private int cornerRadius = 16;
         private PaintTool currentTool = PaintTool.Pencil;
         private DrawableShape previewShape;
         private DrawableShape selectedShape;
@@ -34,10 +41,19 @@ namespace proyectoPaint
         private Point lastPoint;
         private bool isDrawing;
         private bool isMovingSelection;
+        private bool documentDirty = true;
+        private bool hasHoverPoint;
         private bool gridVisible;
         private float zoom = 1F;
+        private Point hoverPoint;
+        private Bitmap cachedDocumentBitmap;
         private readonly Stopwatch repaintClock = Stopwatch.StartNew();
         private StudioCard layersCard;
+        private StudioCard toolSettingsCard;
+        private Label toolSettingsTitle;
+        private Panel toolPreviewStrip;
+        private readonly List<Button> strokeStyleButtons = new List<Button>();
+        private readonly List<Control> brushOnlyControls = new List<Control>();
 
         public Form1()
         {
@@ -47,6 +63,12 @@ namespace proyectoPaint
             documentController = new DocumentController(document);
             BuildStudio();
             RefreshCanvas();
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            if (cachedDocumentBitmap != null) cachedDocumentBitmap.Dispose();
+            base.OnFormClosed(e);
         }
 
         // ─── Layout ────────────────────────────────────────────────────────────
@@ -158,7 +180,7 @@ namespace proyectoPaint
             AddCommand(bar, "Select", StudioIcon.Select, 420, delegate { ActivateTool(PaintTool.Select); });
             AddCommand(bar, "Transform", StudioIcon.Transform, 476, delegate { ActivateTool(PaintTool.Select); status.Text = "Select a shape, then use Rotate or Scale in Properties."; });
             AddCommand(bar, "Arrange", StudioIcon.Arrange, 532, delegate { BringSelectedToFront(); });
-            AddCommand(bar, "Brush", StudioIcon.Brush, 692, delegate { ActivateTool(PaintTool.Pencil); });
+            AddCommand(bar, "Brush", StudioIcon.Brush, 692, delegate { ActivateTool(PaintTool.Brush); });
             AddCommand(bar, "Shape", StudioIcon.Rectangle, 748, delegate { ActivateTool(PaintTool.Rectangle); });
             AddCommand(bar, "Ellipse", StudioIcon.Ellipse, 804, delegate { ActivateTool(PaintTool.Ellipse); });
             AddCommand(bar, "Fill", StudioIcon.Fill, 860, delegate { ActivateTool(PaintTool.Fill); });
@@ -196,7 +218,7 @@ namespace proyectoPaint
             StudioCard tools = new StudioCard { Dock = DockStyle.Fill, BackColor = Color.FromArgb(17, 27, 43), Padding = new Padding(4) };
             FlowLayoutPanel list = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, BackColor = Color.FromArgb(17, 27, 43) };
             AddTool(list, "Select", StudioIcon.Select, PaintTool.Select);
-            AddTool(list, "Brush", StudioIcon.Brush, PaintTool.Pencil);
+            AddTool(list, "Brush", StudioIcon.Brush, PaintTool.Brush);
             AddTool(list, "Pencil", StudioIcon.Pencil, PaintTool.Pencil);
             AddTool(list, "Eraser", StudioIcon.Eraser, PaintTool.Eraser);
             AddTool(list, "Shape", StudioIcon.Rectangle, PaintTool.Rectangle);
@@ -216,7 +238,7 @@ namespace proyectoPaint
             btn.Click += ToolButton_Click;
             toolButtons.Add(btn);
             list.Controls.Add(btn);
-            if (tool == PaintTool.Pencil && caption == "Brush") btn.Selected = true;
+            if (tool == currentTool) btn.Selected = true;
         }
 
         // ─── Right Inspector (two columns) ─────────────────────────────────────
@@ -230,13 +252,13 @@ namespace proyectoPaint
             StudioCard colorCard = new StudioCard { BackColor = Color.FromArgb(17, 27, 43) };
             BuildColorCard(colorCard);
             layersCard = BuildLayersCard();
-            StudioCard brushCard = BuildBrushCard();
+            toolSettingsCard = BuildBrushCard();
             StudioCard shapeCard = BuildShapePanel();
             StudioCard propsCard = BuildPropertiesPanel();
 
             leftCol.Controls.Add(colorCard);
             leftCol.Controls.Add(layersCard);
-            leftCol.Controls.Add(brushCard);
+            leftCol.Controls.Add(toolSettingsCard);
             rightCol.Controls.Add(shapeCard);
             rightCol.Controls.Add(propsCard);
             right.Controls.Add(leftCol);
@@ -252,9 +274,9 @@ namespace proyectoPaint
 
                 colorCard.SetBounds(4, 4, cardWidth, 224);
                 layersCard.SetBounds(4, 234, cardWidth, 170);
-                brushCard.SetBounds(4, 410, cardWidth, Math.Max(202, right.Height - 416));
+                toolSettingsCard.SetBounds(4, 410, cardWidth, Math.Max(254, right.Height - 416));
                 shapeCard.SetBounds(4, 4, cardWidth, 216);
-                propsCard.SetBounds(4, 226, cardWidth, Math.Max(330, right.Height - 232));
+                propsCard.SetBounds(4, 226, cardWidth, Math.Max(390, right.Height - 232));
             };
             right.Resize += (s, e) => layout();
             right.HandleCreated += (s, e) => layout();
@@ -269,7 +291,7 @@ namespace proyectoPaint
             fillPreview   = AddColorTarget(card, "Fill",   98, 34, fillColor,   BtnFillColor_Click);
 
             ColorWheelControl wheel = new ColorWheelControl { Location = new Point(42, 64), Size = new Size(98, 98) };
-            wheel.ColorChanged += delegate { fillColor = wheel.SelectedColor; fillPreview.BackColor = fillColor; };
+            wheel.ColorChanged += delegate { SetFillColor(wheel.SelectedColor); };
             card.Controls.Add(wheel);
 
             // Swatches / Gradients tabs
@@ -279,7 +301,7 @@ namespace proyectoPaint
             Button grTab = new Button { Text = "Gradients", FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, ForeColor = Color.FromArgb(130, 155, 188), Font = new Font("Segoe UI", 7.5F), Size = new Size(82, 22), Location = new Point(82, 0) };
             grTab.FlatAppearance.BorderSize = 0;
             swTab.Click += (s, e) => { swTab.BackColor = Color.FromArgb(30, 46, 68); grTab.BackColor = Color.Transparent; status.Text = "Swatches selected"; };
-            grTab.Click += (s, e) => { grTab.BackColor = Color.FromArgb(30, 46, 68); swTab.BackColor = Color.Transparent; fillColor = Color.FromArgb(34, 211, 238); fillPreview.BackColor = fillColor; status.Text = "Gradient palette selected"; };
+            grTab.Click += (s, e) => { grTab.BackColor = Color.FromArgb(30, 46, 68); swTab.BackColor = Color.Transparent; SetFillColor(Color.FromArgb(34, 211, 238)); status.Text = "Gradient palette selected"; };
             tabRow.Controls.Add(swTab); tabRow.Controls.Add(grTab);
             card.Controls.Add(tabRow);
 
@@ -295,7 +317,7 @@ namespace proyectoPaint
                     using (var path = StudioCard.RoundedRect(new Rectangle(0, 0, 17, 17), 9))
                     using (var b = new SolidBrush(c)) e.Graphics.FillPath(b, path);
                 };
-                p.Click += (s, e) => { fillColor = c; fillPreview.BackColor = c; };
+                p.Click += (s, e) => SetFillColor(c);
                 card.Controls.Add(p);
             }
         }
@@ -332,51 +354,199 @@ namespace proyectoPaint
         private StudioCard BuildBrushCard()
         {
             StudioCard card = new StudioCard { BackColor = Color.FromArgb(17, 27, 43) };
-            card.Controls.Add(new Label { Text = "Brush Settings", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), AutoSize = true, Location = new Point(10, 10) });
+            toolSettingsTitle = new Label { Text = "Pencil Settings", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), AutoSize = true, Location = new Point(10, 10) };
+            card.Controls.Add(toolSettingsTitle);
 
             Button closeBtn = new Button { Text = "×", ForeColor = Color.FromArgb(140, 165, 200), Font = new Font("Segoe UI", 10F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(18, 18), Location = new Point(158, 8) };
             closeBtn.FlatAppearance.BorderSize = 0;
-            closeBtn.Click += (s, e) => { card.Visible = false; status.Text = "Brush settings hidden"; };
+            closeBtn.Click += (s, e) => { card.Visible = false; status.Text = "Tool settings hidden"; };
             card.Controls.Add(closeBtn);
 
-            // Brush stroke preview
-            Panel previewStrip = new Panel { Location = new Point(8, 32), Size = new Size(166, 36), BackColor = Color.FromArgb(11, 19, 32) };
-            previewStrip.Paint += (s, e) =>
+            toolPreviewStrip = new Panel { Location = new Point(8, 32), Size = new Size(166, 38), BackColor = Color.FromArgb(11, 19, 32) };
+            toolPreviewStrip.Paint += (s, e) =>
             {
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (Pen p = new Pen(Color.White, 3F) { StartCap = LineCap.Round, EndCap = LineCap.Round })
-                    e.Graphics.DrawBezier(p, new PointF(10, 24), new PointF(52, 6), new PointF(112, 32), new PointF(158, 12));
+                DrawToolPreview(e.Graphics, toolPreviewStrip.ClientRectangle);
             };
-            card.Controls.Add(previewStrip);
+            card.Controls.Add(toolPreviewStrip);
 
             // Size row
             thickness = new NumericUpDown { Minimum = 1, Maximum = 100, Value = 3, Visible = false };
-            card.Controls.Add(new Label { Text = "Size", ForeColor = Color.FromArgb(175, 195, 225), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, 76) });
-            brushSize = new TrackBar { Minimum = 1, Maximum = 100, Value = 3, TickStyle = TickStyle.None, Location = new Point(40, 70), Size = new Size(106, 26) };
-            Label sizeVal = new Label { Text = "3", ForeColor = Color.FromArgb(210, 225, 245), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(148, 76) };
+            Label sizeLabel = new Label { Text = "Size", ForeColor = Color.FromArgb(175, 195, 225), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(10, 78) };
+            card.Controls.Add(sizeLabel);
+            brushSize = new TrackBar { Minimum = 1, Maximum = 100, Value = 3, TickStyle = TickStyle.None, Location = new Point(8, 92), Size = new Size(138, 28) };
+            Label sizeVal = new Label { Text = "3", ForeColor = Color.FromArgb(210, 225, 245), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(152, 98) };
             brushSize.ValueChanged += delegate { thickness.Value = brushSize.Value; sizeVal.Text = brushSize.Value.ToString(); };
             thickness.ValueChanged += delegate { if (brushSize.Value != (int)thickness.Value) brushSize.Value = (int)thickness.Value; };
             card.Controls.Add(brushSize); card.Controls.Add(sizeVal);
 
-            chkFill = new CheckBox { Text = "Fill shapes", ForeColor = Color.FromArgb(195, 212, 236), Checked = true, Location = new Point(10, 100), AutoSize = true, Font = new Font("Segoe UI", 7.5F) };
+            chkFill = new CheckBox { Text = "Fill shapes", ForeColor = Color.FromArgb(195, 212, 236), Checked = true, Location = new Point(10, 122), AutoSize = true, Font = new Font("Segoe UI", 8F) };
             card.Controls.Add(chkFill);
 
-            AddBrushSlider(card, "Opacity",    122, 100);
-            AddBrushSlider(card, "Flow",       148, 80);
-            AddBrushSlider(card, "Smoothing",  174, 60);
+            AddBrushSlider(card, "Opacity", 146, opacityPercent, delegate(int value)
+            {
+                opacityPercent = value;
+                status.Text = "Opacity: " + value + "%";
+            });
+            AddBrushSlider(card, "Flow", 184, flowPercent, delegate(int value)
+            {
+                flowPercent = value;
+                status.Text = "Brush flow: " + value + "%";
+            }, true);
+            AddBrushSlider(card, "Smoothing", 222, smoothingValue, delegate(int value)
+            {
+                smoothingValue = value;
+                status.Text = "Brush smoothing: " + value + "%";
+            }, true);
 
-            Label moreLink = new Label { Text = "More Settings  ∨", ForeColor = Color.FromArgb(100, 130, 175), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, 202), Cursor = Cursors.Hand };
+            Label moreLink = new Label { Text = "More Settings  v", ForeColor = Color.FromArgb(100, 130, 175), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(10, 250), Cursor = Cursors.Hand };
             moreLink.Click += (s, e) => { chkFill.Checked = !chkFill.Checked; status.Text = chkFill.Checked ? "Shape fill enabled" : "Shape fill disabled"; };
             card.Controls.Add(moreLink);
+            UpdateToolSettingsTitle();
             return card;
         }
 
-        private void AddBrushSlider(Control card, string label, int top, int value)
+        private void AddBrushSlider(Control card, string label, int top, int value, Action<int> changed, bool brushOnly = false)
         {
-            card.Controls.Add(new Label { Text = label, ForeColor = Color.FromArgb(170, 192, 222), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, top) });
-            TrackBar bar = new TrackBar { Minimum = 0, Maximum = 100, Value = value, TickStyle = TickStyle.None, Location = new Point(62, top - 4), Size = new Size(86, 26) };
+            Label labelControl = new Label { Text = label, ForeColor = Color.FromArgb(170, 192, 222), Font = new Font("Segoe UI", 8F), AutoSize = false, Size = new Size(100, 18), Location = new Point(10, top) };
+            card.Controls.Add(labelControl);
+            Label valueLabel = new Label { Text = value + "%", ForeColor = Color.FromArgb(165, 188, 220), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(142, top) };
+            TrackBar bar = new TrackBar { Minimum = 0, Maximum = 100, Value = value, TickStyle = TickStyle.None, Location = new Point(8, top + 14), Size = new Size(138, 28) };
+            bar.ValueChanged += delegate
+            {
+                valueLabel.Text = bar.Value + "%";
+                if (changed != null) changed(bar.Value);
+            };
             card.Controls.Add(bar);
-            card.Controls.Add(new Label { Text = value + "%", ForeColor = Color.FromArgb(165, 188, 220), Font = new Font("Segoe UI", 7F), AutoSize = true, Location = new Point(150, top) });
+            card.Controls.Add(valueLabel);
+            if (brushOnly)
+            {
+                brushOnlyControls.Add(labelControl);
+                brushOnlyControls.Add(bar);
+                brushOnlyControls.Add(valueLabel);
+            }
+        }
+
+        private void DrawToolPreview(Graphics g, Rectangle bounds)
+        {
+            g.Clear(Color.FromArgb(11, 19, 32));
+            Rectangle r = new Rectangle(bounds.Left + 10, bounds.Top + 7, bounds.Width - 20, bounds.Height - 14);
+            Color ink = Color.White;
+            using (Pen pen = new Pen(ink, currentTool == PaintTool.Brush ? 3.2F : 2F))
+            using (SolidBrush fill = new SolidBrush(Color.FromArgb(115, fillColor.R, fillColor.G, fillColor.B)))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                if (currentTool == PaintTool.Brush)
+                {
+                    g.DrawBezier(pen, new PointF(r.Left, r.Bottom - 4), new PointF(r.Left + 45, r.Top - 2), new PointF(r.Right - 42, r.Bottom + 6), new PointF(r.Right, r.Top + 3));
+                }
+                else if (currentTool == PaintTool.Pencil)
+                {
+                    g.DrawLine(pen, r.Left + 6, r.Bottom - 3, r.Right - 8, r.Top + 4);
+                }
+                else if (currentTool == PaintTool.Eraser)
+                {
+                    using (Pen faded = new Pen(Color.FromArgb(80, 170, 190, 225), 2F))
+                        g.DrawLine(faded, r.Left, r.Bottom - 3, r.Right, r.Top + 5);
+                    Point[] eraser =
+                    {
+                        new Point(r.Left + 46, r.Bottom - 3),
+                        new Point(r.Left + 64, r.Top + 2),
+                        new Point(r.Left + 82, r.Top + 14),
+                        new Point(r.Left + 64, r.Bottom + 2)
+                    };
+                    using (SolidBrush eraserFill = new SolidBrush(Color.FromArgb(225, 235, 242, 255)))
+                        g.FillPolygon(eraserFill, eraser);
+                }
+                else if (currentTool == PaintTool.Fill)
+                {
+                    g.DrawLine(pen, r.Left + 38, r.Top + 2, r.Left + 86, r.Bottom - 2);
+                    g.DrawLine(pen, r.Left + 38, r.Top + 2, r.Left + 52, r.Top);
+                    g.FillEllipse(fill, r.Right - 36, r.Bottom - 13, 16, 16);
+                }
+                else if (currentTool == PaintTool.Ellipse)
+                {
+                    g.FillEllipse(fill, r.Left + 35, r.Top, 76, r.Height);
+                    g.DrawEllipse(pen, r.Left + 35, r.Top, 76, r.Height);
+                }
+                else if (currentTool == PaintTool.Line)
+                {
+                    ApplyPreviewDash(pen);
+                    g.DrawLine(pen, r.Left + 10, r.Bottom - 2, r.Right - 8, r.Top + 3);
+                }
+                else if (currentTool == PaintTool.Polygon)
+                {
+                    Point[] pts = { new Point(r.Left + 72, r.Top), new Point(r.Right - 20, r.Bottom), new Point(r.Left + 24, r.Bottom - 2) };
+                    g.FillPolygon(fill, pts);
+                    g.DrawPolygon(pen, pts);
+                }
+                else if (currentTool == PaintTool.RoundedRectangle)
+                {
+                    using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(r.Left + 30, r.Top, 86, r.Height), 10))
+                    {
+                        g.FillPath(fill, path);
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else if (currentTool == PaintTool.Arrow)
+                {
+                    pen.CustomEndCap = new AdjustableArrowCap(5, 6);
+                    g.DrawLine(pen, r.Left + 18, r.Bottom - 2, r.Right - 18, r.Top + 2);
+                }
+                else if (currentTool == PaintTool.Star)
+                {
+                    Point[] star = BuildPreviewStar(new Point(r.Left + r.Width / 2, r.Top + r.Height / 2), Math.Min(r.Width, r.Height) / 2);
+                    g.FillPolygon(fill, star);
+                    g.DrawPolygon(pen, star);
+                }
+                else if (currentTool == PaintTool.Blob)
+                {
+                    Point[] blob =
+                    {
+                        new Point(r.Left + 32, r.Top + 13),
+                        new Point(r.Left + 66, r.Top),
+                        new Point(r.Right - 26, r.Top + 8),
+                        new Point(r.Right - 18, r.Bottom - 4),
+                        new Point(r.Left + 72, r.Bottom),
+                        new Point(r.Left + 25, r.Bottom - 8)
+                    };
+                    g.FillPolygon(fill, blob);
+                    g.DrawPolygon(pen, blob);
+                }
+                else
+                {
+                    StudioToolButton.DrawIcon(g, new Rectangle(r.Left + r.Width / 2 - 12, r.Top, 24, 24), IconForTool(currentTool), ink);
+                }
+            }
+        }
+
+        private static Point[] BuildPreviewStar(Point center, int radius)
+        {
+            Point[] pts = new Point[10];
+            double inner = radius * 0.45;
+            for (int i = 0; i < pts.Length; i++)
+            {
+                double angle = -Math.PI / 2 + i * Math.PI / 5;
+                double distance = i % 2 == 0 ? radius : inner;
+                pts[i] = new Point(center.X + (int)Math.Round(Math.Cos(angle) * distance), center.Y + (int)Math.Round(Math.Sin(angle) * distance));
+            }
+            return pts;
+        }
+
+        private void ApplyPreviewDash(Pen pen)
+        {
+            if (currentStrokeStyle == StrokeRenderStyle.Dashed) pen.DashPattern = new[] { 5F, 4F };
+            if (currentStrokeStyle == StrokeRenderStyle.Dotted) pen.DashPattern = new[] { 1F, 4F };
+        }
+
+        private StudioIcon IconForTool(PaintTool tool)
+        {
+            if (tool == PaintTool.Select) return StudioIcon.Select;
+            if (tool == PaintTool.Rectangle) return StudioIcon.Rectangle;
+            if (tool == PaintTool.Bezier) return StudioIcon.Curve;
+            return StudioIcon.Pencil;
         }
 
         // ─── Shape panel ───────────────────────────────────────────────────────
@@ -393,14 +563,14 @@ namespace proyectoPaint
             var shapes = new (StudioIcon icon, PaintTool tool)[]
             {
                 (StudioIcon.Rectangle,   PaintTool.Rectangle),
-                (StudioIcon.RoundedRect, PaintTool.Rectangle),
+                (StudioIcon.RoundedRect, PaintTool.RoundedRectangle),
                 (StudioIcon.Ellipse,     PaintTool.Ellipse),
                 (StudioIcon.Polygon,     PaintTool.Polygon),
                 (StudioIcon.Line,        PaintTool.Line),
-                (StudioIcon.Arrow,       PaintTool.Line),
-                (StudioIcon.Star,        PaintTool.Polygon),
+                (StudioIcon.Arrow,       PaintTool.Arrow),
+                (StudioIcon.Star,        PaintTool.Star),
                 (StudioIcon.Curve,       PaintTool.Bezier),
-                (StudioIcon.Blob,        PaintTool.Rectangle),
+                (StudioIcon.Blob,        PaintTool.Blob),
             };
 
             for (int i = 0; i < shapes.Length; i++)
@@ -415,7 +585,8 @@ namespace proyectoPaint
                     Location = new Point(8 + col * 58, 34 + row * 58),
                     Size = new Size(50, 50)
                 };
-                btn.Click += (s, e) => ActivateTool(shape.tool);
+                PaintTool selectedTool = shape.tool;
+                btn.Click += (s, e) => ActivateTool(selectedTool);
                 card.Controls.Add(btn);
             }
             return card;
@@ -432,25 +603,23 @@ namespace proyectoPaint
 
             // Fill
             card.Controls.Add(new Label { Text = "Fill", ForeColor = Color.FromArgb(165, 188, 218), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, y) });
-            Panel grad = new Panel { Location = new Point(10, y + 16), Size = new Size(160, 22), Cursor = Cursors.Hand };
-            grad.Paint += (s, e) =>
-            {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var gb = new LinearGradientBrush(new Rectangle(0, 0, 161, 23), Color.FromArgb(88, 48, 230), Color.FromArgb(34, 211, 238), LinearGradientMode.Horizontal))
-                using (var path = StudioCard.RoundedRect(new Rectangle(0, 0, 159, 21), 8))
-                    e.Graphics.FillPath(gb, path);
-            };
-            grad.Click += (s, e) => { fillColor = Color.FromArgb(34, 211, 238); fillPreview.BackColor = fillColor; status.Text = "Cyan fill selected"; };
-            card.Controls.Add(grad);
+            Button fillButton = new Button { Text = "Fill", ForeColor = Color.FromArgb(205, 220, 242), Font = new Font("Segoe UI", 7.5F), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(24, 38, 58), Size = new Size(70, 24), Location = new Point(10, y + 16), Cursor = Cursors.Hand };
+            fillButton.FlatAppearance.BorderColor = Color.FromArgb(45, 70, 105);
+            fillButton.FlatAppearance.BorderSize = 1;
+            fillButton.Click += BtnFillColor_Click;
+            propertyFillPreview = new Panel { Location = new Point(86, y + 16), Size = new Size(24, 24), BackColor = fillColor, BorderStyle = BorderStyle.FixedSingle, Cursor = Cursors.Hand };
+            propertyFillPreview.Click += BtnFillColor_Click;
+            card.Controls.Add(fillButton);
+            card.Controls.Add(propertyFillPreview);
             y += 46;
 
             // Stroke
             card.Controls.Add(new Label { Text = "Stroke", ForeColor = Color.FromArgb(165, 188, 218), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, y) });
-            Panel strokeSw = new Panel { Location = new Point(10, y + 16), Size = new Size(20, 20), BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle, Cursor = Cursors.Hand };
-            strokeSw.Click += BtnStrokeColor_Click;
-            card.Controls.Add(strokeSw);
-            card.Controls.Add(new Label { Text = "2 px", ForeColor = Color.White, Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(36, y + 18) });
-            Button sDrop = new Button { Text = "▾", ForeColor = Color.FromArgb(150, 175, 210), Font = new Font("Segoe UI", 8F), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(24, 38, 58), Size = new Size(26, 20), Location = new Point(132, y + 15) };
+            propertyStrokePreview = new Panel { Location = new Point(10, y + 16), Size = new Size(20, 20), BackColor = strokeColor, BorderStyle = BorderStyle.FixedSingle, Cursor = Cursors.Hand };
+            propertyStrokePreview.Click += BtnStrokeColor_Click;
+            card.Controls.Add(propertyStrokePreview);
+            card.Controls.Add(new Label { Text = "3 px", ForeColor = Color.White, Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(36, y + 18) });
+            Button sDrop = new Button { Text = "▾", ForeColor = Color.FromArgb(150, 175, 210), Font = new Font("Segoe UI", 8F), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(24, 38, 58), Size = new Size(26, 20), Location = new Point(128, y + 15) };
             sDrop.FlatAppearance.BorderSize = 0;
             sDrop.Click += (s, e) =>
             {
@@ -458,7 +627,7 @@ namespace proyectoPaint
                 foreach (int value in new[] { 1, 2, 4, 8, 12 })
                 {
                     int width = value;
-                    menu.Items.Add(width + " px", null, (a, b) => { thickness.Value = width; status.Text = "Stroke: " + width + " px"; });
+                    menu.Items.Add(width + " px", null, (a, b) => { thickness.Value = width; ApplySelectedThickness(width); status.Text = "Stroke: " + width + " px"; });
                 }
                 menu.Show(sDrop, new Point(0, sDrop.Height));
             };
@@ -468,42 +637,48 @@ namespace proyectoPaint
             // Stroke Style
             card.Controls.Add(new Label { Text = "Stroke Style", ForeColor = Color.FromArgb(165, 188, 218), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, y) });
             string[] styleLabels = { "—", "- -", "···" };
+            strokeStyleButtons.Clear();
             for (int i = 0; i < 3; i++)
             {
-                Button sb = new Button { Text = styleLabels[i], ForeColor = Color.White, Font = new Font("Segoe UI", 9F), FlatStyle = FlatStyle.Flat, BackColor = i == 0 ? Color.FromArgb(44, 64, 98) : Color.FromArgb(22, 36, 54), Size = new Size(48, 22), Location = new Point(10 + i * 52, y + 16) };
+                Button sb = new Button { Text = styleLabels[i], ForeColor = Color.White, Font = new Font("Segoe UI", 9F), FlatStyle = FlatStyle.Flat, BackColor = i == 0 ? Color.FromArgb(44, 64, 98) : Color.FromArgb(22, 36, 54), Size = new Size(44, 22), Location = new Point(10 + i * 48, y + 16) };
                 sb.FlatAppearance.BorderColor = Color.FromArgb(55, 80, 118); sb.FlatAppearance.BorderSize = 1;
                 int styleIndex = i;
-                sb.Click += (s, e) => { status.Text = styleIndex == 0 ? "Solid stroke selected" : "Dashed styles are available for line tools"; };
+                sb.Click += (s, e) => SetStrokeStyle((StrokeRenderStyle)styleIndex);
+                strokeStyleButtons.Add(sb);
                 card.Controls.Add(sb);
             }
             y += 46;
 
             // Corner Radius
             card.Controls.Add(new Label { Text = "Corner Radius", ForeColor = Color.FromArgb(165, 188, 218), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, y) });
-            TrackBar cr = new TrackBar { Minimum = 0, Maximum = 100, Value = 16, TickStyle = TickStyle.None, Location = new Point(10, y + 14), Size = new Size(120, 26) };
-            Label crVal = new Label { Text = "16 px", ForeColor = Color.White, Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(134, y + 18) };
-            cr.ValueChanged += (s, e) => { crVal.Text = cr.Value + " px"; status.Text = "Corner radius: " + cr.Value + " px"; };
+            TrackBar cr = new TrackBar { Minimum = 0, Maximum = 100, Value = 16, TickStyle = TickStyle.None, Location = new Point(10, y + 14), Size = new Size(108, 26) };
+            Label crVal = new Label { Text = "16 px", ForeColor = Color.White, Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(124, y + 18) };
+            cr.ValueChanged += (s, e) => { cornerRadius = cr.Value; crVal.Text = cr.Value + " px"; ApplySelectedCornerRadius(cr.Value); status.Text = "Corner radius: " + cr.Value + " px"; };
             card.Controls.Add(cr); card.Controls.Add(crVal);
             y += 48;
 
             // Opacity
-            card.Controls.Add(new Label { Text = "Opacity", ForeColor = Color.FromArgb(165, 188, 218), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, y) });
-            TrackBar op = new TrackBar { Minimum = 0, Maximum = 100, Value = 100, TickStyle = TickStyle.None, Location = new Point(10, y + 14), Size = new Size(120, 26) };
-            Label opVal = new Label { Text = "100%", ForeColor = Color.White, Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(134, y + 18) };
+            y += 8;
+            card.Controls.Add(new Label { Text = "Opacity", ForeColor = Color.FromArgb(165, 188, 218), Font = new Font("Segoe UI", 7.5F), AutoSize = false, Size = new Size(100, 16), Location = new Point(10, y) });
+            TrackBar op = new TrackBar { Minimum = 0, Maximum = 100, Value = 100, TickStyle = TickStyle.None, Location = new Point(10, y + 14), Size = new Size(108, 26) };
+            Label opVal = new Label { Text = "100%", ForeColor = Color.White, Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(124, y + 18) };
             op.ValueChanged += (s, e) =>
             {
                 opVal.Text = op.Value + "%";
-                fillColor = Color.FromArgb((int)(255 * op.Value / 100F), fillColor.R, fillColor.G, fillColor.B);
+                opacityPercent = op.Value;
                 fillPreview.BackColor = Color.FromArgb(fillColor.R, fillColor.G, fillColor.B);
-                status.Text = "Fill opacity: " + op.Value + "%";
+                ApplySelectedOpacity(op.Value / 100F);
+                status.Text = "Opacity: " + op.Value + "%";
             };
             card.Controls.Add(op); card.Controls.Add(opVal);
 
-            Button rotate = PropertyButton("Rotate 15", 10, 258);
-            Button scaleUp = PropertyButton("Scale +", 66, 258);
-            Button scaleDown = PropertyButton("Scale -", 122, 258);
-            Button clear = PropertyButton("Clear canvas", 10, 286);
-            clear.Size = new Size(160, 24);
+            y += 66;
+
+            Button rotate = PropertyButton("Rotate", 10, y, 70);
+            Button scaleUp = PropertyButton("Scale +", 86, y, 70);
+            y += 32;
+            Button scaleDown = PropertyButton("Scale -", 10, y, 70);
+            Button clear = PropertyButton("Clear", 86, y, 70);
             rotate.Click += (s, e) => TransformSelected(shape => shape.Rotate(15));
             scaleUp.Click += (s, e) => TransformSelected(shape => shape.Scale(1.1F));
             scaleDown.Click += (s, e) => TransformSelected(shape => shape.Scale(0.9F));
@@ -520,16 +695,13 @@ namespace proyectoPaint
             Panel footer = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.FromArgb(9, 16, 28) };
             footer.Paint += (s, e) => e.Graphics.DrawLine(new Pen(Color.FromArgb(38, 54, 76)), 0, 0, footer.Width, 0);
 
-            footer.Controls.Add(new Label { Text = "Artboard 1  ▾", ForeColor = Color.FromArgb(215, 228, 244), AutoSize = true, Location = new Point(18, 12), Font = new Font("Segoe UI", 8.5F) });
-            footer.Controls.Add(new Label { Text = "1200 × 720 px", ForeColor = Color.FromArgb(110, 138, 175), AutoSize = true, Location = new Point(130, 12), Font = new Font("Segoe UI", 8.5F) });
-
-            Button gridBtn = new Button { Text = "⊞", ForeColor = Color.FromArgb(150, 178, 215), Font = new Font("Segoe UI", 12F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(26, 26), Location = new Point(274, 7) };
+            Button gridBtn = new Button { Text = "⊞", ForeColor = Color.FromArgb(150, 178, 215), Font = new Font("Segoe UI", 12F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(26, 26), Location = new Point(18, 7) };
             gridBtn.FlatAppearance.BorderSize = 0;
             gridBtn.Click += (s, e) => { gridVisible = !gridVisible; canvas.ShowGrid = gridVisible; status.Text = gridVisible ? "Grid enabled" : "Grid disabled"; canvas.Invalidate(); };
             footer.Controls.Add(gridBtn);
-            footer.Controls.Add(new Label { Text = "Grid", ForeColor = Color.FromArgb(110, 138, 175), AutoSize = true, Location = new Point(306, 12), Font = new Font("Segoe UI", 8.5F) });
+            footer.Controls.Add(new Label { Text = "Grid", ForeColor = Color.FromArgb(110, 138, 175), AutoSize = true, Location = new Point(50, 12), Font = new Font("Segoe UI", 8.5F) });
 
-            status = new Label { Text = "", ForeColor = Color.FromArgb(130, 158, 198), AutoSize = true, Location = new Point(390, 12), Font = new Font("Segoe UI", 8.5F) };
+            status = new Label { Text = "", ForeColor = Color.FromArgb(130, 158, 198), AutoSize = true, Location = new Point(120, 12), Font = new Font("Segoe UI", 8.5F) };
             footer.Controls.Add(status);
 
             // Zoom controls – anchored right
@@ -554,9 +726,9 @@ namespace proyectoPaint
 
         // ─── Tool / Canvas events ──────────────────────────────────────────────
 
-        private Button PropertyButton(string text, int x, int y)
+        private Button PropertyButton(string text, int x, int y, int width = 52)
         {
-            Button button = new Button { Text = text, Location = new Point(x, y), Size = new Size(52, 24), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(37, 55, 86), ForeColor = Color.White, Font = new Font("Segoe UI", 7F) };
+            Button button = new Button { Text = text, Location = new Point(x, y), Size = new Size(width, 24), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(37, 55, 86), ForeColor = Color.White, Font = new Font("Segoe UI", 7F) };
             button.FlatAppearance.BorderColor = Color.FromArgb(72, 103, 151);
             return button;
         }
@@ -564,12 +736,14 @@ namespace proyectoPaint
         private void AddShape(DrawableShape shape)
         {
             documentController.Add(shape);
+            documentDirty = true;
             UpdateLayers();
         }
 
         private void ClearDocument()
         {
             documentController.Clear();
+            documentDirty = true;
             pendingPoints.Clear();
             previewShape = null;
             selectedShape = null;
@@ -583,6 +757,7 @@ namespace proyectoPaint
         {
             if (!documentController.Undo()) { status.Text = "Nothing to undo"; return; }
             selectedShape = null;
+            documentDirty = true;
             status.Text = "Undo";
             RefreshCanvas();
             UpdateLayers();
@@ -591,6 +766,7 @@ namespace proyectoPaint
         private void Redo()
         {
             if (!documentController.Redo()) { status.Text = "Nothing to redo"; return; }
+            documentDirty = true;
             status.Text = "Redo";
             RefreshCanvas();
             UpdateLayers();
@@ -600,17 +776,113 @@ namespace proyectoPaint
         {
             if (selectedShape == null) { status.Text = "Select a shape first"; return; }
             documentController.BringToFront(selectedShape);
+            documentDirty = true;
             status.Text = "Shape moved to front";
             RefreshCanvas();
+            UpdateLayers();
         }
 
         private void TransformSelected(Action<DrawableShape> transform)
         {
             if (selectedShape == null) { status.Text = "Select a shape first"; return; }
             transform(selectedShape);
+            documentDirty = true;
             status.Text = "Transformation applied";
             RefreshCanvas();
         }
+
+        private void SetStrokeStyle(StrokeRenderStyle style)
+        {
+            currentStrokeStyle = style;
+            for (int i = 0; i < strokeStyleButtons.Count; i++)
+                strokeStyleButtons[i].BackColor = i == (int)style ? Color.FromArgb(44, 64, 98) : Color.FromArgb(22, 36, 54);
+            ApplySelectedShapeChange(shape => shape.StrokeStyle = style);
+            if (toolPreviewStrip != null) toolPreviewStrip.Invalidate();
+            status.Text = "Stroke style: " + style;
+        }
+
+        private void SetStrokeColor(Color color)
+        {
+            strokeColor = color;
+            strokePreview.BackColor = color;
+            if (propertyStrokePreview != null) propertyStrokePreview.BackColor = color;
+            ApplySelectedShapeChange(shape =>
+            {
+                if (!(shape is FloodFillShape)) shape.StrokeColor = color;
+            });
+            if (toolPreviewStrip != null) toolPreviewStrip.Invalidate();
+        }
+
+        private void SetFillColor(Color color)
+        {
+            fillColor = color;
+            fillPreview.BackColor = color;
+            if (propertyFillPreview != null) propertyFillPreview.BackColor = color;
+            ApplySelectedShapeChange(shape =>
+            {
+                if (CanUseFill(shape))
+                {
+                    shape.FillColor = color;
+                    shape.UseFill = true;
+                }
+            });
+            if (toolPreviewStrip != null) toolPreviewStrip.Invalidate();
+        }
+
+        private void ApplySelectedThickness(int value)
+        {
+            ApplySelectedShapeChange(shape => shape.Thickness = value);
+        }
+
+        private void ApplySelectedOpacity(float value)
+        {
+            ApplySelectedShapeChange(shape => shape.Opacity = value);
+        }
+
+        private void ApplySelectedCornerRadius(int value)
+        {
+            RoundedRectangleShape rounded = selectedShape as RoundedRectangleShape;
+            if (rounded == null) return;
+            rounded.SetCornerRadius(value);
+            documentDirty = true;
+            RefreshCanvas();
+        }
+
+        private bool CanUseFill(DrawableShape shape)
+        {
+            return !(shape is LineShape) && !(shape is PolylineShape) && !(shape is BezierShape) && !(shape is FloodFillShape);
+        }
+
+        private void ApplySelectedShapeChange(Action<DrawableShape> change)
+        {
+            if (selectedShape == null || change == null) return;
+            change(selectedShape);
+            documentDirty = true;
+            RefreshCanvas();
+        }
+
+        private void SyncPropertiesFromSelection()
+        {
+            if (selectedShape == null) return;
+            strokeColor = selectedShape.StrokeColor;
+            fillColor = selectedShape.FillColor;
+            currentStrokeStyle = selectedShape.StrokeStyle;
+            opacityPercent = (int)Math.Round(selectedShape.Opacity * 100F);
+            chkFill.Checked = selectedShape.UseFill;
+            if (strokePreview != null) strokePreview.BackColor = strokeColor;
+            if (propertyStrokePreview != null) propertyStrokePreview.BackColor = strokeColor;
+            if (fillPreview != null) fillPreview.BackColor = Color.FromArgb(fillColor.R, fillColor.G, fillColor.B);
+            if (propertyFillPreview != null) propertyFillPreview.BackColor = Color.FromArgb(fillColor.R, fillColor.G, fillColor.B);
+            if (thickness != null)
+            {
+                int value = Math.Max((int)thickness.Minimum, Math.Min((int)thickness.Maximum, selectedShape.Thickness));
+                thickness.Value = value;
+            }
+            for (int i = 0; i < strokeStyleButtons.Count; i++)
+                strokeStyleButtons[i].BackColor = i == (int)currentStrokeStyle ? Color.FromArgb(44, 64, 98) : Color.FromArgb(22, 36, 54);
+            if (toolPreviewStrip != null) toolPreviewStrip.Invalidate();
+        }
+
         private void ToolButton_Click(object sender, EventArgs e)
         {
             StudioToolButton btn = sender as StudioToolButton;
@@ -621,11 +893,27 @@ namespace proyectoPaint
 
         private void ActivateTool(PaintTool tool)
         {
-            currentTool = tool; pendingPoints.Clear(); previewShape = null; isDrawing = false;
+            currentTool = tool; pendingPoints.Clear(); previewShape = null; isDrawing = false; hasHoverPoint = false;
             StudioToolButton button = toolButtons.FirstOrDefault(b => b.Tag is PaintTool && (PaintTool)b.Tag == tool);
             if (button != null) SetActiveToolButton(button);
-            status.Text = "Tool: " + tool;
+            UpdateToolSettingsTitle();
+            status.Text = "Tool: " + ToolDisplayName(tool);
             RefreshCanvas();
+        }
+
+        private void UpdateToolSettingsTitle()
+        {
+            if (toolSettingsTitle == null) return;
+            toolSettingsTitle.Text = ToolDisplayName(currentTool) + " Settings";
+            bool showBrushOnly = currentTool == PaintTool.Brush;
+            foreach (Control control in brushOnlyControls) control.Visible = showBrushOnly;
+            if (toolPreviewStrip != null) toolPreviewStrip.Invalidate();
+        }
+
+        private string ToolDisplayName(PaintTool tool)
+        {
+            if (tool == PaintTool.RoundedRectangle) return "Rounded Rect";
+            return tool.ToString();
         }
 
         private void SetActiveToolButton(StudioToolButton active)
@@ -638,18 +926,24 @@ namespace proyectoPaint
             startPoint = ClampPoint(e.Location); lastPoint = startPoint;
             if (currentTool == PaintTool.Fill)
             {
-                AddShape(new FloodFillShape { Seed = startPoint, FillColor = fillColor, StrokeColor = strokeColor, Thickness = (int)thickness.Value, UseFill = true });
+                AddShape(NewShape(new FloodFillShape { Seed = startPoint }) as FloodFillShape);
                 RefreshCanvas(); return;
             }
             if (currentTool == PaintTool.Select)
             {
                 selectedShape = document.Shapes.LastOrDefault(s => s.HitTest(startPoint));
                 canvas.SelectedShape = selectedShape; isMovingSelection = selectedShape != null;
-                status.Text = selectedShape == null ? "No shape selected" : "Selected: " + selectedShape.Kind;
+                if (selectedShape != null) SyncPropertiesFromSelection();
+                status.Text = selectedShape == null ? "No shape selected" : "Selected: " + selectedShape.DisplayName;
                 RefreshCanvas(); return;
             }
+            if (currentTool == PaintTool.Bezier)
+            {
+                AddBezierPoint(startPoint);
+                return;
+            }
             isDrawing = true;
-            if (currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser)
+            if (currentTool == PaintTool.Brush || currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser)
             {
                 PolylineShape line = NewShape(new PolylineShape()) as PolylineShape;
                 line.Vertices.Add(startPoint); previewShape = line;
@@ -663,12 +957,20 @@ namespace proyectoPaint
             if (isMovingSelection && selectedShape != null)
             {
                 selectedShape.Translate(p.X - lastPoint.X, p.Y - lastPoint.Y);
+                documentDirty = true;
                 lastPoint = p;
                 if (repaintClock.ElapsedMilliseconds >= 16) { RefreshCanvas(); repaintClock.Restart(); }
                 return;
             }
+            if (currentTool == PaintTool.Bezier && pendingPoints.Count > 0)
+            {
+                hoverPoint = p;
+                hasHoverPoint = true;
+                if (repaintClock.ElapsedMilliseconds >= 16) { RefreshCanvas(); repaintClock.Restart(); }
+                return;
+            }
             if (!isDrawing) return;
-            if (currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser)
+            if (currentTool == PaintTool.Brush || currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser)
                 ((PolylineShape)previewShape).Vertices.Add(p);
             else
                 previewShape = BuildDragShape(startPoint, p);
@@ -695,7 +997,20 @@ namespace proyectoPaint
             previewShape = null; RefreshCanvas();
         }
 
-        private void CanvasDoubleClick(object sender, EventArgs e) { FinishPendingShape(); }
+        private void CanvasDoubleClick(object sender, EventArgs e)
+        {
+            if (currentTool == PaintTool.Bezier) return;
+            FinishPendingShape();
+        }
+
+        private void AddBezierPoint(Point point)
+        {
+            pendingPoints.Add(point);
+            hasHoverPoint = false;
+            status.Text = "Bezier point " + pendingPoints.Count + "/4";
+            if (pendingPoints.Count >= 4) FinishPendingShape();
+            else RefreshCanvas();
+        }
 
         private void FinishPendingShape()
         {
@@ -709,14 +1024,18 @@ namespace proyectoPaint
                 BezierShape curve = NewShape(new BezierShape()) as BezierShape;
                 curve.ControlPoints.AddRange(pendingPoints.Take(4)); AddShape(curve);
             }
-            pendingPoints.Clear(); previewShape = null; RefreshCanvas();
+            pendingPoints.Clear(); previewShape = null; hasHoverPoint = false; RefreshCanvas();
         }
 
         private DrawableShape BuildDragShape(Point a, Point b)
         {
             if (currentTool == PaintTool.Line) return NewShape(new LineShape { Start = a, End = b });
             if (currentTool == PaintTool.Rectangle) return NewShape(new RectangleShape(a, b));
+            if (currentTool == PaintTool.RoundedRectangle) return NewShape(new RoundedRectangleShape(a, b, cornerRadius));
             if (currentTool == PaintTool.Ellipse) return NewShape(new EllipseShape { A = a, B = b });
+            if (currentTool == PaintTool.Arrow) return NewShape(new ArrowShape(a, b, (int)thickness.Value));
+            if (currentTool == PaintTool.Star) return NewShape(new StarShape(a, b));
+            if (currentTool == PaintTool.Blob) return NewShape(new BlobShape(a, b));
             return null;
         }
 
@@ -725,7 +1044,18 @@ namespace proyectoPaint
             shape.StrokeColor = currentTool == PaintTool.Eraser ? document.BackgroundColor : strokeColor;
             shape.FillColor = fillColor;
             shape.Thickness = currentTool == PaintTool.Eraser ? Math.Max(10, (int)thickness.Value) : (int)thickness.Value;
-            shape.UseFill = chkFill.Checked && currentTool != PaintTool.Line && currentTool != PaintTool.Pencil && currentTool != PaintTool.Eraser;
+            shape.StrokeStyle = currentStrokeStyle;
+            shape.Opacity = opacityPercent / 100F;
+            shape.UseFill = chkFill.Checked && CanUseFill(shape);
+            if (currentTool == PaintTool.Eraser) shape.LayerName = "Borrador";
+            else if (currentTool == PaintTool.Brush) shape.LayerName = "Pincel";
+            else if (currentTool == PaintTool.Pencil) shape.LayerName = "Lapiz";
+            if (shape is PolylineShape)
+            {
+                PolylineShape line = (PolylineShape)shape;
+                line.Flow = currentTool == PaintTool.Brush ? flowPercent : 100;
+                line.Smoothing = currentTool == PaintTool.Brush ? smoothingValue : 0;
+            }
             return shape;
         }
 
@@ -737,14 +1067,48 @@ namespace proyectoPaint
 
         private void RefreshCanvas()
         {
-            if (pendingPoints.Count > 1)
+            if (currentTool == PaintTool.Bezier && pendingPoints.Count > 0)
+            {
+                previewShape = BuildBezierPreview();
+            }
+            else if (pendingPoints.Count > 1)
             {
                 PolylineShape guide = NewShape(new PolylineShape()) as PolylineShape;
                 guide.Vertices.AddRange(pendingPoints); previewShape = guide;
             }
             canvas.SelectedShape = selectedShape;
-            canvas.SetBitmap(document.Render(previewShape));
-            UpdateLayers();
+            if (cachedDocumentBitmap == null || documentDirty)
+            {
+                if (cachedDocumentBitmap != null) cachedDocumentBitmap.Dispose();
+                cachedDocumentBitmap = document.Render();
+                documentDirty = false;
+            }
+
+            if (previewShape == null)
+            {
+                canvas.SetBitmap((Bitmap)cachedDocumentBitmap.Clone());
+                return;
+            }
+
+            Bitmap frame = (Bitmap)cachedDocumentBitmap.Clone();
+            previewShape.Draw(frame);
+            canvas.SetBitmap(frame);
+        }
+
+        private DrawableShape BuildBezierPreview()
+        {
+            List<Point> points = new List<Point>(pendingPoints);
+            if (hasHoverPoint && points.Count < 4) points.Add(hoverPoint);
+            if (points.Count >= 4)
+            {
+                BezierShape curve = NewShape(new BezierShape()) as BezierShape;
+                curve.ControlPoints.AddRange(points.Take(4));
+                return curve;
+            }
+
+            PolylineShape guide = NewShape(new PolylineShape()) as PolylineShape;
+            guide.Vertices.AddRange(points);
+            return guide;
         }
 
         private void SetZoom(Label label, int change)
@@ -767,7 +1131,8 @@ namespace proyectoPaint
             {
                 if (selectedShape == null) { status.Text = "Select a shape first"; return; }
                 documentController.Remove(selectedShape); selectedShape = null; canvas.SelectedShape = null;
-                status.Text = "Layer deleted"; RefreshCanvas();
+                documentDirty = true;
+                status.Text = "Layer deleted"; RefreshCanvas(); UpdateLayers();
             });
             menu.Show(owner, new Point(0, owner.Height));
         }
@@ -782,19 +1147,19 @@ namespace proyectoPaint
             {
                 DrawableShape shape = document.Shapes[document.Shapes.Count - 1 - i];
                 Panel row = new Panel { Tag = "layer-row", Location = new Point(6, 34 + i * 28), Size = new Size(170, 25), BackColor = shape == selectedShape ? Color.FromArgb(32, 50, 100) : Color.FromArgb(20, 32, 50), Cursor = Cursors.Hand };
-                Label name = new Label { Text = shape.Kind, Tag = shape, AutoSize = false, Size = new Size(135, 20), Location = new Point(8, 3), ForeColor = Color.FromArgb(205, 220, 242), Font = new Font("Segoe UI", 7.5F) };
-                EventHandler choose = (s, e) => { selectedShape = shape; canvas.SelectedShape = shape; status.Text = "Selected: " + shape.Kind; RefreshCanvas(); };
+                Label name = new Label { Text = shape.DisplayName, Tag = shape, AutoSize = false, Size = new Size(135, 20), Location = new Point(8, 3), ForeColor = Color.FromArgb(205, 220, 242), Font = new Font("Segoe UI", 7.5F) };
+                EventHandler choose = (s, e) => { selectedShape = shape; canvas.SelectedShape = shape; status.Text = "Selected: " + shape.DisplayName; SyncPropertiesFromSelection(); RefreshCanvas(); };
                 row.Click += choose; name.Click += choose; row.Controls.Add(name); layersCard.Controls.Add(row);
             }
         }
 
-        private void BtnStrokeColor_Click(object sender, EventArgs e) { PickColor(ref strokeColor, strokePreview); }
-        private void BtnFillColor_Click(object sender, EventArgs e) { PickColor(ref fillColor, fillPreview); }
+        private void BtnStrokeColor_Click(object sender, EventArgs e) { PickColor(strokeColor, SetStrokeColor); }
+        private void BtnFillColor_Click(object sender, EventArgs e) { PickColor(fillColor, SetFillColor); }
 
-        private void PickColor(ref Color target, Panel preview)
+        private void PickColor(Color current, Action<Color> apply)
         {
-            using (ColorDialog dlg = new ColorDialog { Color = target, FullOpen = true })
-                if (dlg.ShowDialog() == DialogResult.OK) { target = dlg.Color; preview.BackColor = target; }
+            using (ColorDialog dlg = new ColorDialog { Color = current, FullOpen = true })
+                if (dlg.ShowDialog() == DialogResult.OK && apply != null) apply(dlg.Color);
         }
 
         private void SaveImage(object sender, EventArgs e)
@@ -828,7 +1193,8 @@ namespace proyectoPaint
                 document.Width = loaded.Width; document.Height = loaded.Height;
                 document.BackgroundColor = loaded.BackgroundColor;
                 canvas.Size = new Size(document.Width, document.Height);
-                selectedShape = null; RefreshCanvas();
+                documentDirty = true;
+                selectedShape = null; RefreshCanvas(); UpdateLayers();
                 status.Text = "Project opened";
             }
         }
