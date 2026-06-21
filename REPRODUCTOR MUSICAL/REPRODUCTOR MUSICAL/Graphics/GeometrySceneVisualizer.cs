@@ -25,7 +25,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.Clear(Color.FromArgb(7, 9, 15));
+            graphics.Clear(Color.FromArgb(7, 9, 15)); // Color base del fondo.
 
             DrawBackdrop(graphics, bounds);
             DrawReactiveStars(graphics, bounds);
@@ -40,7 +40,9 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             using (var brush = new LinearGradientBrush(
                 bounds,
+                // Color fondo arriba/izquierda.
                 Color.FromArgb(4, 6, 14),
+                // Color fondo abajo/derecha.
                 Color.FromArgb(20, 14, 38),
                 LinearGradientMode.ForwardDiagonal))
             {
@@ -54,8 +56,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 path.AddEllipse(center.X - glowRadius, center.Y - glowRadius, glowRadius * 2, glowRadius * 2);
                 using (var brush = new PathGradientBrush(path))
                 {
-                    brush.CenterColor = Color.FromArgb(80 + (int)(currentFrame.Pulse * 90), 109, 240, 214);
-                    brush.SurroundColors = new[] { Color.FromArgb(0, 109, 240, 214) };
+                    brush.CenterColor = Color.FromArgb(80 + (int)(currentFrame.Pulse * 90), 109, 240, 214); // Color brillo grande de fondo.
+                    brush.SurroundColors = new[] { Color.FromArgb(0, 109, 240, 214) }; // Color borde del brillo de fondo.
                     graphics.FillPath(brush, path);
                 }
             }
@@ -73,10 +75,10 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var size = 1.0f + band * 3.8f + currentFrame.Treble * 1.8f + currentFrame.Pulse * 2.2f;
                 var alpha = ClampAlpha(30 + twinkle * 85 + band * 110 + currentFrame.Pulse * 55);
                 var starColor = i % 5 == 0
-                    ? Color.FromArgb(alpha, 255, 204, 105)
+                    ? Color.FromArgb(alpha, 255, 204, 105) // Color estrellas amarillas.
                     : i % 3 == 0
-                        ? Color.FromArgb(alpha, 156, 230, 255)
-                        : Color.FromArgb(alpha, 235, 240, 255);
+                        ? Color.FromArgb(alpha, 156, 230, 255) // Color estrellas celestes.
+                        : Color.FromArgb(alpha, 235, 240, 255); // Color estrellas blancas.
 
                 using (var brush = new SolidBrush(starColor))
                 {
@@ -123,11 +125,11 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var cyanAlpha = Math.Min(240, 80 + (int)(lineEnergy * 135) + (int)(currentFrame.Pulse * 45));
                 var roseAlpha = Math.Min(220, 45 + (int)(lineEnergy * 105) + (int)(currentFrame.Pulse * 45));
 
-                DrawGlowLine(graphics, nodes[i], nodes[next], Color.FromArgb(cyanAlpha, 109, 240, 214), 1.1f + lineEnergy * 4.2f + currentFrame.Pulse * 1.4f);
+                DrawGlowLine(graphics, nodes[i], nodes[next], Color.FromArgb(cyanAlpha, 109, 240, 214), 1.1f + lineEnergy * 4.2f + currentFrame.Pulse * 1.4f); // Color lineas principales.
 
                 if (i % 2 == 0)
                 {
-                    DrawGlowLine(graphics, nodes[i], nodes[jump], Color.FromArgb(roseAlpha, 239, 94, 115), 0.8f + lineEnergy * 2.7f + currentFrame.Pulse * 1.2f);
+                    DrawGlowLine(graphics, nodes[i], nodes[jump], Color.FromArgb(roseAlpha, 239, 94, 115), 0.8f + lineEnergy * 2.7f + currentFrame.Pulse * 1.2f); // Color lineas secundarias.
                 }
             }
 
@@ -136,7 +138,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var band = GetSpectrumValue(i, NodeCount);
                 var size = 3.5f + band * 18 + currentFrame.Pulse * 7;
                 var alpha = Math.Min(255, 150 + (int)(band * 95));
-                using (var brush = new SolidBrush(Color.FromArgb(alpha, 255, 200, 87)))
+                using (var brush = new SolidBrush(Color.FromArgb(alpha, 255, 200, 87))) // Color puntos de la constelacion.
                 {
                     graphics.FillEllipse(brush, nodes[i].X - size / 2, nodes[i].Y - size / 2, size, size);
                 }
@@ -158,6 +160,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var sides = i % 2 == 0 ? 6 : 3;
                 var size = 18 + i * 4 + band * 70 + currentFrame.Intensity * 18 + currentFrame.Pulse * 32;
                 var rotation = -angle * (1.2f + i * 0.16f + band * 1.4f + currentFrame.Pulse * 1.1f);
+                // Color figuras que orbitan: celeste, amarillo y rojo.
                 var color = i % 3 == 0
                     ? Color.FromArgb(60 + (int)(band * 105), 109, 240, 214)
                     : i % 3 == 1
@@ -176,16 +179,16 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             var outer = 56 + lowBand * 130 + currentFrame.Pulse * 70;
             var inner = 24 + midBand * 78 + currentFrame.Intensity * 20 + currentFrame.Pulse * 38;
 
-            DrawPolygon(graphics, center, 6, outer, angle, Color.FromArgb(86, 109, 240, 214));
-            DrawPolygon(graphics, center, 3, outer * 0.72f, -angle * 1.8f, Color.FromArgb(90, 239, 94, 115));
+            DrawPolygon(graphics, center, 6, outer, angle, Color.FromArgb(86, 109, 240, 214)); // Color figura central hexagono.
+            DrawPolygon(graphics, center, 3, outer * 0.72f, -angle * 1.8f, Color.FromArgb(90, 239, 94, 115)); // Color figura central triangulo.
 
             using (var path = new GraphicsPath())
             {
                 path.AddEllipse(center.X - inner, center.Y - inner, inner * 2, inner * 2);
                 using (var brush = new PathGradientBrush(path))
                 {
-                    brush.CenterColor = Color.FromArgb(230, 255, 255, 255);
-                    brush.SurroundColors = new[] { Color.FromArgb(35, 109, 240, 214) };
+                    brush.CenterColor = Color.FromArgb(230, 255, 255, 255); // Color bola blanca central.
+                    brush.SurroundColors = new[] { Color.FromArgb(35, 109, 240, 214) }; // Color brillo alrededor de la bola.
                     graphics.FillPath(brush, path);
                 }
             }
@@ -201,7 +204,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var band = AverageSpectrum(i * 10, 10);
                 var radius = maxRadius * (0.18f + i * 0.18f) + band * 110 + currentFrame.Pulse * (38 + i * 14);
                 var alpha = Math.Min(210, 35 + (int)(band * 130) + (int)(currentFrame.Pulse * 50));
-                using (var pen = new Pen(Color.FromArgb(alpha, 109, 240, 214), 1.2f + band * 5 + currentFrame.Pulse * 2.2f))
+                using (var pen = new Pen(Color.FromArgb(alpha, 109, 240, 214), 1.2f + band * 5 + currentFrame.Pulse * 2.2f)) // Color aros expansivos.
                 {
                     graphics.DrawEllipse(pen, center.X - radius, center.Y - radius, radius * 2, radius * 2);
                 }

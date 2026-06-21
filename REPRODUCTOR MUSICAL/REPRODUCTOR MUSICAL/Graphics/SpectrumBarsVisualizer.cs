@@ -50,7 +50,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var contour = 0.52f + 0.48f * (float)Math.Sin(normalizedIndex * Math.PI);
                 var energy = Clamp(musicalMotion * 0.86f + currentFrame.Intensity * 0.20f + currentFrame.Pulse * 0.18f);
                 var height = 9 + energy * contour * bounds.Height * 0.42f;
-                var color = GetSpectrumColor(normalizedIndex);
+                var color = GetSpectrumColor(normalizedIndex); // Color barras; se cambia en GetSpectrumColor.
 
                 DrawGlowBar(graphics, x, centerY, barWidth, height, color);
                 DrawReflectionBar(graphics, x, centerY, barWidth, height, color);
@@ -65,8 +65,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
 
             using (var glowBrush = new LinearGradientBrush(
                 glowRectangle,
-                Color.FromArgb(0, color),
-                Color.FromArgb(90, color),
+                Color.FromArgb(0, color), // Color brillo barra transparente.
+                Color.FromArgb(90, color), // Color brillo barra.
                 LinearGradientMode.Vertical))
             {
                 graphics.FillRectangle(glowBrush, glowRectangle);
@@ -74,14 +74,14 @@ namespace REPRODUCTOR_MUSICAL.Graphics
 
             using (var brush = new LinearGradientBrush(
                 mainRectangle,
-                Color.FromArgb(255, 255, 255, 245),
+                Color.FromArgb(255, 255, 255, 245), // Color punta blanca de cada barra.
                 color,
                 LinearGradientMode.Vertical))
             {
                 graphics.FillRectangle(brush, mainRectangle);
             }
 
-            using (var pen = new Pen(Color.FromArgb(135, 255, 255, 255), 1))
+            using (var pen = new Pen(Color.FromArgb(135, 255, 255, 255), 1)) // Color linea blanca interna de barras.
             {
                 graphics.DrawLine(pen, x + width / 2f, y, x + width / 2f, y + height);
             }
@@ -94,8 +94,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
 
             using (var brush = new LinearGradientBrush(
                 reflectionRectangle,
-                Color.FromArgb(95, color),
-                Color.FromArgb(0, color),
+                Color.FromArgb(95, color), // Color reflejo de barra.
+                Color.FromArgb(0, color), // Color reflejo transparente.
                 LinearGradientMode.Vertical))
             {
                 graphics.FillRectangle(brush, reflectionRectangle);
@@ -106,8 +106,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             var centerY = bounds.Height / 2f;
 
-            using (var glowPen = new Pen(Color.FromArgb(115, 109, 240, 214), 5))
-            using (var linePen = new Pen(Color.FromArgb(230, 255, 255, 255), 1.4f))
+            using (var glowPen = new Pen(Color.FromArgb(115, 109, 240, 214), 5)) // Color brillo linea central.
+            using (var linePen = new Pen(Color.FromArgb(230, 255, 255, 255), 1.4f)) // Color linea central blanca.
             {
                 graphics.DrawLine(glowPen, 42, centerY, bounds.Width - 42, centerY);
                 graphics.DrawLine(linePen, 42, centerY, bounds.Width - 42, centerY);
@@ -124,7 +124,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var radius = radiusBase + i * 42 + currentFrame.Pulse * (44 + i * 12);
                 var alpha = ClampAlpha(42 - i * 7 + currentFrame.Pulse * 55);
 
-                using (var pen = new Pen(Color.FromArgb(alpha, 109, 240, 214), 1.2f + currentFrame.Pulse * 1.5f))
+                using (var pen = new Pen(Color.FromArgb(alpha, 109, 240, 214), 1.2f + currentFrame.Pulse * 1.5f)) // Color aros del fondo.
                 {
                     graphics.DrawEllipse(pen, center.X - radius, center.Y - radius, radius * 2, radius * 2);
                 }
@@ -140,7 +140,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
             {
                 var t = i / (float)(count - 1);
                 var spectrum = GetSpectrumValue(t);
-                var color = GetSpectrumColor(t);
+                var color = GetSpectrumColor(t); // Color particulas; se cambia en GetSpectrumColor.
                 var wave = Math.Sin(phase * 1.8 + i * 0.44);
                 var x = 48 + t * (bounds.Width - 96);
                 var y = centerY + (float)wave * (26 + spectrum * 120) * (i % 2 == 0 ? 1 : -1);
@@ -158,7 +158,9 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             using (var brush = new LinearGradientBrush(
                 bounds,
+                // Color fondo arriba/izquierda.
                 Color.FromArgb(5, 8, 16),
+                // Color fondo abajo/derecha.
                 Color.FromArgb(17, 13, 34),
                 LinearGradientMode.ForwardDiagonal))
             {
@@ -174,8 +176,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 path.AddEllipse(centerX - radius, centerY - radius, radius * 2, radius * 2);
                 using (var brush = new PathGradientBrush(path))
                 {
-                    brush.CenterColor = Color.FromArgb(66 + (int)(currentFrame.Pulse * 45), 80, 50, 190);
-                    brush.SurroundColors = new[] { Color.FromArgb(0, 80, 50, 190) };
+                    brush.CenterColor = Color.FromArgb(66 + (int)(currentFrame.Pulse * 45), 80, 50, 190); // Color brillo grande del fondo.
+                    brush.SurroundColors = new[] { Color.FromArgb(0, 80, 50, 190) }; // Color borde del brillo de fondo.
                     graphics.FillPath(brush, path);
                 }
             }
@@ -201,24 +203,29 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             if (t < 0.18f)
             {
+                // Color gradiente 1: rosa fuerte a rojo.
                 return Blend(Color.FromArgb(255, 65, 170), Color.FromArgb(255, 95, 110), t / 0.18f);
             }
 
             if (t < 0.38f)
             {
+                // Color gradiente 2: rojo a amarillo.
                 return Blend(Color.FromArgb(255, 95, 110), Color.FromArgb(255, 222, 88), (t - 0.18f) / 0.20f);
             }
 
             if (t < 0.62f)
             {
+                // Color gradiente 3: amarillo a verde/celeste.
                 return Blend(Color.FromArgb(255, 222, 88), Color.FromArgb(70, 245, 210), (t - 0.38f) / 0.24f);
             }
 
             if (t < 0.82f)
             {
+                // Color gradiente 4: verde/celeste a azul.
                 return Blend(Color.FromArgb(70, 245, 210), Color.FromArgb(70, 170, 255), (t - 0.62f) / 0.20f);
             }
 
+            // Color gradiente 5: azul a morado.
             return Blend(Color.FromArgb(70, 170, 255), Color.FromArgb(205, 95, 255), (t - 0.82f) / 0.18f);
         }
 

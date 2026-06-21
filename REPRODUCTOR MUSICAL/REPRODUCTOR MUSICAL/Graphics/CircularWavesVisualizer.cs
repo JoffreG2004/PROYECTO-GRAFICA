@@ -36,7 +36,9 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             using (var brush = new LinearGradientBrush(
                 bounds,
+                // Color fondo arriba/izquierda.
                 Color.FromArgb(5, 8, 16),
+                // Color fondo abajo/derecha.
                 Color.FromArgb(18, 13, 34),
                 LinearGradientMode.ForwardDiagonal))
             {
@@ -52,8 +54,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 using (var glow = new PathGradientBrush(path))
                 {
                     glow.CenterPoint = center;
-                    glow.CenterColor = Color.FromArgb(90 + (int)(currentFrame.Pulse * 45), 42, 222, 205);
-                    glow.SurroundColors = new[] { Color.FromArgb(0, 42, 222, 205) };
+                    glow.CenterColor = Color.FromArgb(90 + (int)(currentFrame.Pulse * 45), 42, 222, 205); // Color brillo grande del fondo.
+                    glow.SurroundColors = new[] { Color.FromArgb(0, 42, 222, 205) }; // Color borde del brillo de fondo.
                     graphics.FillPath(glow, path);
                 }
             }
@@ -72,8 +74,8 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var radius = baseRadius + i * 48 + currentFrame.Pulse * (18 + i * 7) + (float)Math.Sin(phase * 1.6 + i) * 6;
                 var alpha = ClampAlpha(48 - i * 5 + currentFrame.Pulse * 55);
                 var color = i % 2 == 0
-                    ? Color.FromArgb(alpha, 41, 221, 218)
-                    : Color.FromArgb(alpha, 126, 118, 255);
+                    ? Color.FromArgb(alpha, 41, 221, 218) // Color anillos pares.
+                    : Color.FromArgb(alpha, 126, 118, 255); // Color anillos impares.
 
                 using (var pen = new Pen(color, 1.3f + currentFrame.Pulse * 1.6f))
                 {
@@ -106,6 +108,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                         center.Y + (float)Math.Sin(angle) * radius);
                 }
 
+                // Color ondas circulares: capa 1 rosa, capa 2 celeste, capa 3 amarillo.
                 var color = layer == 0
                     ? Color.FromArgb(185, 255, 95, 170)
                     : layer == 1
@@ -140,7 +143,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var y1 = center.Y + (float)Math.Sin(angle) * inner;
                 var x2 = center.X + (float)Math.Cos(angle) * outer;
                 var y2 = center.Y + (float)Math.Sin(angle) * outer;
-                var color = GetSpectrumColor(t);
+                var color = GetSpectrumColor(t); // Color barras radiales; se cambia en GetSpectrumColor.
                 var alpha = ClampAlpha(80 + energy * 155);
 
                 using (var pen = new Pen(Color.FromArgb(alpha, color), 1.2f + energy * 3.2f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
@@ -164,7 +167,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var x = center.X + (float)Math.Cos(angle) * radius;
                 var y = center.Y + (float)Math.Sin(angle) * radius;
                 var size = 4 + band * 11 + currentFrame.Pulse * 5;
-                var color = GetSpectrumColor(t);
+                var color = GetSpectrumColor(t); // Color bolitas alrededor; se cambia en GetSpectrumColor.
 
                 using (var glowBrush = new SolidBrush(Color.FromArgb(38, color)))
                 using (var brush = new SolidBrush(Color.FromArgb(210, color)))
@@ -185,13 +188,13 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 path.AddEllipse(center.X - coreRadius, center.Y - coreRadius, coreRadius * 2, coreRadius * 2);
                 using (var brush = new PathGradientBrush(path))
                 {
-                    brush.CenterColor = Color.FromArgb(238, 255, 255, 245);
-                    brush.SurroundColors = new[] { Color.FromArgb(30, 255, 95, 170) };
+                    brush.CenterColor = Color.FromArgb(238, 255, 255, 245); // Color bola blanca central.
+                    brush.SurroundColors = new[] { Color.FromArgb(30, 255, 95, 170) }; // Color brillo alrededor de la bola.
                     graphics.FillPath(brush, path);
                 }
             }
 
-            using (var pen = new Pen(Color.FromArgb(210, 41, 221, 218), 2.2f + currentFrame.Pulse * 3f))
+            using (var pen = new Pen(Color.FromArgb(210, 41, 221, 218), 2.2f + currentFrame.Pulse * 3f)) // Color aro alrededor de la bola.
             {
                 var radius = coreRadius + 22 + currentFrame.Pulse * 24;
                 graphics.DrawEllipse(pen, center.X - radius, center.Y - radius, radius * 2, radius * 2);
@@ -210,7 +213,7 @@ namespace REPRODUCTOR_MUSICAL.Graphics
                 var twinkle = 0.45f + 0.55f * (float)Math.Sin(phase * 2.2f + i);
                 var size = 1f + twinkle * 2f + currentFrame.Treble * 1.8f;
                 var alpha = ClampAlpha(22 + twinkle * 80 + currentFrame.Treble * 70);
-                var color = i % 2 == 0 ? Color.FromArgb(alpha, 41, 221, 218) : Color.FromArgb(alpha, 255, 95, 170);
+                var color = i % 2 == 0 ? Color.FromArgb(alpha, 41, 221, 218) : Color.FromArgb(alpha, 255, 95, 170); // Color estrellas/fonditos.
 
                 using (var brush = new SolidBrush(color))
                 {
@@ -237,19 +240,23 @@ namespace REPRODUCTOR_MUSICAL.Graphics
         {
             if (t < 0.20f)
             {
+                // Color gradiente 1: rosa fuerte a rojo.
                 return Blend(Color.FromArgb(255, 70, 170), Color.FromArgb(255, 95, 115), t / 0.20f);
             }
 
             if (t < 0.45f)
             {
+                // Color gradiente 2: rojo a amarillo.
                 return Blend(Color.FromArgb(255, 95, 115), Color.FromArgb(255, 215, 86), (t - 0.20f) / 0.25f);
             }
 
             if (t < 0.70f)
             {
+                // Color gradiente 3: amarillo a celeste.
                 return Blend(Color.FromArgb(255, 215, 86), Color.FromArgb(41, 221, 218), (t - 0.45f) / 0.25f);
             }
 
+            // Color gradiente 4: celeste a morado.
             return Blend(Color.FromArgb(41, 221, 218), Color.FromArgb(126, 118, 255), (t - 0.70f) / 0.30f);
         }
 

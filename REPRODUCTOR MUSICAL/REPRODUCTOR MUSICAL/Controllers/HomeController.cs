@@ -44,7 +44,7 @@ namespace REPRODUCTOR_MUSICAL.Controllers
             this.playerState = playerState ?? throw new ArgumentNullException(nameof(playerState));
             playbackTimer = new Timer { Interval = 250 };
             animationTimer = new Timer { Interval = 33 };
-            autoModeTimer = new Timer { Interval = 13000 };
+            autoModeTimer = new Timer { Interval = 8000 };
             visualizers = new Dictionary<string, IVisualizer>
             {
                 { "Barras de espectro", new SpectrumBarsVisualizer() },

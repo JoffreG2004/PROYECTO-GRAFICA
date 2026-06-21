@@ -1,10 +1,46 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\5TO SEMESTRE\\GRAFICA\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\",
+  "WorkspaceRootPath": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|d:\\5to semestre\\grafica\\proyecto-grafica\\reproductor musical\\reproductor musical\\graphics\\geometryscenevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|c:\\proyecto-grafica\\reproductor musical\\reproductor musical\\views\\frmhome.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\views\\frmhome.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\graphics\\particlevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\graphics\\particlevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\graphics\\geometryscenevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\graphics\\geometryscenevisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\graphics\\circularwavesvisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\graphics\\circularwavesvisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\infrastructure\\applicationfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\infrastructure\\applicationfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\services\\audiodynamicsprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\services\\audiodynamicsprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\graphics\\ivisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\graphics\\ivisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\graphics\\spectrumbarsvisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\graphics\\spectrumbarsvisualizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\views\\frmhome.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\views\\frmhome.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\reproductor musical\\views\\roundedpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B122F4-848D-427D-BD4E-E0A0EEB93763}|REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL.csproj|solutionrelative:reproductor musical\\views\\roundedpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -47,15 +83,122 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "GeometrySceneVisualizer.cs",
-              "DocumentMoniker": "D:\\5TO SEMESTRE\\GRAFICA\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
-              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
-              "ToolTip": "D:\\5TO SEMESTRE\\GRAFICA\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
-              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "Title": "FrmHome.cs [Dise\u00F1o]",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Views\\FrmHome.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Views\\FrmHome.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Views\\FrmHome.cs [Dise\u00F1o]",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Views\\FrmHome.cs [Dise\u00F1o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T15:41:27.864Z",
+              "EditorCaption": " [Dise\u00F1o]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ParticleVisualizer.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\ParticleVisualizer.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\ParticleVisualizer.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\ParticleVisualizer.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\ParticleVisualizer.cs",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAswHcAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T14:41:28.435Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AudioDynamicsProcessor.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Services\\AudioDynamicsProcessor.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Services\\AudioDynamicsProcessor.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Services\\AudioDynamicsProcessor.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Services\\AudioDynamicsProcessor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T13:32:22.496Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ApplicationFactory.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Infrastructure\\ApplicationFactory.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Infrastructure\\ApplicationFactory.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Infrastructure\\ApplicationFactory.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Infrastructure\\ApplicationFactory.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-16T02:55:55.194Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-16T14:24:23.535Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CircularWavesVisualizer.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\CircularWavesVisualizer.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\CircularWavesVisualizer.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\CircularWavesVisualizer.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\CircularWavesVisualizer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T14:28:19.363Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "GeometrySceneVisualizer.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\GeometrySceneVisualizer.cs",
+              "ViewState": "AgIAAKMAAAAAAAAAAADwv6cAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T02:55:55.194Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "SpectrumBarsVisualizer.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\SpectrumBarsVisualizer.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\SpectrumBarsVisualizer.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\SpectrumBarsVisualizer.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\SpectrumBarsVisualizer.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAowJgAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T14:30:06.33Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IVisualizer.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\IVisualizer.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Graphics\\IVisualizer.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Graphics\\IVisualizer.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Graphics\\IVisualizer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T14:39:26.7Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "RoundedPanel.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Views\\RoundedPanel.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Views\\RoundedPanel.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Views\\RoundedPanel.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Views\\RoundedPanel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T14:23:25.03Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "FrmHome.cs",
+              "DocumentMoniker": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Views\\FrmHome.cs",
+              "RelativeDocumentMoniker": "REPRODUCTOR MUSICAL\\Views\\FrmHome.cs",
+              "ToolTip": "C:\\PROYECTO-GRAFICA\\REPRODUCTOR MUSICAL\\REPRODUCTOR MUSICAL\\Views\\FrmHome.cs",
+              "RelativeToolTip": "REPRODUCTOR MUSICAL\\Views\\FrmHome.cs",
+              "ViewState": "AgIAALcBAAAAAAAAAAAwwBgAAACCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-16T14:25:01.466Z"
             }
           ]
         }
