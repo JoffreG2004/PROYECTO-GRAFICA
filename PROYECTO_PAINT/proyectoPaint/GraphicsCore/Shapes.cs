@@ -141,8 +141,7 @@ namespace proyectoPaint.GraphicsCore
         private void DrawEllipseParametric(Bitmap bmp, Rectangle r)
         {
             Point center = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2);
-            double rx = Math.Max(1, r.Width / 2.0);
-            double ry = Math.Max(1, r.Height / 2.0);
+            double rx = Math.Max(1, r.Width / 2.0), ry = Math.Max(1, r.Height / 2.0);
             Point prev = new Point(center.X + (int)rx, center.Y);
             for (int i = 1; i <= 360; i++)
             {
@@ -187,10 +186,11 @@ namespace proyectoPaint.GraphicsCore
         {
             double u = 1 - t;
             Point p0 = ControlPoints[0], p1 = ControlPoints[1], p2 = ControlPoints[2], p3 = ControlPoints[3];
-            int x = (int)Math.Round(u * u * u * p0.X + 3 * u * u * t * p1.X + 3 * u * t * t * p2.X + t * t * t * p3.X);
-            int y = (int)Math.Round(u * u * u * p0.Y + 3 * u * u * t * p1.Y + 3 * u * t * t * p2.Y + t * t * t * p3.Y);
-            return new Point(x, y);
+            return new Point(
+                (int)Math.Round(u * u * u * p0.X + 3 * u * u * t * p1.X + 3 * u * t * t * p2.X + t * t * t * p3.X),
+                (int)Math.Round(u * u * u * p0.Y + 3 * u * u * t * p1.Y + 3 * u * t * t * p2.Y + t * t * t * p3.Y));
         }
+
     }
 
     public class FloodFillShape : DrawableShape

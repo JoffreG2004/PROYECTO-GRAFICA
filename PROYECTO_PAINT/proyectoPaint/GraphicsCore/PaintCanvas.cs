@@ -7,6 +7,8 @@ namespace proyectoPaint.GraphicsCore
     {
         public Bitmap CurrentBitmap { get; private set; }
         public DrawableShape SelectedShape { get; set; }
+        public bool ShowGrid { get; set; }
+        public float Zoom { get; set; } = 1F;
 
         public PaintCanvas()
         {
@@ -27,12 +29,22 @@ namespace proyectoPaint.GraphicsCore
             base.OnPaint(e);
             if (CurrentBitmap != null)
             {
-                e.Graphics.DrawImageUnscaled(CurrentBitmap, 0, 0);
+                e.Graphics.DrawImage(CurrentBitmap, new Rectangle(0, 0, Width, Height));
+            }
+
+            if (ShowGrid)
+            {
+                using (Pen grid = new Pen(Color.FromArgb(35, 45, 100, 180)))
+                {
+                    for (int x = 0; x < Width; x += 20) e.Graphics.DrawLine(grid, x, 0, x, Height);
+                    for (int y = 0; y < Height; y += 20) e.Graphics.DrawLine(grid, 0, y, Width, y);
+                }
             }
 
             if (SelectedShape != null)
             {
-                Rectangle b = SelectedShape.Bounds;
+                Rectangle raw = SelectedShape.Bounds;
+                Rectangle b = new Rectangle((int)(raw.X * Zoom), (int)(raw.Y * Zoom), (int)(raw.Width * Zoom), (int)(raw.Height * Zoom));
                 using (Pen pen = new Pen(Color.FromArgb(40, 120, 215), 2))
                 {
                     pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;

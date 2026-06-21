@@ -18,3 +18,16 @@ D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Release\proyectoPa
 D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Release\proyectoPaint.csproj.CoreCompileInputs.cache
 D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Release\proyectoPaint.exe
 D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\Release\proyectoPaint.pdb
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.csproj.AssemblyReference.cache
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.Form1.resources
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.Properties.Resources.resources
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.csproj.GenerateResource.cache
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.exe
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.pdb
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Release\proyectoPaint.exe.config
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Release\proyectoPaint.exe
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Release\proyectoPaint.pdb
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Release\System.Resources.Extensions.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Release\System.Formats.Nrbf.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyectoPaint.csproj.CoreCompileInputs.cache
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Release\proyecto.DBE91A3F.Up2Date

@@ -27,3 +27,16 @@ D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FunctionalVerify\p
 D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FinalVerify\proyectoPaint.exe.config
 D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FinalVerify\proyectoPaint.exe
 D:\5TO SEMESTRE\RECUPERADO D\PRUEBA_GRAFICA\proyectoPaint\obj\FinalVerify\proyectoPaint.pdb
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\proyectoPaint.exe.config
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\proyectoPaint.exe
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\proyectoPaint.pdb
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.csproj.AssemblyReference.cache
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.Form1.resources
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.Properties.Resources.resources
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.csproj.GenerateResource.cache
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.csproj.CoreCompileInputs.cache
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.exe
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.pdb
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Resources.Extensions.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Formats.Nrbf.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyecto.DBE91A3F.Up2Date
