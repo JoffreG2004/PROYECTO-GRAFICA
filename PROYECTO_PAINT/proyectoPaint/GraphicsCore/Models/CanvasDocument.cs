@@ -16,7 +16,7 @@ namespace proyectoPaint.GraphicsCore
             using (Graphics g = Graphics.FromImage(bmp))
                 g.Clear(BackgroundColor);
             foreach (DrawableShape shape in Shapes)
-                shape.Draw(bmp);
+                if (shape.Visible) shape.Draw(bmp);
             if (preview != null) preview.Draw(bmp);
             return bmp;
         }

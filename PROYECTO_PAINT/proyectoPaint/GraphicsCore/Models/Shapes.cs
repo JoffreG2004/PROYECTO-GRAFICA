@@ -13,6 +13,7 @@ namespace proyectoPaint.GraphicsCore
         public bool UseFill { get; set; }
         public StrokeRenderStyle StrokeStyle { get; set; }
         public float Opacity { get; set; } = 1F;
+        public bool Visible { get; set; } = true;
         public string LayerName { get; set; }
         public abstract string Kind { get; }
         public virtual string DisplayName { get { return string.IsNullOrEmpty(LayerName) ? Kind : LayerName; } }

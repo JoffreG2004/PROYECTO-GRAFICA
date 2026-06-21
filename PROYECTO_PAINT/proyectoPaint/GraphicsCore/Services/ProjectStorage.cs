@@ -27,7 +27,8 @@ namespace proyectoPaint.GraphicsCore
                     new XAttribute("thickness", shape.Thickness),
                     new XAttribute("useFill", shape.UseFill),
                     new XAttribute("strokeStyle", shape.StrokeStyle),
-                    new XAttribute("opacity", shape.Opacity.ToString(CultureInfo.InvariantCulture)));
+                    new XAttribute("opacity", shape.Opacity.ToString(CultureInfo.InvariantCulture)),
+                    new XAttribute("visible", shape.Visible));
                 if (!string.IsNullOrEmpty(shape.LayerName))
                     node.Add(new XAttribute("layerName", shape.LayerName));
                 if (shape is RoundedRectangleShape)
@@ -70,6 +71,7 @@ namespace proyectoPaint.GraphicsCore
                 shape.UseFill = ReadBool(node, "useFill", false);
                 shape.StrokeStyle = ReadStrokeStyle(node, "strokeStyle", StrokeRenderStyle.Solid);
                 shape.Opacity = ReadFloat(node, "opacity", 1F);
+                shape.Visible = ReadBool(node, "visible", true);
                 shape.LayerName = ReadString(node, "layerName", null);
                 if (shape is RoundedRectangleShape)
                     ((RoundedRectangleShape)shape).CornerRadius = ReadInt(node, "cornerRadius", 0);

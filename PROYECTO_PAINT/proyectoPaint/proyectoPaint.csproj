@@ -62,6 +62,11 @@
     <Compile Include="GraphicsCore\Views\StudioControls.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="GraphicsCore\Views\ColorPanelControl.cs" />
+    <Compile Include="GraphicsCore\Views\LayersPanelControl.cs" />
+    <Compile Include="GraphicsCore\Views\ToolSettingsPanelControl.cs" />
+    <Compile Include="GraphicsCore\Views\ShapePanelControl.cs" />
+    <Compile Include="GraphicsCore\Views\PropertiesPanelControl.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

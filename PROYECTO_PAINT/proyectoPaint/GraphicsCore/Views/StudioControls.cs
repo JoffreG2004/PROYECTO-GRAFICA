@@ -80,10 +80,13 @@ namespace proyectoPaint.GraphicsCore
             using (SolidBrush brush = new SolidBrush(background)) e.Graphics.FillRectangle(brush, ClientRectangle);
         }
 
+        // Brand-consistent accent (matches the header logo + Export button).
+        public static readonly Color Accent = Color.FromArgb(124, 92, 250);
+
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            Color fill = selected ? Color.FromArgb(55, 72, 130) : (hover ? Color.FromArgb(35, 53, 74) : Color.Transparent);
+            Color fill = selected ? Color.FromArgb(48, 40, 92) : (hover ? Color.FromArgb(35, 53, 74) : Color.Transparent);
             if (fill != Color.Transparent)
             {
                 using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 10))
@@ -91,9 +94,13 @@ namespace proyectoPaint.GraphicsCore
             }
             if (selected)
             {
-                using (Pen accent = new Pen(Color.FromArgb(99, 130, 255), 2))
                 using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 10))
+                using (Pen accent = new Pen(Accent, 1.6F))
                     e.Graphics.DrawPath(accent, path);
+                // Left indicator bar makes the active tool unmistakable.
+                using (SolidBrush bar = new SolidBrush(Accent))
+                using (GraphicsPath barPath = StudioCard.RoundedRect(new Rectangle(2, Height / 2 - 11, 4, 22), 2))
+                    e.Graphics.FillPath(bar, barPath);
             }
             Color ink = selected ? Color.White : Color.FromArgb(200, 215, 238);
             int iconY = Caption == "" ? Height / 2 - 12 : 10;
