@@ -31,13 +31,21 @@ namespace proyectoPaint
         private Point lastPoint;
         private bool isDrawing;
         private bool isMovingSelection;
+        private PolygonShape editingPolygon;
+        private int editingVertexIndex = -1;
+        private int regularPolygonSides = 3;
         private bool documentDirty = true;
         private bool hasHoverPoint;
         private bool gridVisible;
         private float zoom = 1F;
         private Point hoverPoint;
         private Bitmap cachedDocumentBitmap;
+        private Bitmap activeStrokeBitmap;
+        private Point activeStrokeLastPoint;
         private readonly Stopwatch repaintClock = Stopwatch.StartNew();
+        private readonly Stopwatch strokeClock = Stopwatch.StartNew();
+        private readonly Timer fillAnimationTimer = new Timer { Interval = 16 };
+        private FloodFillShape animatedFillShape;
         // Inspector panel controls (uno por card del panel derecho)
         private ColorPanelControl colorPanel;
         private LayersPanelControl layersPanel;
@@ -50,6 +58,7 @@ namespace proyectoPaint
             document.Width = 920;
             document.Height = 600;
             documentController = new DocumentController(document);
+            fillAnimationTimer.Tick += FillAnimationTick;
             BuildStudio();
             RefreshCanvas();
             UpdateLayers();
@@ -58,6 +67,7 @@ namespace proyectoPaint
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             if (cachedDocumentBitmap != null) cachedDocumentBitmap.Dispose();
+            if (activeStrokeBitmap != null) activeStrokeBitmap.Dispose();
             base.OnFormClosed(e);
         }
 
@@ -106,6 +116,10 @@ namespace proyectoPaint
             Label brandMark = new Label { Text = "*", ForeColor = Color.FromArgb(137, 82, 255), Font = new Font("Segoe UI", 24F), AutoSize = true, Location = new Point(18, 8) };
             Label brand = new Label { Text = "proyectoPaint", ForeColor = Color.FromArgb(244, 247, 255), Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold), AutoSize = true, Location = new Point(56, 17) };
             Label edition = new Label { Text = "STUDIO", ForeColor = Color.FromArgb(159, 130, 255), Font = new Font("Segoe UI", 7.5F, FontStyle.Bold), AutoSize = true, Location = new Point(198, 23) };
+            Button drawNav = new Button { Text = "Dibujar", ForeColor = Color.White, FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Font = new Font("Segoe UI Semibold", 8.5F), Size = new Size(62, 28), Location = new Point(250, 14) };
+            Button labNav = new Button { Text = "Laboratorio", ForeColor = Color.FromArgb(185, 166, 255), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Font = new Font("Segoe UI Semibold", 8.5F), Size = new Size(92, 28), Location = new Point(314, 14), Cursor = Cursors.Hand };
+            drawNav.FlatAppearance.BorderSize = 0; labNav.FlatAppearance.BorderSize = 0;
+            labNav.Click += (s, e) => { using (AlgorithmLabForm lab = new AlgorithmLabForm()) lab.ShowDialog(this); };
 
             StudioCard tab = new StudioCard { Location = new Point(265, 7), Size = new Size(192, 42), BackColor = Color.FromArgb(22, 32, 48) };
             Label tabTitle = new Label { Text = "Sin título", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 8.5F), AutoSize = true, Location = new Point(12, 7) };
@@ -130,7 +144,7 @@ namespace proyectoPaint
             exportBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(138, 108, 255);
             exportBtn.Click += SaveImage;
 
-            header.Controls.Add(brandMark); header.Controls.Add(brand); header.Controls.Add(edition);
+            header.Controls.Add(brandMark); header.Controls.Add(brand); header.Controls.Add(edition); header.Controls.Add(drawNav); header.Controls.Add(labNav);
             header.Controls.Add(tab); header.Controls.Add(newTab); header.Controls.Add(exportBtn);
             header.Resize += (s, e) => exportBtn.Location = new Point(header.Width - 122, 10);
             return header;
@@ -286,6 +300,7 @@ namespace proyectoPaint
 
             // Selector de forma
             shapePanel.ToolSelected += tool => ActivateTool(tool);
+            shapePanel.RegularPolygonSelected += sides => { regularPolygonSides = sides; ActivateTool(PaintTool.RegularPolygon); status.Text = "Polígono de " + sides + " lados: arrastra desde el centro."; };
 
             // Propiedades
             propertiesPanel.FillColorPickRequested   += () => PickColor(fillColor, SetFillColor);
@@ -317,9 +332,9 @@ namespace proyectoPaint
 
                 colorPanel.SetBounds(4, 4, cardWidth, 224);
                 layersPanel.SetBounds(4, 234, cardWidth, 186);
-                toolSettingsPanel.SetBounds(4, 426, cardWidth, Math.Max(260, right.Height - 432));
-                shapePanel.SetBounds(4, 4, cardWidth, 220);
-                propertiesPanel.SetBounds(4, 230, cardWidth, Math.Max(440, right.Height - 236));
+                toolSettingsPanel.SetBounds(4, 426, cardWidth, Math.Max(320, right.Height - 432));
+                shapePanel.SetBounds(4, 4, cardWidth, 320);
+                propertiesPanel.SetBounds(4, 330, cardWidth, Math.Max(340, right.Height - 336));
             };
             right.Resize += (s, e) => layout();
             right.HandleCreated += (s, e) => layout();
@@ -550,13 +565,30 @@ namespace proyectoPaint
             startPoint = ClampPoint(e.Location); lastPoint = startPoint;
             if (currentTool == PaintTool.Fill)
             {
-                AddShape(NewShape(new FloodFillShape { Seed = startPoint }) as FloodFillShape);
+                // Un relleno del mismo color que el fondo parece que "no hace nada".
+                // Elegimos un azul visible y lo reflejamos en los selectores.
+                if (fillColor.ToArgb() == document.BackgroundColor.ToArgb())
+                {
+                    fillColor = Color.FromArgb(59, 130, 246);
+                    colorPanel.SetFillColor(fillColor);
+                    propertiesPanel.SetFillColor(fillColor);
+                }
+                FloodFillShape fill = NewShape(new FloodFillShape { Seed = startPoint }) as FloodFillShape;
+                fill.MaxSpans = 0;
+                AddShape(fill);
+                animatedFillShape = fill;
+                fillAnimationTimer.Start();
+                status.Text = "Rellenando región…";
                 RefreshCanvas(); return;
             }
             if (currentTool == PaintTool.Select)
             {
                 selectedShape = document.Shapes.LastOrDefault(s => s.HitTest(startPoint));
                 canvas.SelectedShape = selectedShape; isMovingSelection = selectedShape != null;
+                PolygonShape polygon = selectedShape as PolygonShape;
+                editingVertexIndex = FindVertex(polygon, startPoint);
+                editingPolygon = editingVertexIndex >= 0 ? polygon : null;
+                if (editingPolygon != null) isMovingSelection = false;
                 if (selectedShape != null) SyncPropertiesFromSelection();
                 status.Text = selectedShape == null ? "Ninguna forma seleccionada" : "Seleccionado: " + selectedShape.DisplayName;
                 RefreshCanvas(); return;
@@ -566,11 +598,20 @@ namespace proyectoPaint
                 AddBezierPoint(startPoint);
                 return;
             }
+            if (currentTool == PaintTool.Polygon)
+            {
+                AddPolygonPoint(startPoint);
+                return;
+            }
             isDrawing = true;
             if (currentTool == PaintTool.Brush || currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser)
             {
                 PolylineShape line = NewShape(new PolylineShape()) as PolylineShape;
                 line.Vertices.Add(startPoint); previewShape = line;
+                EnsureDocumentCache();
+                activeStrokeBitmap = (Bitmap)cachedDocumentBitmap.Clone();
+                activeStrokeLastPoint = startPoint;
+                strokeClock.Restart();
             }
         }
 
@@ -586,7 +627,14 @@ namespace proyectoPaint
                 if (repaintClock.ElapsedMilliseconds >= 16) { RefreshCanvas(); repaintClock.Restart(); }
                 return;
             }
-            if (currentTool == PaintTool.Bezier && pendingPoints.Count > 0)
+            if (editingPolygon != null && editingVertexIndex >= 0)
+            {
+                editingPolygon.Vertices[editingVertexIndex] = p;
+                documentDirty = true;
+                if (repaintClock.ElapsedMilliseconds >= 16) { RefreshCanvas(); repaintClock.Restart(); }
+                return;
+            }
+            if ((currentTool == PaintTool.Bezier || currentTool == PaintTool.Polygon) && pendingPoints.Count > 0)
             {
                 hoverPoint = p;
                 hasHoverPoint = true;
@@ -595,7 +643,16 @@ namespace proyectoPaint
             }
             if (!isDrawing) return;
             if (currentTool == PaintTool.Brush || currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser)
-                ((PolylineShape)previewShape).Vertices.Add(p);
+            {
+                PolylineShape stroke = (PolylineShape)previewShape;
+                stroke.Vertices.Add(p);
+                if (strokeClock.ElapsedMilliseconds >= 8)
+                {
+                    GraphicsAlgorithms.DrawLine(activeStrokeBitmap, activeStrokeLastPoint, p, stroke.GetRenderPaint(), stroke.Thickness, stroke.StrokeStyle);
+                    activeStrokeLastPoint = p;
+                    strokeClock.Restart();
+                }
+            }
             else
                 previewShape = BuildDragShape(startPoint, p);
             if (repaintClock.ElapsedMilliseconds >= 16) { RefreshCanvas(); repaintClock.Restart(); }
@@ -603,10 +660,16 @@ namespace proyectoPaint
 
         private void CanvasMouseUp(object sender, MouseEventArgs e)
         {
+            if (editingPolygon != null) { editingPolygon = null; editingVertexIndex = -1; documentDirty = true; RefreshCanvas(); return; }
             if (isMovingSelection) { isMovingSelection = false; RefreshCanvas(); return; }
             if (!isDrawing) return;
             isDrawing = false;
             Point end = ClampPoint(e.Location);
+            if (activeStrokeBitmap != null && (currentTool == PaintTool.Brush || currentTool == PaintTool.Pencil || currentTool == PaintTool.Eraser))
+            {
+                PolylineShape stroke = (PolylineShape)previewShape;
+                if (activeStrokeLastPoint != end) { stroke.Vertices.Add(end); GraphicsAlgorithms.DrawLine(activeStrokeBitmap, activeStrokeLastPoint, end, stroke.GetRenderPaint(), stroke.Thickness, stroke.StrokeStyle); }
+            }
             if (currentTool == PaintTool.Polygon || currentTool == PaintTool.Bezier)
             {
                 pendingPoints.Add(end);
@@ -618,13 +681,39 @@ namespace proyectoPaint
             }
             if (previewShape == null) previewShape = BuildDragShape(startPoint, end);
             if (previewShape != null) AddShape(previewShape);
-            previewShape = null; RefreshCanvas();
+            previewShape = null;
+            if (activeStrokeBitmap != null) { activeStrokeBitmap.Dispose(); activeStrokeBitmap = null; }
+            RefreshCanvas();
         }
 
         private void CanvasDoubleClick(object sender, EventArgs e)
         {
             if (currentTool == PaintTool.Bezier) return;
             FinishPendingShape();
+        }
+
+        private void AddPolygonPoint(Point point)
+        {
+            if (pendingPoints.Count > 0 && pendingPoints[pendingPoints.Count - 1] == point) return;
+            pendingPoints.Add(point);
+            hasHoverPoint = false;
+            status.Text = "Polígono: " + pendingPoints.Count + " puntos. Doble clic para cerrar.";
+            RefreshCanvas();
+        }
+
+        private void FillAnimationTick(object sender, EventArgs e)
+        {
+            if (animatedFillShape == null) { fillAnimationTimer.Stop(); return; }
+            animatedFillShape.MaxSpans += 8;
+            documentDirty = true;
+            RefreshCanvas();
+            if (animatedFillShape.IsComplete)
+            {
+                animatedFillShape.MaxSpans = int.MaxValue;
+                animatedFillShape = null;
+                fillAnimationTimer.Stop();
+                status.Text = "Relleno completado";
+            }
         }
 
         private void AddBezierPoint(Point point)
@@ -660,7 +749,21 @@ namespace proyectoPaint
             if (currentTool == PaintTool.Arrow)            return NewShape(new ArrowShape(a, b, toolSettingsPanel.BrushSize));
             if (currentTool == PaintTool.Star)             return NewShape(new StarShape(a, b));
             if (currentTool == PaintTool.Blob)             return NewShape(new BlobShape(a, b));
+            if (currentTool == PaintTool.RegularPolygon)   return NewShape(new RegularPolygonShape(a, b, regularPolygonSides));
             return null;
+        }
+
+        private int FindVertex(PolygonShape polygon, Point point)
+        {
+            if (polygon == null) return -1;
+            int radius = Math.Max(8, (int)(10 / Math.Max(.5F, zoom)));
+            int vertex = -1, nearest = radius * radius;
+            for (int i = 0; i < polygon.Vertices.Count; i++)
+            {
+                int dx = polygon.Vertices[i].X - point.X, dy = polygon.Vertices[i].Y - point.Y, distance = dx * dx + dy * dy;
+                if (distance <= nearest) { vertex = i; nearest = distance; }
+            }
+            return vertex;
         }
 
         private DrawableShape NewShape(DrawableShape shape)
@@ -693,19 +796,29 @@ namespace proyectoPaint
         {
             if (currentTool == PaintTool.Bezier && pendingPoints.Count > 0)
                 previewShape = BuildBezierPreview();
+            else if (currentTool == PaintTool.Polygon && pendingPoints.Count > 0)
+            {
+                PolylineShape guide = NewShape(new PolylineShape()) as PolylineShape;
+                guide.Thickness = 1;
+                guide.Opacity = .7F;
+                guide.Vertices.AddRange(pendingPoints); previewShape = guide;
+                if (hasHoverPoint && hoverPoint != pendingPoints[pendingPoints.Count - 1]) guide.Vertices.Add(hoverPoint);
+            }
             else if (pendingPoints.Count > 1)
             {
                 PolylineShape guide = NewShape(new PolylineShape()) as PolylineShape;
+                guide.Thickness = 1;
+                guide.Opacity = .7F;
                 guide.Vertices.AddRange(pendingPoints); previewShape = guide;
             }
             canvas.SelectedShape = selectedShape;
-            if (cachedDocumentBitmap == null || documentDirty)
-            {
-                if (cachedDocumentBitmap != null) cachedDocumentBitmap.Dispose();
-                cachedDocumentBitmap = document.Render();
-                documentDirty = false;
-            }
+            EnsureDocumentCache();
 
+            if (activeStrokeBitmap != null && previewShape is PolylineShape)
+            {
+                canvas.SetBitmap((Bitmap)activeStrokeBitmap.Clone());
+                return;
+            }
             if (previewShape == null)
             {
                 canvas.SetBitmap((Bitmap)cachedDocumentBitmap.Clone());
@@ -715,6 +828,16 @@ namespace proyectoPaint
             Bitmap frame = (Bitmap)cachedDocumentBitmap.Clone();
             previewShape.Draw(frame);
             canvas.SetBitmap(frame);
+        }
+
+        private void EnsureDocumentCache()
+        {
+            if (cachedDocumentBitmap == null || documentDirty)
+            {
+                if (cachedDocumentBitmap != null) cachedDocumentBitmap.Dispose();
+                cachedDocumentBitmap = document.Render();
+                documentDirty = false;
+            }
         }
 
         private DrawableShape BuildBezierPreview()

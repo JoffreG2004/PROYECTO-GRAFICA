@@ -51,6 +51,18 @@ namespace proyectoPaint.GraphicsCore
                     b.Inflate(6, 6);
                     e.Graphics.DrawRectangle(pen, b);
                 }
+                PolygonShape polygon = SelectedShape as PolygonShape;
+                if (polygon != null)
+                {
+                    using (Brush handle = new SolidBrush(Color.White))
+                    using (Pen outline = new Pen(Color.FromArgb(40, 120, 215), 1.5F))
+                        foreach (Point point in polygon.Vertices)
+                        {
+                            int x = (int)(point.X * Zoom), y = (int)(point.Y * Zoom);
+                            e.Graphics.FillEllipse(handle, x - 4, y - 4, 8, 8);
+                            e.Graphics.DrawEllipse(outline, x - 4, y - 4, 8, 8);
+                        }
+                }
             }
         }
     }

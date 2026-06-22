@@ -12,6 +12,7 @@ namespace proyectoPaint.GraphicsCore
         private Panel _preview;
         private TrackBar _sizeBar;
         private CheckBox _chkFill;
+        private Label _algorithmInfo;
         private readonly List<Control> _brushOnlyControls = new List<Control>();
         private PaintTool _currentTool = PaintTool.Pencil;
         private Color _fillColor = Color.FromArgb(59, 130, 246);
@@ -19,6 +20,9 @@ namespace proyectoPaint.GraphicsCore
         private int _opacityPercent = 100;
         private int _flowPercent = 80;
         private int _smoothingValue = 60;
+        private int _pencilSize = 2;
+        private int _brushSize = 12;
+        private bool _changingToolSize;
 
         public int BrushSize => _sizeBar?.Value ?? 3;
         public bool FillShapes => _chkFill?.Checked ?? true;
@@ -42,9 +46,20 @@ namespace proyectoPaint.GraphicsCore
             _currentTool  = tool;
             _fillColor    = fillColor;
             _strokeStyle  = strokeStyle;
+            if (_sizeBar != null)
+            {
+                _changingToolSize = true;
+                _sizeBar.Value = tool == PaintTool.Brush ? _brushSize : tool == PaintTool.Pencil ? _pencilSize : _sizeBar.Value;
+                _changingToolSize = false;
+            }
             if (_title != null) _title.Text = ToolDisplayName(tool) + " - Ajustes";
             bool showBrushOnly = tool == PaintTool.Brush;
             foreach (Control c in _brushOnlyControls) c.Visible = showBrushOnly;
+            if (_algorithmInfo != null)
+            {
+                _algorithmInfo.Visible = tool == PaintTool.Fill;
+                _algorithmInfo.Text = "Algoritmo: Flood Fill por scanlines\n1. Parte de la semilla.\n2. Encuentra extremos de la franja.\n3. Propaga a filas vecinas hasta la frontera.";
+            }
             _preview?.Invalidate();
         }
 
@@ -74,7 +89,15 @@ namespace proyectoPaint.GraphicsCore
             Controls.Add(new Label { Text = "Tamaño", ForeColor = Color.FromArgb(175, 195, 225), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(10, 78) });
             _sizeBar = new TrackBar { Minimum = 1, Maximum = 100, Value = 3, TickStyle = TickStyle.None, Location = new Point(8, 92), Size = new Size(138, 28) };
             Label sizeVal = new Label { Text = "3", ForeColor = Color.FromArgb(210, 225, 245), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(152, 98) };
-            _sizeBar.ValueChanged += delegate { sizeVal.Text = _sizeBar.Value.ToString(); };
+            _sizeBar.ValueChanged += delegate
+            {
+                sizeVal.Text = _sizeBar.Value.ToString();
+                if (!_changingToolSize)
+                {
+                    if (_currentTool == PaintTool.Brush) _brushSize = _sizeBar.Value;
+                    else if (_currentTool == PaintTool.Pencil) _pencilSize = _sizeBar.Value;
+                }
+            };
             Controls.Add(_sizeBar); Controls.Add(sizeVal);
 
             _chkFill = new CheckBox { Text = "Rellenar formas", ForeColor = Color.FromArgb(195, 212, 236), Checked = true, Location = new Point(10, 122), AutoSize = true, Font = new Font("Segoe UI", 8F) };
@@ -85,7 +108,9 @@ namespace proyectoPaint.GraphicsCore
             AddBrushSlider("Flujo",    184, 80,  true,  v => { _flowPercent     = v; FlowChanged?.Invoke(v); });
             AddBrushSlider("Suavizado",222, 60,  true,  v => { _smoothingValue  = v; SmoothingChanged?.Invoke(v); });
 
-            Label moreLink = new Label { Text = "Más ajustes  v", ForeColor = Color.FromArgb(100, 130, 175), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(10, 250), Cursor = Cursors.Hand };
+            _algorithmInfo = new Label { ForeColor = Color.FromArgb(170, 195, 225), Font = new Font("Segoe UI", 7.2F), AutoSize = false, Size = new Size(166, 52), Location = new Point(10, 250), Visible = false };
+            Controls.Add(_algorithmInfo);
+            Label moreLink = new Label { Text = "Más ajustes  v", ForeColor = Color.FromArgb(100, 130, 175), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(10, 306), Cursor = Cursors.Hand };
             moreLink.Click += (s, e) => { if (_chkFill != null) { _chkFill.Checked = !_chkFill.Checked; } };
             Controls.Add(moreLink);
         }

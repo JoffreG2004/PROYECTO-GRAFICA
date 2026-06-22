@@ -9,6 +9,7 @@ namespace proyectoPaint.GraphicsCore
         RoundedRectangle,
         Ellipse,
         Polygon,
+        RegularPolygon,
         Arrow,
         Star,
         Blob,

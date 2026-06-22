@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="GraphicsCore\Models\PaintEnums.cs" />
     <Compile Include="GraphicsCore\Services\ProjectStorage.cs" />
+    <Compile Include="GraphicsCore\Services\RasterSurface.cs" />
     <Compile Include="GraphicsCore\Models\Shapes.cs" />
     <Compile Include="GraphicsCore\Views\StudioControls.cs">
       <SubType>Component</SubType>
@@ -70,6 +71,7 @@
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="AlgorithmLabForm.cs" />
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>

@@ -6,178 +6,139 @@ namespace proyectoPaint.GraphicsCore
 {
     public static class GraphicsAlgorithms
     {
-        public static void PutPixel(Bitmap bmp, int x, int y, Color color, int thickness)
+        public static void DrawLine(Bitmap bmp, Point a, Point b, Color color, int thickness, StrokeRenderStyle style = StrokeRenderStyle.Solid)
+        { using (RasterSurface s = new RasterSurface(bmp)) DrawLine(s, a, b, color, thickness, style); }
+
+        public static void DrawPolyline(Bitmap bmp, IList<Point> points, Color color, int thickness, StrokeRenderStyle style = StrokeRenderStyle.Solid)
         {
-            int radius = Math.Max(0, thickness / 2);
-            for (int yy = y - radius; yy <= y + radius; yy++)
-            {
-                for (int xx = x - radius; xx <= x + radius; xx++)
-                {
-                    if (xx >= 0 && yy >= 0 && xx < bmp.Width && yy < bmp.Height)
-                    {
-                        BlendPixel(bmp, xx, yy, color);
-                    }
-                }
-            }
+            if (points == null || points.Count < 2) return;
+            using (RasterSurface s = new RasterSurface(bmp))
+                for (int i = 1; i < points.Count; i++) DrawLine(s, points[i - 1], points[i], color, thickness, style);
         }
 
-        public static void DrawLine(Bitmap bmp, Point p0, Point p1, Color color, int thickness)
+        public static void DrawPolygon(Bitmap bmp, IList<Point> points, Color stroke, int thickness, Color fill, bool useFill, StrokeRenderStyle style)
         {
-            DrawLine(bmp, p0, p1, color, thickness, StrokeRenderStyle.Solid);
-        }
-
-        // Bresenham with a small pattern gate for dashed and dotted strokes.
-        public static void DrawLine(Bitmap bmp, Point p0, Point p1, Color color, int thickness, StrokeRenderStyle style)
-        {
-            int x0 = p0.X, y0 = p0.Y, x1 = p1.X, y1 = p1.Y;
-            int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-            int dy = -Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-            int err = dx + dy;
-            int step = 0;
-
-            while (true)
+            if (points == null || points.Count < 2) return;
+            using (RasterSurface s = new RasterSurface(bmp))
             {
-                if (ShouldDrawPattern(style, step)) PutPixel(bmp, x0, y0, color, thickness);
-                if (x0 == x1 && y0 == y1) break;
-                int e2 = 2 * err;
-                if (e2 >= dy) { err += dy; x0 += sx; }
-                if (e2 <= dx) { err += dx; y0 += sy; }
-                step++;
+                if (useFill && points.Count >= 3) FillPolygon(s, points, fill);
+                for (int i = 0; i < points.Count; i++) DrawLine(s, points[i], points[(i + 1) % points.Count], stroke, thickness, style);
             }
         }
 
         public static void DrawCircle(Bitmap bmp, Point center, int radius, Color color, int thickness)
+        { using (RasterSurface s = new RasterSurface(bmp)) DrawCircle(s, center, radius, color, thickness); }
+
+        public static void DrawEllipse(Bitmap bmp, Point center, double rx, double ry, double cos, double sin, Rectangle bounds, Color stroke, int thickness, Color fill, bool useFill, StrokeRenderStyle style)
         {
-            int x = radius;
-            int y = 0;
-            int err = 0;
-            while (x >= y)
+            using (RasterSurface s = new RasterSurface(bmp))
             {
-                PlotCirclePoints(bmp, center, x, y, color, thickness);
-                y++;
-                if (err <= 0) err += 2 * y + 1;
-                if (err > 0)
+                if (useFill)
+                    for (int y = Math.Max(0, bounds.Top - 1); y <= Math.Min(s.Height - 1, bounds.Bottom + 1); y++)
+                    for (int x = Math.Max(0, bounds.Left - 1); x <= Math.Min(s.Width - 1, bounds.Right + 1); x++)
+                    {
+                        double tx = x - center.X, ty = y - center.Y, ux = tx * cos + ty * sin, uy = -tx * sin + ty * cos;
+                        if ((ux * ux) / (rx * rx) + (uy * uy) / (ry * ry) <= 1D) s.Blend(x, y, fill);
+                    }
+                List<Point> points = new List<Point>();
+                for (int i = 0; i <= 180; i++)
                 {
-                    x--;
-                    err -= 2 * x + 1;
+                    double t = i * 2D * Math.PI / 180D, x = rx * Math.Cos(t), y = ry * Math.Sin(t);
+                    points.Add(new Point((int)Math.Round(center.X + x * cos - y * sin), (int)Math.Round(center.Y + x * sin + y * cos)));
                 }
+                for (int i = 1; i < points.Count; i++) DrawLine(s, points[i - 1], points[i], stroke, thickness, style);
             }
         }
 
         public static void FillPolygon(Bitmap bmp, IList<Point> points, Color fill)
-        {
-            if (points == null || points.Count < 3) return;
-            int minY = points[0].Y, maxY = points[0].Y;
-            foreach (Point p in points)
-            {
-                minY = Math.Min(minY, p.Y);
-                maxY = Math.Max(maxY, p.Y);
-            }
+        { using (RasterSurface s = new RasterSurface(bmp)) FillPolygon(s, points, fill); }
 
-            for (int y = Math.Max(0, minY); y <= Math.Min(bmp.Height - 1, maxY); y++)
+        public static bool FloodFill(Bitmap bmp, Point start, Color replacement, int maxSpans = int.MaxValue)
+        {
+            using (RasterSurface s = new RasterSurface(bmp))
             {
-                List<int> nodes = new List<int>();
-                int j = points.Count - 1;
-                for (int i = 0; i < points.Count; i++)
+                if (!s.Contains(start.X, start.Y)) return true;
+                int target = s.GetArgb(start.X, start.Y);
+                if (target == replacement.ToArgb()) return true;
+                Stack<Point> pending = new Stack<Point>(); pending.Push(start);
+                int processed = 0;
+                while (pending.Count > 0)
                 {
-                    Point pi = points[i];
-                    Point pj = points[j];
-                    if ((pi.Y < y && pj.Y >= y) || (pj.Y < y && pi.Y >= y))
-                    {
-                        int x = pi.X + (int)Math.Round((double)(y - pi.Y) * (pj.X - pi.X) / (pj.Y - pi.Y));
-                        nodes.Add(x);
-                    }
-                    j = i;
+                    if (processed++ >= maxSpans) return false;
+                    Point seed = pending.Pop();
+                    if (!s.Contains(seed.X, seed.Y) || s.GetArgb(seed.X, seed.Y) != target) continue;
+                    int left = seed.X, right = seed.X;
+                    while (left > 0 && s.GetArgb(left - 1, seed.Y) == target) left--;
+                    while (right < s.Width - 1 && s.GetArgb(right + 1, seed.Y) == target) right++;
+                    s.BlendSpan(seed.Y, left, right, replacement);
+                    AddNeighborRuns(s, pending, left, right, seed.Y - 1, target);
+                    AddNeighborRuns(s, pending, left, right, seed.Y + 1, target);
                 }
-                nodes.Sort();
-                for (int i = 0; i + 1 < nodes.Count; i += 2)
-                {
-                    int start = Math.Max(0, nodes[i]);
-                    int end = Math.Min(bmp.Width - 1, nodes[i + 1]);
-                    for (int x = start; x <= end; x++) BlendPixel(bmp, x, y, fill);
-                }
+                return true;
             }
         }
 
-        public static void FloodFill(Bitmap bmp, Point start, Color replacement)
+        private static void AddNeighborRuns(RasterSurface s, Stack<Point> pending, int left, int right, int y, int target)
         {
-            if (start.X < 0 || start.Y < 0 || start.X >= bmp.Width || start.Y >= bmp.Height) return;
-            Color target = bmp.GetPixel(start.X, start.Y);
-            if (target.ToArgb() == replacement.ToArgb()) return;
-
-            Queue<Point> queue = new Queue<Point>();
-            queue.Enqueue(start);
-            while (queue.Count > 0)
+            if (y < 0 || y >= s.Height) return;
+            int x = left;
+            while (x <= right)
             {
-                Point p = queue.Dequeue();
-                if (p.X < 0 || p.Y < 0 || p.X >= bmp.Width || p.Y >= bmp.Height) continue;
-                if (bmp.GetPixel(p.X, p.Y).ToArgb() != target.ToArgb()) continue;
-                BlendPixel(bmp, p.X, p.Y, replacement);
-                queue.Enqueue(new Point(p.X + 1, p.Y));
-                queue.Enqueue(new Point(p.X - 1, p.Y));
-                queue.Enqueue(new Point(p.X, p.Y + 1));
-                queue.Enqueue(new Point(p.X, p.Y - 1));
+                while (x <= right && s.GetArgb(x, y) != target) x++;
+                if (x > right) return;
+                pending.Push(new Point(x, y));
+                while (x <= right && s.GetArgb(x, y) == target) x++;
             }
         }
 
         public static Point RotatePoint(Point p, Point center, float degrees)
         {
-            double rad = degrees * Math.PI / 180.0;
-            double cos = Math.Cos(rad);
-            double sin = Math.Sin(rad);
-            int x = (int)Math.Round(center.X + (p.X - center.X) * cos - (p.Y - center.Y) * sin);
-            int y = (int)Math.Round(center.Y + (p.X - center.X) * sin + (p.Y - center.Y) * cos);
-            return new Point(x, y);
+            double r = degrees * Math.PI / 180D, cos = Math.Cos(r), sin = Math.Sin(r);
+            return new Point((int)Math.Round(center.X + (p.X - center.X) * cos - (p.Y - center.Y) * sin), (int)Math.Round(center.Y + (p.X - center.X) * sin + (p.Y - center.Y) * cos));
         }
+        public static Point ScalePoint(Point p, Point center, float factor) { return new Point((int)Math.Round(center.X + (p.X - center.X) * factor), (int)Math.Round(center.Y + (p.Y - center.Y) * factor)); }
 
-        public static Point ScalePoint(Point p, Point center, float factor)
+        private static void DrawLine(RasterSurface s, Point p0, Point p1, Color color, int thickness, StrokeRenderStyle style)
         {
-            int x = (int)Math.Round(center.X + (p.X - center.X) * factor);
-            int y = (int)Math.Round(center.Y + (p.Y - center.Y) * factor);
-            return new Point(x, y);
-        }
-
-        public static void BlendPixel(Bitmap bmp, int x, int y, Color color)
-        {
-            if (x < 0 || y < 0 || x >= bmp.Width || y >= bmp.Height) return;
-            if (color.A >= 255)
+            int x0 = p0.X, y0 = p0.Y, dx = Math.Abs(p1.X - x0), sx = x0 < p1.X ? 1 : -1, dy = -Math.Abs(p1.Y - y0), sy = y0 < p1.Y ? 1 : -1, err = dx + dy, step = 0;
+            int stampEvery = Math.Max(1, thickness / 3);
+            while (true)
             {
-                bmp.SetPixel(x, y, Color.FromArgb(255, color.R, color.G, color.B));
-                return;
+                bool pattern = style == StrokeRenderStyle.Solid || (style == StrokeRenderStyle.Dashed ? step % 18 < 11 : step % 10 < 2);
+                if (pattern && (step % stampEvery == 0 || (x0 == p1.X && y0 == p1.Y))) Stamp(s, x0, y0, color, thickness);
+                if (x0 == p1.X && y0 == p1.Y) break;
+                int e2 = 2 * err; if (e2 >= dy) { err += dy; x0 += sx; } if (e2 <= dx) { err += dx; y0 += sy; } step++;
             }
-
-            Color dst = bmp.GetPixel(x, y);
-            float a = color.A / 255F;
-            int r = ClampColor(color.R * a + dst.R * (1F - a));
-            int g = ClampColor(color.G * a + dst.G * (1F - a));
-            int b = ClampColor(color.B * a + dst.B * (1F - a));
-            bmp.SetPixel(x, y, Color.FromArgb(255, r, g, b));
         }
 
-        private static bool ShouldDrawPattern(StrokeRenderStyle style, int step)
+        private static void Stamp(RasterSurface s, int x, int y, Color color, int thickness)
         {
-            if (style == StrokeRenderStyle.Dashed) return step % 18 < 11;
-            if (style == StrokeRenderStyle.Dotted) return step % 10 < 2;
-            return true;
+            int r = Math.Max(0, thickness / 2), rr = r * r;
+            for (int yy = -r; yy <= r; yy++)
+            {
+                int half = (int)Math.Sqrt(Math.Max(0, rr - yy * yy));
+                s.BlendSpan(y + yy, x - half, x + half, color);
+            }
         }
 
-        private static int ClampColor(float value)
+        private static void DrawCircle(RasterSurface s, Point c, int radius, Color color, int thickness)
         {
-            if (value < 0) return 0;
-            if (value > 255) return 255;
-            return (int)Math.Round(value);
+            int x = radius, y = 0, err = 0;
+            while (x >= y) { Plot(s, c, x, y, color, thickness); y++; if (err <= 0) err += 2 * y + 1; if (err > 0) { x--; err -= 2 * x + 1; } }
         }
+        private static void Plot(RasterSurface s, Point c, int x, int y, Color color, int thickness)
+        { Stamp(s,c.X+x,c.Y+y,color,thickness); Stamp(s,c.X+y,c.Y+x,color,thickness); Stamp(s,c.X-y,c.Y+x,color,thickness); Stamp(s,c.X-x,c.Y+y,color,thickness); Stamp(s,c.X-x,c.Y-y,color,thickness); Stamp(s,c.X-y,c.Y-x,color,thickness); Stamp(s,c.X+y,c.Y-x,color,thickness); Stamp(s,c.X+x,c.Y-y,color,thickness); }
 
-        private static void PlotCirclePoints(Bitmap bmp, Point c, int x, int y, Color color, int thickness)
+        private static void FillPolygon(RasterSurface s, IList<Point> points, Color fill)
         {
-            PutPixel(bmp, c.X + x, c.Y + y, color, thickness);
-            PutPixel(bmp, c.X + y, c.Y + x, color, thickness);
-            PutPixel(bmp, c.X - y, c.Y + x, color, thickness);
-            PutPixel(bmp, c.X - x, c.Y + y, color, thickness);
-            PutPixel(bmp, c.X - x, c.Y - y, color, thickness);
-            PutPixel(bmp, c.X - y, c.Y - x, color, thickness);
-            PutPixel(bmp, c.X + y, c.Y - x, color, thickness);
-            PutPixel(bmp, c.X + x, c.Y - y, color, thickness);
+            if (points == null || points.Count < 3) return;
+            int min = points[0].Y, max = min; foreach (Point p in points) { min = Math.Min(min,p.Y); max = Math.Max(max,p.Y); }
+            for (int y = Math.Max(0, min); y <= Math.Min(s.Height - 1, max); y++)
+            {
+                List<int> nodes = new List<int>(); int j = points.Count - 1;
+                for (int i = 0; i < points.Count; i++) { Point a=points[i], b=points[j]; if ((a.Y < y && b.Y >= y) || (b.Y < y && a.Y >= y)) nodes.Add(a.X + (int)Math.Round((double)(y-a.Y)*(b.X-a.X)/(b.Y-a.Y))); j=i; }
+                nodes.Sort(); for (int i = 0; i + 1 < nodes.Count; i += 2) for (int x = Math.Max(0,nodes[i]); x <= Math.Min(s.Width-1,nodes[i+1]); x++) s.Blend(x,y,fill);
+            }
         }
     }
 }

@@ -46,6 +46,11 @@ namespace proyectoPaint.GraphicsCore
             return ApplyOpacity(StrokeColor, Opacity);
         }
 
+        public Color GetStrokePaint()
+        {
+            return StrokePaint();
+        }
+
         protected Color FillPaint()
         {
             return ApplyOpacity(FillColor, Opacity);
@@ -79,9 +84,13 @@ namespace proyectoPaint.GraphicsCore
         public override void Draw(Bitmap bmp)
         {
             List<Point> points = SmoothedVertices();
-            Color paint = ApplyOpacity(StrokeColor, Opacity * Math.Max(0, Math.Min(100, Flow)) / 100F);
-            for (int i = 1; i < points.Count; i++)
-                GraphicsAlgorithms.DrawLine(bmp, points[i - 1], points[i], paint, Thickness, StrokeStyle);
+            Color paint = GetRenderPaint();
+            GraphicsAlgorithms.DrawPolyline(bmp, points, paint, Thickness, StrokeStyle);
+        }
+
+        public Color GetRenderPaint()
+        {
+            return ApplyOpacity(StrokeColor, Opacity * Math.Max(0, Math.Min(100, Flow)) / 100F);
         }
 
         public override void Translate(int dx, int dy) { Transform(p => new Point(p.X + dx, p.Y + dy)); }
@@ -133,9 +142,7 @@ namespace proyectoPaint.GraphicsCore
         public override void Draw(Bitmap bmp)
         {
             if (Vertices.Count < 2) return;
-            if (UseFill && Vertices.Count >= 3) GraphicsAlgorithms.FillPolygon(bmp, Vertices, FillPaint());
-            for (int i = 0; i < Vertices.Count; i++)
-                GraphicsAlgorithms.DrawLine(bmp, Vertices[i], Vertices[(i + 1) % Vertices.Count], StrokePaint(), Thickness, StrokeStyle);
+            GraphicsAlgorithms.DrawPolygon(bmp, Vertices, StrokePaint(), Thickness, FillPaint(), UseFill && Vertices.Count >= 3, StrokeStyle);
         }
 
         public override void Translate(int dx, int dy) { Transform(p => new Point(p.X + dx, p.Y + dy)); }
@@ -158,6 +165,25 @@ namespace proyectoPaint.GraphicsCore
             Vertices.Add(new Point(Math.Max(a.X, b.X), Math.Min(a.Y, b.Y)));
             Vertices.Add(new Point(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y)));
             Vertices.Add(new Point(Math.Min(a.X, b.X), Math.Max(a.Y, b.Y)));
+        }
+    }
+
+    public class RegularPolygonShape : PolygonShape
+    {
+        public int Sides { get; private set; }
+        public override string Kind { get { return Sides + " lados"; } }
+
+        public RegularPolygonShape() { Sides = 3; }
+        public RegularPolygonShape(Point center, Point edge, int sides)
+        {
+            Sides = Math.Max(3, Math.Min(10, sides));
+            double radius = Math.Max(2, Math.Sqrt((edge.X - center.X) * (edge.X - center.X) + (edge.Y - center.Y) * (edge.Y - center.Y)));
+            double baseAngle = Math.Atan2(edge.Y - center.Y, edge.X - center.X) - Math.PI / 2;
+            for (int i = 0; i < Sides; i++)
+            {
+                double angle = baseAngle + i * 2 * Math.PI / Sides;
+                Vertices.Add(new Point(center.X + (int)Math.Round(Math.Cos(angle) * radius), center.Y + (int)Math.Round(Math.Sin(angle) * radius)));
+            }
         }
     }
 
@@ -313,29 +339,7 @@ namespace proyectoPaint.GraphicsCore
             double rad = RotationDegrees * Math.PI / 180.0;
             double cos = Math.Cos(rad), sin = Math.Sin(rad);
 
-            if (UseFill)
-            {
-                Rectangle bounds = Bounds;
-                for (int y = Math.Max(0, bounds.Top - 1); y <= Math.Min(bmp.Height - 1, bounds.Bottom + 1); y++)
-                for (int x = Math.Max(0, bounds.Left - 1); x <= Math.Min(bmp.Width - 1, bounds.Right + 1); x++)
-                {
-                    double tx = x - center.X;
-                    double ty = y - center.Y;
-                    double ux = tx * cos + ty * sin;
-                    double uy = -tx * sin + ty * cos;
-                    if ((ux * ux) / (rx * rx) + (uy * uy) / (ry * ry) <= 1.0)
-                        GraphicsAlgorithms.BlendPixel(bmp, x, y, FillPaint());
-                }
-            }
-
-            Point prev = RotatedEllipsePoint(center, rx, ry, cos, sin, 0);
-            for (int i = 1; i <= 360; i++)
-            {
-                double t = i * Math.PI / 180.0;
-                Point next = RotatedEllipsePoint(center, rx, ry, cos, sin, t);
-                GraphicsAlgorithms.DrawLine(bmp, prev, next, StrokePaint(), Thickness, StrokeStyle);
-                prev = next;
-            }
+            GraphicsAlgorithms.DrawEllipse(bmp, center, rx, ry, cos, sin, Bounds, StrokePaint(), Thickness, FillPaint(), UseFill, StrokeStyle);
         }
 
         public override void Translate(int dx, int dy) { A = new Point(A.X + dx, A.Y + dy); B = new Point(B.X + dx, B.Y + dy); }
@@ -367,14 +371,6 @@ namespace proyectoPaint.GraphicsCore
             foreach (Point p in corners) yield return GraphicsAlgorithms.RotatePoint(p, c, RotationDegrees);
         }
 
-        private static Point RotatedEllipsePoint(Point center, double rx, double ry, double cos, double sin, double t)
-        {
-            double x = rx * Math.Cos(t);
-            double y = ry * Math.Sin(t);
-            return new Point(
-                (int)Math.Round(center.X + x * cos - y * sin),
-                (int)Math.Round(center.Y + x * sin + y * cos));
-        }
     }
 
     public class BezierShape : DrawableShape
@@ -386,17 +382,16 @@ namespace proyectoPaint.GraphicsCore
         public override void Draw(Bitmap bmp)
         {
             if (ControlPoints.Count < 4) return;
-            Point prev = ControlPoints[0];
             Rectangle bounds = Bounds;
             int maxDimension = Math.Max(bounds.Width, bounds.Height);
             int steps = Math.Max(24, Math.Min(64, maxDimension / 8));
+            List<Point> points = new List<Point> { ControlPoints[0] };
             for (int i = 1; i <= steps; i++)
             {
                 double t = i / (double)steps;
-                Point p = Cubic(t);
-                GraphicsAlgorithms.DrawLine(bmp, prev, p, StrokePaint(), Thickness, StrokeStyle);
-                prev = p;
+                points.Add(Cubic(t));
             }
+            GraphicsAlgorithms.DrawPolyline(bmp, points, StrokePaint(), Thickness, StrokeStyle);
         }
 
         public override void Translate(int dx, int dy) { Transform(p => new Point(p.X + dx, p.Y + dy)); }
@@ -421,9 +416,11 @@ namespace proyectoPaint.GraphicsCore
     public class FloodFillShape : DrawableShape
     {
         public Point Seed { get; set; }
+        public int MaxSpans { get; set; } = int.MaxValue;
+        public bool IsComplete { get; private set; } = true;
         public override string Kind { get { return "Relleno"; } }
         public override IEnumerable<Point> Points { get { yield return Seed; } }
-        public override void Draw(Bitmap bmp) { GraphicsAlgorithms.FloodFill(bmp, Seed, FillPaint()); }
+        public override void Draw(Bitmap bmp) { IsComplete = GraphicsAlgorithms.FloodFill(bmp, Seed, FillPaint(), MaxSpans); }
         public override void Translate(int dx, int dy) { Seed = new Point(Seed.X + dx, Seed.Y + dy); }
         public override void Rotate(float degrees) { }
         public override void Scale(float factor) { }
