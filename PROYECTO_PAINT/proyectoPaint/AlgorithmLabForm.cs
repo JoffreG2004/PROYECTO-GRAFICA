@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace proyectoPaint
@@ -34,10 +35,11 @@ namespace proyectoPaint
     {
         private readonly Timer timer = new Timer { Interval = 45 };
         private int step;
+        private readonly Dictionary<Point, int> order = BuildOrder();
         public ScanlineDemo()
         {
             DoubleBuffered = true; BackColor = Color.FromArgb(18, 29, 52);
-            timer.Tick += (s, e) => { step = step >= 80 ? 0 : step + 1; Invalidate(); }; timer.Start();
+            timer.Tick += (s, e) => { step = step >= order.Count ? 0 : step + 1; Invalidate(); }; timer.Start();
         }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -58,12 +60,32 @@ namespace proyectoPaint
             int sx = 340, sy = 115;
             for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++)
             {
-                bool inside = x >= 5 && x <= 17 && y >= 4 && y <= 10;
-                int order = inside ? (y - 4) * 13 + Math.Abs(x - 11) : 999;
-                Color c = !inside ? Color.FromArgb(37, 49, 82) : order < step ? Color.FromArgb(251, 183, 124) : Color.FromArgb(25, 35, 62);
+                Point point = new Point(x, y); int visit;
+                bool inside = order.TryGetValue(point, out visit);
+                Color c = !inside ? Color.FromArgb(37, 49, 82) : visit <= step ? Color.FromArgb(251, 183, 124) : Color.FromArgb(25, 35, 62);
                 using (Brush b = new SolidBrush(c)) g.FillRectangle(b, sx + x * cell, sy + y * cell, cell - 1, cell - 1);
-                if (inside && x == 11 && y == 7) TextRenderer.DrawText(g, "S", Font, new Point(sx + x * cell + 4, sy + y * cell + 3), Color.White);
+                if (inside && visit <= step) TextRenderer.DrawText(g, visit.ToString(), Font, new Point(sx + x * cell + 3, sy + y * cell + 3), Color.White);
+                else if (inside && x == 11 && y == 7) TextRenderer.DrawText(g, "S", Font, new Point(sx + x * cell + 4, sy + y * cell + 3), Color.White);
             }
+        }
+
+        private static Dictionary<Point, int> BuildOrder()
+        {
+            Dictionary<Point, int> result = new Dictionary<Point, int>();
+            Visit(new Point(11, 7), result);
+            return result;
+        }
+
+        // Mismo orden del algoritmo por semilla: arriba, derecha, abajo, izquierda.
+        // Cada rama se completa antes de volver a probar la siguiente dirección.
+        private static void Visit(Point p, Dictionary<Point, int> result)
+        {
+            if (p.X < 6 || p.X > 17 || p.Y < 5 || p.Y > 9 || result.ContainsKey(p)) return;
+            result[p] = result.Count + 1;
+            Visit(new Point(p.X, p.Y - 1), result);
+            Visit(new Point(p.X + 1, p.Y), result);
+            Visit(new Point(p.X, p.Y + 1), result);
+            Visit(new Point(p.X - 1, p.Y), result);
         }
     }
 }

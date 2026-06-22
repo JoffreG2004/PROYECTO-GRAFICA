@@ -10,7 +10,7 @@ namespace proyectoPaint.GraphicsCore
         None, NewFile, Open, Save, Export, Select, Brush, Pencil, Eraser, Fill,
         Line, Rectangle, Ellipse, Polygon, Curve, Rotate, ScaleUp, ScaleDown,
         Layers, Image, Zoom, Hand, Text, Undo, Redo, Arrange, Transform,
-        RoundedRect, Arrow, Star, Blob
+        RoundedRect, Arrow, Star, Blob, ThemeSun, Bell, Eyedropper, More
     }
 
     public class StudioCard : Panel
@@ -18,7 +18,7 @@ namespace proyectoPaint.GraphicsCore
         public StudioCard()
         {
             DoubleBuffered = true;
-            BackColor = Color.FromArgb(21, 29, 43);
+            BackColor = Color.FromArgb(18, 28, 45);
             Padding = new Padding(14);
         }
 
@@ -26,9 +26,9 @@ namespace proyectoPaint.GraphicsCore
         {
             base.OnPaint(e);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using (GraphicsPath path = RoundedRect(new Rectangle(0, 0, Width - 1, Height - 1), 12))
+            using (GraphicsPath path = RoundedRect(new Rectangle(0, 0, Width - 1, Height - 1), 14))
             using (SolidBrush brush = new SolidBrush(BackColor))
-            using (Pen pen = new Pen(Color.FromArgb(42, 58, 82), 1))
+            using (Pen pen = new Pen(Color.FromArgb(39, 56, 80), 1))
             {
                 e.Graphics.FillPath(brush, path);
                 e.Graphics.DrawPath(pen, path);
@@ -60,6 +60,10 @@ namespace proyectoPaint.GraphicsCore
             set { selected = value; Invalidate(); }
         }
 
+        // Per-context selection accent (left rail = blue, command bar = purple).
+        public Color SelectedFill { get; set; } = Color.FromArgb(66, 45, 156);
+        public Color SelectedBorder { get; set; } = Color.FromArgb(147, 122, 255);
+
         public StudioToolButton()
         {
             DoubleBuffered = true;
@@ -81,26 +85,22 @@ namespace proyectoPaint.GraphicsCore
         }
 
         // Brand-consistent accent (matches the header logo + Export button).
-        public static readonly Color Accent = Color.FromArgb(124, 92, 250);
+        public static readonly Color Accent = Color.FromArgb(112, 79, 246);
 
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            Color fill = selected ? Color.FromArgb(48, 40, 92) : (hover ? Color.FromArgb(35, 53, 74) : Color.Transparent);
+            Color fill = selected ? SelectedFill : (hover ? Color.FromArgb(31, 47, 70) : Color.Transparent);
             if (fill != Color.Transparent)
             {
-                using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 10))
+                using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 9))
                 using (SolidBrush brush = new SolidBrush(fill)) e.Graphics.FillPath(brush, path);
             }
             if (selected)
             {
-                using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 10))
-                using (Pen accent = new Pen(Accent, 1.6F))
+                using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 9))
+                using (Pen accent = new Pen(SelectedBorder, 1.2F))
                     e.Graphics.DrawPath(accent, path);
-                // Left indicator bar makes the active tool unmistakable.
-                using (SolidBrush bar = new SolidBrush(Accent))
-                using (GraphicsPath barPath = StudioCard.RoundedRect(new Rectangle(2, Height / 2 - 11, 4, 22), 2))
-                    e.Graphics.FillPath(bar, barPath);
             }
             Color ink = selected ? Color.White : Color.FromArgb(200, 215, 238);
             int iconY = Caption == "" ? Height / 2 - 12 : 10;
@@ -258,11 +258,133 @@ namespace proyectoPaint.GraphicsCore
                     g.DrawEllipse(pen, r.Left + 4, r.Top + 4, 12, 12);
                     g.DrawLine(pen, r.Left + 15, r.Top + 15, r.Right - 3, r.Bottom - 3);
                 }
+                else if (icon == StudioIcon.ThemeSun)
+                {
+                    g.DrawEllipse(pen, cx - 4, cy - 4, 8, 8);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        double a = i * Math.PI / 4;
+                        g.DrawLine(pen, cx + (int)(7 * Math.Cos(a)), cy + (int)(7 * Math.Sin(a)), cx + (int)(10 * Math.Cos(a)), cy + (int)(10 * Math.Sin(a)));
+                    }
+                }
+                else if (icon == StudioIcon.Bell)
+                {
+                    g.DrawArc(pen, cx - 7, r.Top + 3, 14, 16, 180, 180);
+                    g.DrawLine(pen, cx - 7, cy + 1, cx - 7, r.Bottom - 6);
+                    g.DrawLine(pen, cx + 7, cy + 1, cx + 7, r.Bottom - 6);
+                    g.DrawLine(pen, cx - 9, r.Bottom - 6, cx + 9, r.Bottom - 6);
+                    g.DrawLine(pen, cx, r.Top + 1, cx, r.Top + 4);
+                    g.DrawArc(pen, cx - 3, r.Bottom - 6, 6, 5, 0, 180);
+                }
+                else if (icon == StudioIcon.Eyedropper)
+                {
+                    g.DrawLine(pen, r.Left + 4, r.Bottom - 4, cx + 1, cy);
+                    g.DrawLine(pen, cx - 2, cy - 3, r.Right - 6, r.Top + 5);
+                    g.DrawLine(pen, cx + 4, cy - 6, r.Right - 4, r.Top + 4);
+                    g.FillEllipse(brush, r.Right - 9, r.Top + 2, 6, 6);
+                }
+                else if (icon == StudioIcon.More)
+                {
+                    g.FillEllipse(brush, cx - 8, cy - 2, 4, 4);
+                    g.FillEllipse(brush, cx - 2, cy - 2, 4, 4);
+                    g.FillEllipse(brush, cx + 4, cy - 2, 4, 4);
+                }
                 else
                 {
                     g.FillEllipse(brush, cx - 3, cy - 3, 6, 6);
                 }
             }
+        }
+    }
+
+    /// <summary>Lightweight icon-only button (header utilities, card actions).</summary>
+    public class StudioGlyphButton : Control
+    {
+        private bool hover;
+        public StudioIcon Icon { get; set; }
+        public Color Ink { get; set; } = Color.FromArgb(176, 196, 226);
+        public Color HoverInk { get; set; } = Color.White;
+        public bool ShowDot { get; set; }
+
+        public StudioGlyphButton()
+        {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            BackColor = Color.Transparent;
+            Size = new Size(30, 30);
+            Cursor = Cursors.Hand;
+        }
+
+        protected override void OnMouseEnter(EventArgs e) { hover = true; Invalidate(); base.OnMouseEnter(e); }
+        protected override void OnMouseLeave(EventArgs e) { hover = false; Invalidate(); base.OnMouseLeave(e); }
+
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            Color bg = Parent == null ? Color.FromArgb(6, 11, 21) : Parent.BackColor;
+            using (SolidBrush b = new SolidBrush(bg)) e.Graphics.FillRectangle(b, ClientRectangle);
+            if (hover)
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (GraphicsPath p = StudioCard.RoundedRect(new Rectangle(1, 1, Width - 2, Height - 2), 7))
+                using (SolidBrush b = new SolidBrush(Color.FromArgb(26, 40, 62))) e.Graphics.FillPath(b, p);
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            int s = 24;
+            StudioToolButton.DrawIcon(e.Graphics, new Rectangle((Width - s) / 2, (Height - s) / 2, s, s), Icon, hover ? HoverInk : Ink);
+            if (ShowDot)
+                using (SolidBrush dot = new SolidBrush(Color.FromArgb(244, 63, 94)))
+                    e.Graphics.FillEllipse(dot, Width / 2 + 5, (Height - s) / 2 + 3, 7, 7);
+        }
+    }
+
+    /// <summary>Pill toggle switch (footer grid, etc.).</summary>
+    public class ToggleSwitch : Control
+    {
+        private bool on;
+        public event EventHandler Toggled;
+        public Color OnColor { get; set; } = Color.FromArgb(124, 77, 255);
+        public bool On
+        {
+            get { return on; }
+            set { on = value; Invalidate(); }
+        }
+
+        public ToggleSwitch()
+        {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            BackColor = Color.Transparent;
+            Size = new Size(38, 22);
+            Cursor = Cursors.Hand;
+        }
+
+        protected override void OnClick(EventArgs e)
+        {
+            on = !on;
+            Invalidate();
+            Toggled?.Invoke(this, EventArgs.Empty);
+            base.OnClick(e);
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            Color bg = Parent == null ? Color.FromArgb(9, 16, 28) : Parent.BackColor;
+            using (SolidBrush b = new SolidBrush(bg)) e.Graphics.FillRectangle(b, ClientRectangle);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            Rectangle track = new Rectangle(0, (Height - 18) / 2, Width - 1, 18);
+            using (GraphicsPath path = StudioCard.RoundedRect(track, 9))
+            using (SolidBrush fill = new SolidBrush(on ? OnColor : Color.FromArgb(38, 54, 76)))
+                e.Graphics.FillPath(fill, path);
+            int kd = 14, ky = (Height - kd) / 2, kx = on ? Width - kd - 3 : 3;
+            using (SolidBrush kb = new SolidBrush(Color.White)) e.Graphics.FillEllipse(kb, kx, ky, kd, kd);
         }
     }
 

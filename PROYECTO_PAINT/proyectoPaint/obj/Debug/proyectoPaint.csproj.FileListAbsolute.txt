@@ -38,12 +38,13 @@ C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.exe
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyectoPaint.pdb
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Resources.Extensions.dll
-C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Formats.Nrbf.dll
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\obj\Debug\proyecto.DBE91A3F.Up2Date
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Memory.dll
-C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Reflection.Metadata.dll
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Numerics.Vectors.dll
-C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Buffers.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\Assets\paint-espe-logo-v2-key.png
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Formats.Nrbf.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Reflection.Metadata.dll
+C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\System.Collections.Immutable.dll
 C:\Users\Joffre\Desktop\JOFFRE\PROYECTO-GRAFICA\PROYECTO_PAINT\proyectoPaint\bin\Debug\Microsoft.Bcl.HashCode.dll

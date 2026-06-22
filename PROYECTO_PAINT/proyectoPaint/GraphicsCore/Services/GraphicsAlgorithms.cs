@@ -78,6 +78,35 @@ namespace proyectoPaint.GraphicsCore
             }
         }
 
+        public static List<Point> BuildSeedOrder(Bitmap bmp, Point seed)
+        {
+            List<Point> order = new List<Point>();
+            using (RasterSurface s = new RasterSurface(bmp))
+            {
+                if (!s.Contains(seed.X, seed.Y)) return order;
+                int target = s.GetArgb(seed.X, seed.Y); bool[] seen = new bool[s.Width * s.Height]; Stack<Point> stack = new Stack<Point>(); stack.Push(seed);
+                while (stack.Count > 0)
+                {
+                    Point p = stack.Pop();
+                    if (!s.Contains(p.X, p.Y)) continue;
+                    int index = p.Y * s.Width + p.X;
+                    if (seen[index] || s.GetArgb(p.X, p.Y) != target) continue;
+                    seen[index] = true; order.Add(p);
+                    // Se apila al revés: al sacar siempre se visita arriba, derecha, abajo, izquierda.
+                    stack.Push(new Point(p.X - 1, p.Y)); stack.Push(new Point(p.X, p.Y + 1));
+                    stack.Push(new Point(p.X + 1, p.Y)); stack.Push(new Point(p.X, p.Y - 1));
+                }
+            }
+            return order;
+        }
+
+        public static void PaintPoints(Bitmap bmp, IList<Point> points, int count, Color color)
+        {
+            if (points == null || count <= 0) return;
+            using (RasterSurface s = new RasterSurface(bmp))
+                for (int i = 0; i < Math.Min(count, points.Count); i++) s.Blend(points[i].X, points[i].Y, color);
+        }
+
         private static void AddNeighborRuns(RasterSurface s, Stack<Point> pending, int left, int right, int y, int target)
         {
             if (y < 0 || y >= s.Height) return;

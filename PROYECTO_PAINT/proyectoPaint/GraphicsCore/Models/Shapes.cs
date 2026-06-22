@@ -418,9 +418,24 @@ namespace proyectoPaint.GraphicsCore
         public Point Seed { get; set; }
         public int MaxSpans { get; set; } = int.MaxValue;
         public bool IsComplete { get; private set; } = true;
+        private List<Point> seedOrder;
+        public int TotalSeedPoints { get { return seedOrder == null ? 0 : seedOrder.Count; } }
         public override string Kind { get { return "Relleno"; } }
         public override IEnumerable<Point> Points { get { yield return Seed; } }
-        public override void Draw(Bitmap bmp) { IsComplete = GraphicsAlgorithms.FloodFill(bmp, Seed, FillPaint(), MaxSpans); }
+        public override void Draw(Bitmap bmp)
+        {
+            if (seedOrder == null) seedOrder = GraphicsAlgorithms.BuildSeedOrder(bmp, Seed);
+            GraphicsAlgorithms.PaintPoints(bmp, seedOrder, MaxSpans, FillPaint());
+            // Marca visible de la semilla: confirma el punto exacto elegido por el usuario.
+            using (Graphics g = Graphics.FromImage(bmp))
+            using (Pen marker = new Pen(Color.FromArgb(220, 220, 38, 38), 2F))
+            {
+                g.DrawEllipse(marker, Seed.X - 5, Seed.Y - 5, 10, 10);
+                g.DrawLine(marker, Seed.X - 7, Seed.Y, Seed.X + 7, Seed.Y);
+                g.DrawLine(marker, Seed.X, Seed.Y - 7, Seed.X, Seed.Y + 7);
+            }
+            IsComplete = MaxSpans >= seedOrder.Count;
+        }
         public override void Translate(int dx, int dy) { Seed = new Point(Seed.X + dx, Seed.Y + dy); }
         public override void Rotate(float degrees) { }
         public override void Scale(float factor) { }

@@ -24,7 +24,7 @@ namespace proyectoPaint
         private Color fillColor = Color.FromArgb(59, 130, 246);
         private StrokeRenderStyle currentStrokeStyle = StrokeRenderStyle.Solid;
         private int cornerRadius = 16;
-        private PaintTool currentTool = PaintTool.Pencil;
+        private PaintTool currentTool = PaintTool.Brush;
         private DrawableShape previewShape;
         private DrawableShape selectedShape;
         private Point startPoint;
@@ -41,6 +41,7 @@ namespace proyectoPaint
         private Point hoverPoint;
         private Bitmap cachedDocumentBitmap;
         private Bitmap activeStrokeBitmap;
+        private Image headerLogo;
         private Point activeStrokeLastPoint;
         private readonly Stopwatch repaintClock = Stopwatch.StartNew();
         private readonly Stopwatch strokeClock = Stopwatch.StartNew();
@@ -68,6 +69,7 @@ namespace proyectoPaint
         {
             if (cachedDocumentBitmap != null) cachedDocumentBitmap.Dispose();
             if (activeStrokeBitmap != null) activeStrokeBitmap.Dispose();
+            if (headerLogo != null) headerLogo.Dispose();
             base.OnFormClosed(e);
         }
 
@@ -86,9 +88,9 @@ namespace proyectoPaint
                 ColumnCount = 3, RowCount = 1,
                 Margin = Padding.Empty, Padding = Padding.Empty
             };
-            main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90));
+            main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 126));
             main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 370));
+            main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 456));
             main.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
             Panel left = BuildToolbar();
@@ -111,17 +113,32 @@ namespace proyectoPaint
 
         private Panel BuildHeader()
         {
-            Panel header = new Panel { Dock = DockStyle.Top, Height = 56, BackColor = Color.FromArgb(10, 18, 31) };
+            Panel header = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = Color.FromArgb(6, 11, 21) };
 
-            Label brandMark = new Label { Text = "*", ForeColor = Color.FromArgb(137, 82, 255), Font = new Font("Segoe UI", 24F), AutoSize = true, Location = new Point(18, 8) };
-            Label brand = new Label { Text = "proyectoPaint", ForeColor = Color.FromArgb(244, 247, 255), Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold), AutoSize = true, Location = new Point(56, 17) };
-            Label edition = new Label { Text = "STUDIO", ForeColor = Color.FromArgb(159, 130, 255), Font = new Font("Segoe UI", 7.5F, FontStyle.Bold), AutoSize = true, Location = new Point(198, 23) };
-            Button drawNav = new Button { Text = "Dibujar", ForeColor = Color.White, FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Font = new Font("Segoe UI Semibold", 8.5F), Size = new Size(62, 28), Location = new Point(250, 14) };
-            Button labNav = new Button { Text = "Laboratorio", ForeColor = Color.FromArgb(185, 166, 255), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Font = new Font("Segoe UI Semibold", 8.5F), Size = new Size(92, 28), Location = new Point(314, 14), Cursor = Cursors.Hand };
-            drawNav.FlatAppearance.BorderSize = 0; labNav.FlatAppearance.BorderSize = 0;
+            Label brandMark = new Label { Text = "✦", ForeColor = Color.FromArgb(80, 210, 255), Font = new Font("Segoe UI", 25F), AutoSize = true, Location = new Point(18, 13) };
+            Label brand = new Label { Text = "Paint ESPE", ForeColor = Color.FromArgb(244, 247, 255), Font = new Font("Segoe UI Semibold", 14F, FontStyle.Bold), AutoSize = true, Location = new Point(82, 14) };
+            Label edition = new Label { Text = "CREATE · LEARN · DRAW", ForeColor = Color.FromArgb(151, 169, 208), Font = new Font("Segoe UI", 7F, FontStyle.Bold), AutoSize = true, Location = new Point(76, 36) };
+            Button drawNav = new Button { Text = "Dibujar", ForeColor = Color.White, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(50, 64, 120), Font = new Font("Segoe UI Semibold", 8.5F), Size = new Size(70, 30), Location = new Point(235, 17) };
+            Button labNav = new Button { Text = "Laboratorio", ForeColor = Color.FromArgb(204, 190, 255), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(20, 29, 51), Font = new Font("Segoe UI Semibold", 8.5F), Size = new Size(98, 30), Location = new Point(309, 17), Cursor = Cursors.Hand };
+            drawNav.FlatAppearance.BorderColor = Color.FromArgb(105, 100, 255); labNav.FlatAppearance.BorderColor = Color.FromArgb(67, 83, 125);
             labNav.Click += (s, e) => { using (AlgorithmLabForm lab = new AlgorithmLabForm()) lab.ShowDialog(this); };
+            brandMark.Visible = false;
+            drawNav.Visible = false;
+            labNav.Visible = false;
 
-            StudioCard tab = new StudioCard { Location = new Point(265, 7), Size = new Size(192, 42), BackColor = Color.FromArgb(22, 32, 48) };
+            PictureBox logo = new PictureBox { Location = new Point(25, 10), Size = new Size(46, 46), SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.Transparent };
+            string logoPath = Path.Combine(Application.StartupPath, "Assets", "paint-espe-logo-v2-key.png");
+            if (File.Exists(logoPath))
+            {
+                using (Bitmap source = new Bitmap(logoPath))
+                {
+                    headerLogo = new Bitmap(source);
+                    ((Bitmap)headerLogo).MakeTransparent(Color.FromArgb(0, 255, 0));
+                }
+                logo.Image = headerLogo;
+            }
+
+            StudioCard tab = new StudioCard { Location = new Point(286, 9), Size = new Size(198, 44), BackColor = Color.FromArgb(16, 27, 48) };
             Label tabTitle = new Label { Text = "Sin título", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 8.5F), AutoSize = true, Location = new Point(12, 7) };
             Label tabSaved = new Label { Text = "Guardado automáticamente", ForeColor = Color.FromArgb(120, 145, 178), Font = new Font("Segoe UI", 7F), AutoSize = true, Location = new Point(12, 22) };
             Button closeTab = new Button { Text = "×", ForeColor = Color.FromArgb(140, 160, 196), Font = new Font("Segoe UI", 11F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(22, 22), Location = new Point(165, 10), Cursor = Cursors.Hand };
@@ -129,63 +146,117 @@ namespace proyectoPaint
             closeTab.Click += (s, e) => ClearDocument();
             tab.Controls.Add(tabTitle); tab.Controls.Add(tabSaved); tab.Controls.Add(closeTab);
 
-            Button newTab = new Button { Text = "+", ForeColor = Color.FromArgb(140, 160, 196), Font = new Font("Segoe UI", 13F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(26, 26), Location = new Point(464, 15), Cursor = Cursors.Hand };
+            Button newTab = new Button { Text = "+", ForeColor = Color.FromArgb(170, 188, 220), Font = new Font("Segoe UI", 13F), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(13, 22, 38), Size = new Size(28, 28), Location = new Point(494, 17), Cursor = Cursors.Hand };
             newTab.FlatAppearance.BorderSize = 0;
             newTab.Click += (s, e) => ClearDocument();
 
-            Button exportBtn = new Button
+            // "Pro" badge next to the brand name.
+            Panel proBadge = new Panel { Size = new Size(38, 19), Location = new Point(193, 18), BackColor = Color.FromArgb(6, 11, 21), Cursor = Cursors.Default };
+            proBadge.Paint += (s, e) =>
             {
-                Text = "Exportar  ▾", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 9F),
-                FlatStyle = FlatStyle.Flat, BackColor = StudioToolButton.Accent,
-                Size = new Size(108, 36), Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new Point(1316, 10), Cursor = Cursors.Hand
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var path = StudioCard.RoundedRect(new Rectangle(0, 0, proBadge.Width - 1, proBadge.Height - 1), 9))
+                using (var b = new LinearGradientBrush(proBadge.ClientRectangle, Color.FromArgb(168, 85, 247), Color.FromArgb(99, 102, 241), 0F))
+                    e.Graphics.FillPath(b, path);
+                TextRenderer.DrawText(e.Graphics, "Pro", new Font("Segoe UI Semibold", 7.5F, FontStyle.Bold), proBadge.ClientRectangle, Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
             };
-            exportBtn.FlatAppearance.BorderColor = Color.FromArgb(150, 122, 255);
-            exportBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(138, 108, 255);
-            exportBtn.Click += SaveImage;
 
-            header.Controls.Add(brandMark); header.Controls.Add(brand); header.Controls.Add(edition); header.Controls.Add(drawNav); header.Controls.Add(labNav);
-            header.Controls.Add(tab); header.Controls.Add(newTab); header.Controls.Add(exportBtn);
-            header.Resize += (s, e) => exportBtn.Location = new Point(header.Width - 122, 10);
+            header.Controls.Add(logo); header.Controls.Add(brandMark); header.Controls.Add(brand); header.Controls.Add(edition); header.Controls.Add(proBadge); header.Controls.Add(drawNav); header.Controls.Add(labNav);
+
+            // Right-side utilities: theme, notifications, avatar, account chevron.
+            StudioGlyphButton themeBtn = new StudioGlyphButton { Icon = StudioIcon.ThemeSun, Size = new Size(30, 30), Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(1740, 17) };
+            StudioGlyphButton bellBtn = new StudioGlyphButton { Icon = StudioIcon.Bell, ShowDot = true, Size = new Size(30, 30), Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(1774, 17) };
+            new ToolTip().SetToolTip(themeBtn, "Tema");
+            new ToolTip().SetToolTip(bellBtn, "Alertas");
+            themeBtn.Click += (s, e) => { if (status != null) status.Text = "Tema claro / oscuro"; };
+            bellBtn.Click += (s, e) => { if (status != null) status.Text = "Sin alertas nuevas"; };
+            Panel profile = new Panel { BackColor = Color.FromArgb(6, 11, 21), Size = new Size(30, 30), Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(1812, 17), Cursor = Cursors.Hand };
+            profile.Paint += (s, e) => { e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; using (var b = new LinearGradientBrush(profile.ClientRectangle, Color.FromArgb(230, 66, 201), Color.FromArgb(66, 124, 255), 35F)) e.Graphics.FillEllipse(b, 0, 0, profile.Width - 1, profile.Height - 1); };
+            Label chevron = new Label { Text = "⌄", ForeColor = Color.FromArgb(150, 170, 205), Font = new Font("Segoe UI", 10F), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(1846, 19), Cursor = Cursors.Hand };
+
+            header.Controls.Add(tab); header.Controls.Add(newTab); header.Controls.Add(themeBtn); header.Controls.Add(bellBtn); header.Controls.Add(profile); header.Controls.Add(chevron);
+            header.Resize += (s, e) =>
+            {
+                int r = header.Width;
+                chevron.Location = new Point(r - 26, 19);
+                profile.Location = new Point(r - 56, 17);
+                bellBtn.Location = new Point(r - 92, 17);
+                themeBtn.Location = new Point(r - 126, 17);
+            };
             return header;
         }
 
         private Panel BuildCommandBar()
         {
-            Panel bar = new Panel { Dock = DockStyle.Top, Height = 70, BackColor = Color.FromArgb(15, 24, 38) };
+            Panel bar = new Panel { Dock = DockStyle.Top, Height = 78, BackColor = Color.FromArgb(8, 14, 25) };
             bar.Paint += (s, e) =>
             {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var card = StudioCard.RoundedRect(new Rectangle(16, 4, Math.Max(0, bar.Width - 32), 68), 14))
+                using (var fill = new SolidBrush(Color.FromArgb(15, 25, 42)))
                 using (Pen sep = new Pen(Color.FromArgb(42, 58, 82)))
                 {
-                    e.Graphics.DrawLine(sep, 0, bar.Height - 1, bar.Width, bar.Height - 1);
-                    e.Graphics.DrawLine(sep, 240, 10, 240, 56);
-                    e.Graphics.DrawLine(sep, 372, 10, 372, 56);
+                    e.Graphics.FillPath(fill, card);
+                    e.Graphics.DrawPath(sep, card);
+                    e.Graphics.DrawLine(sep, 264, 16, 264, 59);
+                    e.Graphics.DrawLine(sep, 410, 16, 410, 59);
+                    e.Graphics.DrawLine(sep, 618, 16, 618, 59);
                 }
             };
 
-            AddCommand(bar, "Nuevo",      StudioIcon.NewFile,   8,   delegate { ClearDocument(); });
-            AddCommand(bar, "Abrir",      StudioIcon.Open,      64,  LoadProject);
-            AddCommand(bar, "Guardar",    StudioIcon.Save,      120, SaveProject);
-            AddCommand(bar, "Exportar",   StudioIcon.Export,    176, SaveImage);
-            AddCommand(bar, "Deshacer",   StudioIcon.Undo,      252, delegate { Undo(); });
-            AddCommand(bar, "Rehacer",    StudioIcon.Redo,      308, delegate { Redo(); });
-            AddCommand(bar, "Seleccionar",StudioIcon.Select,    384, delegate { ActivateTool(PaintTool.Select); });
-            AddCommand(bar, "Transformar",StudioIcon.Transform, 440, delegate { ActivateTool(PaintTool.Select); status.Text = "Selecciona una forma y usa Rotar o Escala en Propiedades."; });
-            AddCommand(bar, "Ordenar",    StudioIcon.Arrange,   496, delegate { BringSelectedToFront(); });
+            AddCommand(bar, "Nuevo",       StudioIcon.NewFile,   18,  delegate { ClearDocument(); });
+            AddCommand(bar, "Abrir",       StudioIcon.Open,      78,  LoadProject);
+            AddCommand(bar, "Guardar",     StudioIcon.Save,      138, SaveProject);
+            AddCommand(bar, "Exportar",    StudioIcon.Export,    198, SaveImage);
+            AddCommand(bar, "Deshacer",    StudioIcon.Undo,      284, delegate { Undo(); });
+            AddCommand(bar, "Rehacer",     StudioIcon.Redo,      344, delegate { Redo(); });
+            AddCommand(bar, "Seleccionar", StudioIcon.Select,    430, delegate { ActivateTool(PaintTool.Select); });
+            AddCommand(bar, "Transformar", StudioIcon.Transform, 492, delegate { ActivateTool(PaintTool.Select); status.Text = "Selecciona una forma y usa Rotar o Escala en Propiedades."; });
+            AddCommand(bar, "Ordenar",     StudioIcon.Arrange,   554, delegate { BringSelectedToFront(); });
+            AddToolCommand(bar, "Pincel",  StudioIcon.Brush,     636, PaintTool.Brush);
+            AddToolCommand(bar, "Forma",   StudioIcon.Rectangle, 696, PaintTool.Rectangle);
+            AddCommand(bar, "Texto",       StudioIcon.Text,      756, delegate { status.Text = "Herramienta de texto (próximamente)"; });
+            AddToolCommand(bar, "Relleno", StudioIcon.Fill,      816, PaintTool.Fill);
+            AddCommand(bar, "Imagen",      StudioIcon.Image,     876, delegate { status.Text = "Insertar imagen (próximamente)"; });
+
+            // Prominent Export button on the right of the command bar (matches the mockup).
+            Panel exportBtn = new Panel { Size = new Size(134, 40), Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(1736, 18), Cursor = Cursors.Hand, BackColor = Color.FromArgb(8, 14, 25) };
+            exportBtn.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var path = StudioCard.RoundedRect(new Rectangle(0, 0, exportBtn.Width - 1, exportBtn.Height - 1), 11))
+                using (var b = new LinearGradientBrush(exportBtn.ClientRectangle, Color.FromArgb(139, 92, 246), Color.FromArgb(99, 102, 241), 0F))
+                    e.Graphics.FillPath(b, path);
+                TextRenderer.DrawText(e.Graphics, "Exportar", new Font("Segoe UI Semibold", 9.5F), new Rectangle(0, 0, exportBtn.Width - 24, exportBtn.Height), Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                using (var pen = new Pen(Color.FromArgb(120, 255, 255, 255)))
+                    e.Graphics.DrawLine(pen, exportBtn.Width - 26, 9, exportBtn.Width - 26, exportBtn.Height - 9);
+                TextRenderer.DrawText(e.Graphics, "▾", new Font("Segoe UI", 8F), new Rectangle(exportBtn.Width - 24, 0, 22, exportBtn.Height), Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
+            exportBtn.Click += SaveImage;
+            bar.Controls.Add(exportBtn);
+            bar.Resize += (s, e) => exportBtn.Location = new Point(bar.Width - 150, 18);
 
             return bar;
         }
 
         private void AddCommand(Control parent, string caption, StudioIcon icon, int left, EventHandler action)
         {
-            StudioToolButton btn = new StudioToolButton { Caption = caption, Icon = icon, Location = new Point(left, 5), Size = new Size(56, 58) };
+            StudioToolButton btn = new StudioToolButton { Caption = caption, Icon = icon, Location = new Point(left, 10), Size = new Size(58, 54) };
             btn.Click += action;
+            parent.Controls.Add(btn);
+        }
+
+        private void AddToolCommand(Control parent, string caption, StudioIcon icon, int left, PaintTool tool)
+        {
+            StudioToolButton btn = new StudioToolButton { Caption = caption, Icon = icon, Tag = tool, Location = new Point(left, 10), Size = new Size(58, 54) };
+            btn.Click += (s, e) => ActivateTool(tool);
+            toolButtons.Add(btn);              // share the active-tool highlight (purple by default)
             parent.Controls.Add(btn);
         }
 
         private Panel BuildWorkspace()
         {
-            Panel workspace = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(8, 14, 25) };
+            Panel workspace = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(8, 14, 25), Padding = new Padding(2, 0, 2, 0) };
             StudioCard artboard = new StudioCard { BackColor = Color.FromArgb(13, 22, 39), Padding = new Padding(9) };
             canvas = new PaintCanvas { Location = new Point(9, 9), BorderStyle = BorderStyle.None, BackColor = Color.White };
             canvas.MouseDown    += CanvasMouseDown;
@@ -198,7 +269,7 @@ namespace proyectoPaint
             // Canvas llena todo el espacio disponible; actualiza el documento al cambiar de tamaño.
             Action fitCanvas = () =>
             {
-                int pad = 16;
+                int pad = 18;
                 int w = Math.Max(200, workspace.ClientSize.Width - pad * 2);
                 int h = Math.Max(200, workspace.ClientSize.Height - pad * 2);
                 artboard.SetBounds(pad, pad, w, h);
@@ -219,7 +290,7 @@ namespace proyectoPaint
 
         private Panel BuildToolbar()
         {
-            Panel left = new Panel { Width = 90, BackColor = Color.FromArgb(8, 14, 25), Padding = new Padding(8, 10, 8, 10) };
+            Panel left = new Panel { Width = 126, BackColor = Color.FromArgb(8, 14, 25), Padding = new Padding(16, 12, 16, 12) };
             StudioCard tools = new StudioCard { Dock = DockStyle.Fill, BackColor = Color.FromArgb(17, 27, 43), Padding = new Padding(4) };
             FlowLayoutPanel list = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, BackColor = Color.FromArgb(17, 27, 43) };
             AddTool(list, "Selec.",   StudioIcon.Select,    PaintTool.Select);
@@ -239,7 +310,7 @@ namespace proyectoPaint
 
         private void AddTool(FlowLayoutPanel list, string caption, StudioIcon icon, PaintTool tool)
         {
-            StudioToolButton btn = new StudioToolButton { Caption = caption, Icon = icon, Tag = tool, Margin = new Padding(0, 2, 0, 2), Size = new Size(64, 55) };
+            StudioToolButton btn = new StudioToolButton { Caption = caption, Icon = icon, Tag = tool, Margin = new Padding(0, 2, 0, 2), Size = new Size(86, 57), SelectedFill = Color.FromArgb(37, 92, 196), SelectedBorder = Color.FromArgb(110, 168, 255) };
             btn.Click += ToolButton_Click;
             toolButtons.Add(btn);
             list.Controls.Add(btn);
@@ -324,17 +395,19 @@ namespace proyectoPaint
 
             Action layout = () =>
             {
-                int gap = 6;
-                int columnWidth = Math.Max(185, (right.Width - gap) / 2);
-                int cardWidth = columnWidth - 8;
-                leftCol.SetBounds(0, 0, columnWidth, right.Height);
-                rightCol.SetBounds(columnWidth + gap, 0, right.Width - columnWidth - gap, right.Height);
+                int gap = 8;
+                int leftWidth = Math.Max(238, (int)((right.Width - gap) * 0.60F));
+                int rightWidth = Math.Max(166, right.Width - leftWidth - gap);
+                leftCol.SetBounds(0, 0, leftWidth, right.Height);
+                rightCol.SetBounds(leftWidth + gap, 0, rightWidth, right.Height);
 
-                colorPanel.SetBounds(4, 4, cardWidth, 224);
-                layersPanel.SetBounds(4, 234, cardWidth, 186);
-                toolSettingsPanel.SetBounds(4, 426, cardWidth, Math.Max(320, right.Height - 432));
-                shapePanel.SetBounds(4, 4, cardWidth, 320);
-                propertiesPanel.SetBounds(4, 330, cardWidth, Math.Max(340, right.Height - 336));
+                int leftCardWidth = Math.Max(120, leftWidth - 8);
+                int rightCardWidth = Math.Max(120, rightWidth - 8);
+                colorPanel.SetBounds(4, 4, leftCardWidth, 270);
+                layersPanel.SetBounds(4, 282, leftCardWidth, 204);
+                toolSettingsPanel.SetBounds(4, 494, leftCardWidth, Math.Max(320, right.Height - 500));
+                shapePanel.SetBounds(4, 4, rightCardWidth, 240);
+                propertiesPanel.SetBounds(4, 252, rightCardWidth, Math.Max(340, right.Height - 258));
             };
             right.Resize += (s, e) => layout();
             right.HandleCreated += (s, e) => layout();
@@ -345,16 +418,22 @@ namespace proyectoPaint
 
         private Panel BuildFooter()
         {
-            Panel footer = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.FromArgb(9, 16, 28) };
+            Panel footer = new Panel { Dock = DockStyle.Bottom, Height = 48, BackColor = Color.FromArgb(9, 16, 28) };
             footer.Paint += (s, e) => e.Graphics.DrawLine(new Pen(Color.FromArgb(38, 54, 76)), 0, 0, footer.Width, 0);
 
-            Button gridBtn = new Button { Text = "⊞", ForeColor = Color.FromArgb(150, 178, 215), Font = new Font("Segoe UI", 12F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(26, 26), Location = new Point(18, 7) };
-            gridBtn.FlatAppearance.BorderSize = 0;
-            gridBtn.Click += (s, e) => { gridVisible = !gridVisible; canvas.ShowGrid = gridVisible; status.Text = gridVisible ? "Cuadrícula activada" : "Cuadrícula desactivada"; canvas.Invalidate(); };
-            footer.Controls.Add(gridBtn);
-            footer.Controls.Add(new Label { Text = "Cuadrícula", ForeColor = Color.FromArgb(110, 138, 175), AutoSize = true, Location = new Point(50, 12), Font = new Font("Segoe UI", 8.5F) });
+            Button artboardMenu = new Button { Text = "Artboard 1  v", ForeColor = Color.FromArgb(222, 230, 246), Font = new Font("Segoe UI Semibold", 8.5F), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(15, 25, 42), Size = new Size(132, 30), Location = new Point(16, 9), Cursor = Cursors.Hand };
+            artboardMenu.FlatAppearance.BorderColor = Color.FromArgb(37, 54, 79);
+            Label documentSize = new Label { Text = "1920 x 1080 px", ForeColor = Color.FromArgb(135, 156, 191), Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(164, 17) };
+            footer.Controls.Add(artboardMenu); footer.Controls.Add(documentSize);
 
-            status = new Label { Text = "", ForeColor = Color.FromArgb(130, 158, 198), AutoSize = true, Location = new Point(120, 12), Font = new Font("Segoe UI", 8.5F) };
+            // Grid: icon + label + pill toggle (matches the mockup).
+            Label gridIcon = new Label { Text = "▦", ForeColor = Color.FromArgb(150, 178, 215), Font = new Font("Segoe UI", 11F), AutoSize = true, Location = new Point(300, 13) };
+            Label gridLabel = new Label { Text = "Cuadrícula", ForeColor = Color.FromArgb(150, 172, 205), AutoSize = true, Location = new Point(324, 16), Font = new Font("Segoe UI", 8.5F) };
+            ToggleSwitch gridToggle = new ToggleSwitch { Location = new Point(400, 14) };
+            gridToggle.Toggled += (s, e) => { gridVisible = gridToggle.On; canvas.ShowGrid = gridVisible; status.Text = gridVisible ? "Cuadrícula activada" : "Cuadrícula desactivada"; canvas.Invalidate(); };
+            footer.Controls.Add(gridIcon); footer.Controls.Add(gridLabel); footer.Controls.Add(gridToggle);
+
+            status = new Label { Text = "", ForeColor = Color.FromArgb(130, 158, 198), AutoSize = true, Location = new Point(470, 17), Font = new Font("Segoe UI", 8.5F) };
             footer.Controls.Add(status);
 
             Label zOut = new Label { Text = "−", ForeColor = Color.FromArgb(170, 195, 228), Font = new Font("Segoe UI", 12F), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(1140, 10), Cursor = Cursors.Hand };
@@ -520,14 +599,12 @@ namespace proyectoPaint
             StudioToolButton btn = sender as StudioToolButton;
             if (btn == null || !(btn.Tag is PaintTool)) return;
             ActivateTool((PaintTool)btn.Tag);
-            SetActiveToolButton(btn);
         }
 
         private void ActivateTool(PaintTool tool)
         {
             currentTool = tool; pendingPoints.Clear(); previewShape = null; isDrawing = false; hasHoverPoint = false;
-            StudioToolButton button = toolButtons.FirstOrDefault(b => b.Tag is PaintTool && (PaintTool)b.Tag == tool);
-            if (button != null) SetActiveToolButton(button);
+            SetActiveToolButton(tool);
             toolSettingsPanel.UpdateForTool(tool, fillColor, currentStrokeStyle);
             status.Text = "Herramienta: " + ToolDisplayName(tool);
             RefreshCanvas();
@@ -555,9 +632,10 @@ namespace proyectoPaint
             }
         }
 
-        private void SetActiveToolButton(StudioToolButton active)
+        private void SetActiveToolButton(PaintTool tool)
         {
-            foreach (StudioToolButton btn in toolButtons) btn.Selected = btn == active;
+            foreach (StudioToolButton btn in toolButtons)
+                btn.Selected = (btn.Tag is PaintTool) && (PaintTool)btn.Tag == tool;
         }
 
         private void CanvasMouseDown(object sender, MouseEventArgs e)
@@ -704,7 +782,9 @@ namespace proyectoPaint
         private void FillAnimationTick(object sender, EventArgs e)
         {
             if (animatedFillShape == null) { fillAnimationTimer.Stop(); return; }
-            animatedFillShape.MaxSpans += 8;
+            // ~100 cuadros de 30 ms: la ruta de la semilla se aprecia durante unos 3 segundos.
+            int chunk = Math.Max(1, animatedFillShape.TotalSeedPoints / 35);
+            animatedFillShape.MaxSpans += chunk;
             documentDirty = true;
             RefreshCanvas();
             if (animatedFillShape.IsComplete)
