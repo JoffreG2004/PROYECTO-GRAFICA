@@ -35,6 +35,12 @@ namespace proyectoPaint.GraphicsCore
                     node.Add(new XAttribute("cornerRadius", ((RoundedRectangleShape)shape).CornerRadius));
                 if (shape is EllipseShape)
                     node.Add(new XAttribute("rotation", ((EllipseShape)shape).RotationDegrees.ToString(CultureInfo.InvariantCulture)));
+                if (shape is TextShape)
+                {
+                    TextShape text = (TextShape)shape;
+                    node.Add(new XAttribute("text", text.Text ?? string.Empty));
+                    node.Add(new XAttribute("fontSize", text.FontSize));
+                }
                 if (shape is PolylineShape)
                 {
                     PolylineShape line = (PolylineShape)shape;
@@ -77,6 +83,11 @@ namespace proyectoPaint.GraphicsCore
                     ((RoundedRectangleShape)shape).CornerRadius = ReadInt(node, "cornerRadius", 0);
                 if (shape is EllipseShape)
                     ((EllipseShape)shape).RotationDegrees = ReadFloat(node, "rotation", 0F);
+                if (shape is TextShape)
+                {
+                    ((TextShape)shape).Text = ReadString(node, "text", "Texto");
+                    ((TextShape)shape).FontSize = ReadInt(node, "fontSize", 20);
+                }
                 if (shape is PolylineShape)
                 {
                     PolylineShape line = (PolylineShape)shape;
@@ -84,6 +95,15 @@ namespace proyectoPaint.GraphicsCore
                     line.Smoothing = ReadInt(node, "smoothing", 0);
                 }
                 document.Shapes.Add(shape);
+            }
+            // Un relleno se guarda inmediatamente después de la figura sobre la
+            // que fue aplicado. Al cargarlo se restablece ese vínculo para que
+            // ambos se transformen juntos.
+            for (int i = 0; i < document.Shapes.Count; i++)
+            {
+                FloodFillShape fill = document.Shapes[i] as FloodFillShape;
+                if (fill != null)
+                    fill.LinkedShape = document.Shapes.Take(i).LastOrDefault(shape => !(shape is FloodFillShape));
             }
             return document;
         }
@@ -101,6 +121,7 @@ namespace proyectoPaint.GraphicsCore
             if (kind == "Lapiz" && points.Count >= 2) return new PolylineShape { Vertices = points };
             if (kind == "CurvaBezier" && points.Count >= 4) return new BezierShape { ControlPoints = points };
             if (kind == "Relleno" && points.Count >= 1) return new FloodFillShape { Seed = points[0] };
+            if (kind == "Texto" && points.Count >= 1) return new TextShape { Position = points[0] };
             return null;
         }
 

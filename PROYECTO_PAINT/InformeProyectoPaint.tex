@@ -1,0 +1,300 @@
+\documentclass[11pt,a4paper]{report}
+
+% Compilar con pdfLaTeX. Guardar este archivo con codificación UTF-8.
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage[left=3cm,right=2.75cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{setspace}
+
+\onehalfspacing
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\renewcommand{\arraystretch}{1.2}
+
+% Este comando permite compilar incluso antes de agregar las capturas.
+% Cuando exista la imagen, reemplaza automáticamente el recuadro.
+\newcommand{\captura}[2]{%
+\begin{figure}[H]
+    \centering
+    \IfFileExists{#1}{%
+        \includegraphics[width=0.88\textwidth]{#1}%
+    }{%
+        \fbox{\parbox{0.78\textwidth}{\centering\vspace{1.6cm}
+        \textit{Inserte aquí la captura: \texttt{#1}}\vspace{1.6cm}}}%
+    }
+    \caption{#2}
+\end{figure}}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+{\Large \textbf{UNIVERSIDAD DE LAS FUERZAS ARMADAS ESPE}}\\[0.3cm]
+{\large Departamento de Ciencias de la Computación}\\[1.5cm]
+{\Huge \textbf{INFORME DEL PROYECTO}}\\[0.5cm]
+{\LARGE Computación Gráfica}\\[1.3cm]
+{\Huge \textbf{proyectoPaint Studio}}\\[2cm]
+
+\IfFileExists{Logo.png}{\includegraphics[width=4cm]{Logo.png}}{\fbox{\parbox{4cm}{\centering Logo del proyecto}}}\\[2cm]
+
+\begin{tabular}{rl}
+\textbf{Autor:} & Gómez Joffre \\
+\textbf{Docente:} & Ing. Darío Javier Morales Caiza \\
+\textbf{NRC:} & 29505 \\
+\textbf{Fecha:} & \today \\
+\end{tabular}
+\vfill
+\end{titlepage}
+
+\tableofcontents
+\listoffigures
+\clearpage
+
+\chapter{Introducción}
+
+El presente documento describe el análisis, diseño, implementación y funcionamiento de \textit{proyectoPaint Studio}, una aplicación de escritorio orientada al dibujo digital y al estudio práctico de algoritmos de computación gráfica.
+
+La aplicación permite crear composiciones gráficas mediante herramientas como pincel, lápiz, borrador, líneas, rectángulos, elipses, polígonos, estrellas, curvas Bézier y relleno de regiones. Además, incorpora administración de capas, selección de colores, propiedades de trazado, transformación de figuras, historial de acciones, almacenamiento de proyectos y exportación de imágenes.
+
+El proyecto fue desarrollado en C\# utilizando Windows Forms. Su enfoque principal consiste en aplicar fundamentos de gráficos rasterizados, estructuras de datos, transformaciones geométricas y diseño de interfaces gráficas.
+
+\chapter{Planteamiento del problema}
+
+Las herramientas de dibujo digital permiten representar visualmente ideas, figuras geométricas y composiciones gráficas. Para fines académicos es importante comprender cómo se construyen internamente estas herramientas, especialmente los algoritmos que convierten puntos, líneas y formas matemáticas en píxeles visibles sobre una pantalla.
+
+El problema abordado consiste en desarrollar una aplicación de pintura digital que permita al usuario interactuar con un lienzo mediante herramientas gráficas, conservando una arquitectura organizada y aplicando algoritmos fundamentales de computación gráfica.
+
+La solución propuesta es \textit{proyectoPaint Studio}, una aplicación que centraliza las herramientas de dibujo en una interfaz visual y permite generar, editar, transformar, guardar y exportar elementos gráficos.
+
+\chapter{Objetivos}
+
+\section{Objetivo general}
+
+Desarrollar una aplicación de escritorio para dibujo digital que implemente herramientas gráficas, algoritmos de rasterización y gestión de objetos visuales mediante una interfaz intuitiva en C\# y Windows Forms.
+
+\section{Objetivos específicos}
+
+\begin{itemize}
+    \item Implementar un lienzo digital para la creación de dibujos y figuras geométricas.
+    \item Aplicar algoritmos de trazado de líneas, círculos, polígonos, elipses y relleno de regiones.
+    \item Permitir crear figuras como rectángulos, elipses, líneas, flechas, estrellas, polígonos y curvas Bézier.
+    \item Incorporar herramientas de pincel, lápiz, borrador y relleno.
+    \item Gestionar las figuras creadas mediante capas, selección, eliminación y ordenamiento.
+    \item Implementar operaciones de deshacer, rehacer, guardar, cargar y exportar proyectos.
+    \item Diseñar una interfaz adaptable a distintas resoluciones de pantalla.
+\end{itemize}
+
+\chapter{Marco teórico}
+
+\section{Computación gráfica y gráficos rasterizados}
+
+La computación gráfica es el área de la informática encargada de generar, representar, manipular y visualizar imágenes mediante computadoras. En este proyecto se utilizan gráficos rasterizados: imágenes formadas por una matriz de píxeles. Cada píxel contiene información de color; por tanto, al modificar un conjunto de píxeles se construyen líneas, figuras, rellenos y efectos visuales.
+
+El lienzo se representa internamente mediante un objeto \texttt{Bitmap}. Sobre este se dibujan las figuras almacenadas en el documento, lo que permite controlar directamente su representación visual.
+
+\section{Algoritmo de Bresenham para líneas}
+
+El trazado de líneas utiliza una variante del algoritmo de Bresenham. Este calcula los píxeles que deben dibujarse entre dos puntos sin requerir cálculos complejos de punto flotante. En la aplicación se emplea para líneas, contornos de polígonos, pincel y lápiz.
+
+\section{Relleno por scanline y Flood Fill}
+
+El relleno de polígonos se implementa mediante el método de líneas de exploración o \textit{scanline}. El algoritmo recorre cada fila horizontal, calcula las intersecciones con los bordes y rellena los píxeles comprendidos entre pares de intersecciones.
+
+La herramienta de relleno aplica el algoritmo \textit{Flood Fill}. A partir de un píxel semilla, identifica una región conectada con el color original y la reemplaza por el color seleccionado. La implementación utiliza segmentos horizontales para mejorar el rendimiento.
+
+\section{Curvas Bézier y transformaciones geométricas}
+
+Una curva Bézier cúbica se define mediante cuatro puntos de control:
+
+\[
+B(t)=(1-t)^3P_0+3(1-t)^2tP_1+3(1-t)t^2P_2+t^3P_3, \qquad 0 \leq t \leq 1
+\]
+
+La aplicación también permite traslación, rotación y escalado de figuras. Para rotar un punto respecto a un centro se emplean las ecuaciones:
+
+\[
+x' = x_c + (x-x_c)\cos(\theta) - (y-y_c)\sin(\theta)
+\]
+\[
+y' = y_c + (x-x_c)\sin(\theta) + (y-y_c)\cos(\theta)
+\]
+
+\chapter{Tecnologías utilizadas}
+
+\begin{table}[H]
+\centering
+\caption{Tecnologías principales del proyecto.}
+\begin{tabular}{p{4cm} p{9cm}}
+\toprule
+\textbf{Tecnología} & \textbf{Uso dentro del proyecto} \\
+\midrule
+C\# & Lenguaje principal de programación. \\
+.NET Framework 4.7.2 & Plataforma de ejecución de la aplicación. \\
+Windows Forms & Construcción de la interfaz gráfica de escritorio. \\
+System.Drawing & Manejo de colores, imágenes, píxeles, figuras y objetos \texttt{Bitmap}. \\
+Visual Studio & Entorno de desarrollo, compilación y depuración. \\
+XML & Formato para guardar y recuperar proyectos \texttt{.ppaint}. \\
+PNG y JPG & Formatos disponibles para exportar dibujos. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Arquitectura del sistema}
+
+\section{Tipo de arquitectura}
+
+El proyecto utiliza una arquitectura por capas inspirada en el patrón Modelo--Vista--Controlador. Esta separación organiza el código según su responsabilidad: interfaz gráfica, modelos de datos, control de acciones, algoritmos y persistencia.
+
+\begin{verbatim}
++-------------------------------------------------------+
+|                    Vista / Interfaz                   |
+| Form1, PaintCanvas, paneles de color, capas y formas  |
++--------------------------+----------------------------+
+                           |
+                           v
++-------------------------------------------------------+
+|                 Control de interacción                |
+| DocumentController, eventos del mouse y herramientas  |
++--------------------------+----------------------------+
+                           |
+                           v
++-------------------------------------------------------+
+|                    Modelo de datos                    |
+| CanvasDocument, DrawableShape y figuras derivadas     |
++--------------------------+----------------------------+
+                           |
+                           v
++-------------------------------------------------------+
+|              Servicios y algoritmos gráficos          |
+| GraphicsAlgorithms, RasterSurface, ProjectStorage     |
++-------------------------------------------------------+
+\end{verbatim}
+
+\section{Componentes principales}
+
+\begin{itemize}
+    \item \texttt{Form1}: construye y coordina la interfaz principal.
+    \item \texttt{PaintCanvas}: representa el lienzo de dibujo.
+    \item \texttt{CanvasDocument}: almacena las figuras, dimensiones y color de fondo.
+    \item \texttt{DrawableShape}: clase abstracta de la que derivan las figuras.
+    \item \texttt{DocumentController}: agrega, elimina, ordena y administra el historial de figuras.
+    \item \texttt{GraphicsAlgorithms}: implementa líneas, polígonos, círculos, elipses, rellenos y transformaciones.
+    \item \texttt{ProjectStorage}: guarda y recupera proyectos XML.
+\end{itemize}
+
+\chapter{Desarrollo e implementación}
+
+\section{Interfaz principal}
+
+La interfaz está compuesta por una barra de comandos, barra lateral de herramientas, lienzo central e inspector de propiedades. El diseño fue compactado para visualizar correctamente los controles en pantallas de laptop sin mostrar barras de desplazamiento externas.
+
+\captura{capturas/interfaz-principal.png}{Interfaz principal de proyectoPaint Studio.}
+
+\section{Herramientas implementadas}
+
+\begin{table}[H]
+\centering
+\caption{Herramientas disponibles en la aplicación.}
+\begin{tabular}{p{4cm} p{9cm}}
+\toprule
+\textbf{Herramienta} & \textbf{Función} \\
+\midrule
+Seleccionar & Selecciona, mueve y modifica figuras existentes. \\
+Pincel y lápiz & Generan trazos libres sobre el lienzo. \\
+Borrador & Dibuja con el color de fondo para eliminar visualmente áreas. \\
+Formas & Crea rectángulos, rectángulos redondeados, elipses, líneas y flechas. \\
+Polígonos & Permite polígonos libres y regulares de 3 a 10 lados. \\
+Estrella y Blob & Genera formas decorativas cerradas. \\
+Curva Bézier & Construye una curva a partir de cuatro puntos de control. \\
+Relleno & Aplica Flood Fill a una región cerrada. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\captura{capturas/herramientas-formas.png}{Herramientas y selector de formas.}
+
+\section{Color, propiedades y capas}
+
+El usuario puede seleccionar color de borde y relleno, espesor, estilo de trazo, radio de esquina, opacidad, rotación y escalado. Cada figura creada se registra como una capa; las capas pueden seleccionarse, ocultarse, eliminarse u ordenarse.
+
+\captura{capturas/colores-propiedades.png}{Panel de colores y propiedades.}
+\captura{capturas/capas.png}{Administración de capas.}
+
+\section{Flujo de dibujo}
+
+\begin{enumerate}
+    \item El usuario selecciona una herramienta y configura sus propiedades.
+    \item Se capturan los eventos del mouse sobre el lienzo.
+    \item Se genera una vista previa de la figura durante el trazo.
+    \item Al finalizar, la figura se agrega a \texttt{CanvasDocument}.
+    \item El documento se renderiza nuevamente sobre un \texttt{Bitmap}.
+    \item La figura aparece en el lienzo y en el panel de capas.
+\end{enumerate}
+
+\chapter{Persistencia y exportación}
+
+Los proyectos se guardan con extensión \texttt{.ppaint}. El archivo XML conserva las dimensiones del lienzo, color de fondo, tipo de figura, puntos, colores, grosor, opacidad, visibilidad y otras propiedades específicas.
+
+La aplicación permite exportar el contenido del lienzo en formato PNG o JPG.
+
+\captura{capturas/exportacion.png}{Proceso de exportación de una composición gráfica.}
+
+\chapter{Pruebas realizadas}
+
+\begin{table}[H]
+\centering
+\caption{Pruebas funcionales realizadas.}
+\begin{tabular}{p{4cm} p{7cm} p{2cm}}
+\toprule
+\textbf{Prueba} & \textbf{Resultado esperado} & \textbf{Estado} \\
+\midrule
+Dibujo de líneas & Se representa una línea entre dos puntos. & Correcto \\
+Polígonos regulares & Se generan figuras de 3 a 10 lados. & Correcto \\
+Relleno Flood Fill & Se rellena una región cerrada. & Correcto \\
+Propiedades & Se actualizan color, borde, opacidad y transformaciones. & Correcto \\
+Capas & Se seleccionan, ocultan, eliminan y ordenan figuras. & Correcto \\
+Deshacer y rehacer & Se revierten o recuperan acciones. & Correcto \\
+Guardado y carga & Se conserva la información del proyecto en XML. & Correcto \\
+Exportación & Se genera una imagen PNG o JPG. & Correcto \\
+Adaptación visual & La interfaz se ajusta a pantallas de laptop. & Correcto \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Conclusiones}
+
+\begin{enumerate}
+    \item El proyecto permitió aplicar algoritmos de rasterización, relleno y transformaciones geométricas en una aplicación funcional.
+    \item La separación entre interfaz, modelos, controladores y servicios mejora la organización y el mantenimiento del código.
+    \item El uso de objetos gráficos permite modificar cada figura individualmente y gestionarla mediante capas.
+    \item El almacenamiento XML permite conservar el documento y recuperarlo en futuras ejecuciones.
+    \item La adaptación visual de los paneles mejora el uso de la aplicación en equipos con menor resolución vertical.
+\end{enumerate}
+
+\chapter{Trabajo futuro}
+
+\begin{itemize}
+    \item Incorporar inserción y edición de texto.
+    \item Permitir importar imágenes al lienzo.
+    \item Añadir selección múltiple, duplicación y agrupación de capas.
+    \item Agregar más estilos de pincel y una paleta personalizada.
+    \item Implementar atajos de teclado y zoom con rueda del mouse.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{foley} Foley, J. D., van Dam, A., Feiner, S. K. y Hughes, J. F. \textit{Computer Graphics: Principles and Practice}. Addison-Wesley.
+\bibitem{hearn} Hearn, D. y Baker, M. P. \textit{Computer Graphics with OpenGL}. Pearson Education.
+\bibitem{microsoft} Microsoft. \textit{Documentación de Windows Forms y System.Drawing}. \url{https://learn.microsoft.com/}
+\end{thebibliography}
+
+\end{document}

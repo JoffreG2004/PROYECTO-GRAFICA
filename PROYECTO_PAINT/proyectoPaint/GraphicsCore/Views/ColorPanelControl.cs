@@ -1,125 +1,130 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace proyectoPaint.GraphicsCore
 {
-    /// <summary>A compact, responsive color card for the right inspector.</summary>
+    /// <summary>
+    /// Panel "Colores": cuadrícula de swatches + selección de Trazo y Relleno.
+    /// Único lugar de la app donde se elige color (no se repite en Propiedades).
+    /// </summary>
     public class ColorPanelControl : StudioCard
     {
-        private Panel _strokePreview;
-        private Panel _fillPreview;
-        private ColorWheelControl _wheel;
-        private Panel _tabRow;
+        private Panel _strokeChip;
+        private Panel _fillChip;
         private StudioGlyphButton _eyedropper;
-        private StudioGlyphButton _menuBtn;
-        private readonly Panel[] _swatches = new Panel[7];
+        private Button _addBtn;
+        private readonly Panel[] _swatches = new Panel[ThemeColors.Swatches.Length];
 
         public event Action StrokeColorPickRequested;
         public event Action FillColorPickRequested;
-        public event Action<Color> FillColorChanged;
+        /// <summary>Color elegido desde un swatch (se aplica a trazo y relleno).</summary>
+        public event Action<Color> SwatchPicked;
         public event Action<string> StatusChanged;
 
         public ColorPanelControl(Color initialStroke, Color initialFill)
         {
-            BackColor = Color.FromArgb(17, 27, 43);
+            BackColor = ThemeColors.Panel;
             Build(initialStroke, initialFill);
             Resize += (s, e) => LayoutContent();
         }
 
-        public void SetStrokeColor(Color color) { if (_strokePreview != null) _strokePreview.BackColor = color; }
-        public void SetFillColor(Color color) { if (_fillPreview != null) _fillPreview.BackColor = color; }
+        public void SetStrokeColor(Color color) { if (_strokeChip != null) _strokeChip.BackColor = color; }
+        public void SetFillColor(Color color)   { if (_fillChip   != null) _fillChip.BackColor   = color; }
 
         private void Build(Color stroke, Color fill)
         {
-            Controls.Add(new Label { Text = "Color", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), AutoSize = true, Location = new Point(12, 11) });
-            _strokePreview = AddColorTarget("Stroke", stroke, () => StrokeColorPickRequested?.Invoke());
-            _fillPreview = AddColorTarget("Fill", fill, () => FillColorPickRequested?.Invoke());
+            Controls.Add(new Label { Text = "Colores", ForeColor = ThemeColors.TextPrimary, Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold), AutoSize = true, Location = new Point(14, 12) });
 
-            _wheel = new ColorWheelControl { Size = new Size(126, 126) };
-            _wheel.ColorChanged += delegate { FillColorChanged?.Invoke(_wheel.SelectedColor); };
-            Controls.Add(_wheel);
+            _strokeChip = AddColorTarget("Trazo", stroke, () => StrokeColorPickRequested?.Invoke());
+            _fillChip   = AddColorTarget("Relleno", fill, () => FillColorPickRequested?.Invoke());
 
-            _tabRow = new Panel { BackColor = Color.FromArgb(12, 20, 34) };
-            Button swatches = CreateTab("Swatches", true);
-            Button gradients = CreateTab("Gradients", false);
-            swatches.Click += (s, e) => { swatches.BackColor = Color.FromArgb(31, 47, 70); gradients.BackColor = Color.Transparent; StatusChanged?.Invoke("Swatches selected"); };
-            gradients.Click += (s, e) => { gradients.BackColor = Color.FromArgb(31, 47, 70); swatches.BackColor = Color.Transparent; FillColorChanged?.Invoke(Color.FromArgb(34, 211, 238)); StatusChanged?.Invoke("Gradient palette selected"); };
-            _tabRow.Controls.Add(swatches); _tabRow.Controls.Add(gradients);
-            Controls.Add(_tabRow);
-
-            Color[] colors = { Color.FromArgb(139, 92, 246), Color.FromArgb(236, 72, 153), Color.FromArgb(251, 146, 60), Color.FromArgb(250, 204, 21), Color.FromArgb(74, 222, 128), Color.FromArgb(34, 211, 238), Color.FromArgb(59, 130, 246) };
-            for (int i = 0; i < colors.Length; i++)
+            for (int i = 0; i < _swatches.Length; i++)
             {
-                Color swatchColor = colors[i];
-                Panel swatch = new Panel { Size = new Size(18, 18), Cursor = Cursors.Hand };
+                Color swatchColor = ThemeColors.Swatches[i];
+                Panel swatch = new Panel { Size = new Size(22, 22), Cursor = Cursors.Hand };
+                new ToolTip().SetToolTip(swatch, ColorTranslator.ToHtml(swatchColor));
                 swatch.Paint += (s, e) =>
                 {
-                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    using (var path = StudioCard.RoundedRect(new Rectangle(0, 0, 17, 17), 8))
-                    using (var brush = new SolidBrush(swatchColor)) e.Graphics.FillPath(brush, path);
+                    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    using (var path = StudioCard.RoundedRect(new Rectangle(0, 0, swatch.Width - 1, swatch.Height - 1), 7))
+                    using (var brush = new SolidBrush(swatchColor))
+                    using (var pen = new Pen(ThemeColors.Border))
+                    {
+                        e.Graphics.FillPath(brush, path);
+                        e.Graphics.DrawPath(pen, path);
+                    }
                 };
-                swatch.Click += (s, e) => FillColorChanged?.Invoke(swatchColor);
+                swatch.Click += (s, e) => { SwatchPicked?.Invoke(swatchColor); StatusChanged?.Invoke("Color: " + ColorTranslator.ToHtml(swatchColor)); };
                 _swatches[i] = swatch;
                 Controls.Add(swatch);
             }
 
-            // Top-right card actions: eyedropper + overflow menu.
-            _eyedropper = new StudioGlyphButton { Icon = StudioIcon.Eyedropper, Size = new Size(24, 24) };
-            _eyedropper.Click += (s, e) => FillColorPickRequested?.Invoke();
-            new ToolTip().SetToolTip(_eyedropper, "Seleccionar color");
+            // Acciones: cuentagotas (abrir diálogo) y "+" color personalizado.
+            _eyedropper = new StudioGlyphButton { Icon = StudioIcon.Eyedropper, Size = new Size(26, 26) };
+            _eyedropper.Click += (s, e) => StrokeColorPickRequested?.Invoke();
+            new ToolTip().SetToolTip(_eyedropper, "Seleccionar color del trazo");
             Controls.Add(_eyedropper);
-            _menuBtn = new StudioGlyphButton { Icon = StudioIcon.More, Size = new Size(24, 24) };
-            Controls.Add(_menuBtn);
+
+            _addBtn = new Button { Text = "+", ForeColor = ThemeColors.Accent, Font = new Font("Segoe UI", 13F), FlatStyle = FlatStyle.Flat, BackColor = ThemeColors.Panel, Size = new Size(26, 26), Cursor = Cursors.Hand };
+            _addBtn.FlatAppearance.BorderColor = ThemeColors.Border;
+            _addBtn.Click += (s, e) => FillColorPickRequested?.Invoke();
+            new ToolTip().SetToolTip(_addBtn, "Color personalizado de relleno");
+            Controls.Add(_addBtn);
 
             LayoutContent();
         }
 
         private Panel AddColorTarget(string label, Color color, Action click)
         {
-            Button target = new Button { Text = label, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(27, 42, 63), ForeColor = Color.FromArgb(219, 230, 247), Font = new Font("Segoe UI", 7.5F), Cursor = Cursors.Hand };
-            target.FlatAppearance.BorderColor = Color.FromArgb(55, 78, 110);
-            target.Click += (s, e) => click();
-            Panel preview = new Panel { BackColor = color, BorderStyle = BorderStyle.FixedSingle, Cursor = Cursors.Hand };
-            preview.Click += (s, e) => click();
-            Controls.Add(target); Controls.Add(preview);
-            return preview;
-        }
-
-        private static Button CreateTab(string text, bool selected)
-        {
-            Button button = new Button { Text = text, FlatStyle = FlatStyle.Flat, BackColor = selected ? Color.FromArgb(31, 47, 70) : Color.Transparent, ForeColor = selected ? Color.White : Color.FromArgb(140, 163, 196), Font = new Font("Segoe UI", 7.5F) };
-            button.FlatAppearance.BorderSize = 0;
-            return button;
+            Label caption = new Label { Text = label, ForeColor = ThemeColors.TextSecondary, Font = new Font("Segoe UI", 8F), AutoSize = true, Tag = "cap-" + label };
+            Panel chip = new Panel { BackColor = color, Cursor = Cursors.Hand, Tag = "chip-" + label };
+            chip.Paint += (s, e) =>
+            {
+                using (var pen = new Pen(ThemeColors.Border)) e.Graphics.DrawRectangle(pen, 0, 0, chip.Width - 1, chip.Height - 1);
+            };
+            chip.Click += (s, e) => click();
+            caption.Click += (s, e) => click();
+            Controls.Add(caption); Controls.Add(chip);
+            return chip;
         }
 
         private void LayoutContent()
         {
-            if (_wheel == null) return;
-            int wheelSize = Math.Min(126, Math.Max(92, Height - 110));
-            int wheelX = Math.Max(92, Width - wheelSize - 14);
-            _wheel.SetBounds(wheelX, 28, wheelSize, wheelSize);
+            int pad = 14;
+            // Chips Trazo / Relleno
+            int chipY = 40;
+            Label strokeCap = FindTagged("cap-Trazo") as Label;
+            Label fillCap   = FindTagged("cap-Relleno") as Label;
+            if (strokeCap != null) strokeCap.Location = new Point(pad, chipY + 5);
+            if (_strokeChip != null) _strokeChip.SetBounds(pad + 46, chipY, 28, 22);
+            int half = Width / 2;
+            if (fillCap != null) fillCap.Location = new Point(half + 2, chipY + 5);
+            if (_fillChip != null) _fillChip.SetBounds(half + 50, chipY, 28, 22);
 
-            Control[] targets = { Controls[1], _strokePreview, Controls[3], _fillPreview };
-            targets[0].SetBounds(12, 46, 54, 23); targets[1].SetBounds(70, 46, 22, 23);
-            targets[2].SetBounds(12, 75, 54, 23); targets[3].SetBounds(70, 75, 22, 23);
-
-            int bottom = Math.Max(130, Height - 63);
-            _tabRow.SetBounds(10, bottom, Math.Max(110, Width - 20), 23);
-            if (_tabRow.Controls.Count == 2)
-            {
-                int half = _tabRow.Width / 2;
-                _tabRow.Controls[0].SetBounds(0, 0, half, 23);
-                _tabRow.Controls[1].SetBounds(half, 0, _tabRow.Width - half, 23);
-            }
-            int start = 12;
-            int available = Math.Max(20, Width - 24);
-            int spacing = _swatches.Length > 1 ? Math.Max(20, Math.Min(29, (available - 18) / (_swatches.Length - 1))) : 20;
+            // Cuadrícula de swatches (6 por fila)
+            int cols = 6;
+            int gridTop = chipY + 36;
+            int available = Math.Max(60, Width - pad * 2);
+            int cell = Math.Max(20, Math.Min(26, available / cols));
+            int gap = (available - cell * cols) / Math.Max(1, cols - 1);
             for (int i = 0; i < _swatches.Length; i++)
-                if (_swatches[i] != null) _swatches[i].Location = new Point(start + i * spacing, bottom + 30);
+            {
+                if (_swatches[i] == null) continue;
+                int c = i % cols, r = i / cols;
+                _swatches[i].SetBounds(pad + c * (cell + gap), gridTop + r * (cell + 6), cell - 2, cell - 2);
+            }
 
-            if (_eyedropper != null) _eyedropper.Location = new Point(Width - 34, 8);
-            if (_menuBtn != null) _menuBtn.Location = new Point(Width - 60, 8);
+            if (_eyedropper != null) _eyedropper.Location = new Point(Width - 36, 8);
+            if (_addBtn != null) _addBtn.Location = new Point(Width - 66, 8);
+        }
+
+        private Control FindTagged(string tag)
+        {
+            foreach (Control c in Controls)
+                if (c.Tag is string && (string)c.Tag == tag) return c;
+            return null;
         }
     }
 }

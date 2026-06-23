@@ -18,7 +18,7 @@ namespace proyectoPaint.GraphicsCore
         public StudioCard()
         {
             DoubleBuffered = true;
-            BackColor = Color.FromArgb(18, 28, 45);
+            BackColor = ThemeColors.Panel;
             Padding = new Padding(14);
         }
 
@@ -28,7 +28,7 @@ namespace proyectoPaint.GraphicsCore
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             using (GraphicsPath path = RoundedRect(new Rectangle(0, 0, Width - 1, Height - 1), 14))
             using (SolidBrush brush = new SolidBrush(BackColor))
-            using (Pen pen = new Pen(Color.FromArgb(39, 56, 80), 1))
+            using (Pen pen = new Pen(ThemeColors.Border, 1))
             {
                 e.Graphics.FillPath(brush, path);
                 e.Graphics.DrawPath(pen, path);
@@ -54,15 +54,17 @@ namespace proyectoPaint.GraphicsCore
         private bool selected;
         public StudioIcon Icon { get; set; }
         public string Caption { get; set; }
+        /// <summary>Cuando es true, dibuja el icono a la izquierda y la etiqueta a su derecha (rail lateral).</summary>
+        public bool Horizontal { get; set; }
         public bool Selected
         {
             get { return selected; }
             set { selected = value; Invalidate(); }
         }
 
-        // Per-context selection accent (left rail = blue, command bar = purple).
-        public Color SelectedFill { get; set; } = Color.FromArgb(66, 45, 156);
-        public Color SelectedBorder { get; set; } = Color.FromArgb(147, 122, 255);
+        // Acento de selección del tema beige.
+        public Color SelectedFill { get; set; } = ThemeColors.Selected;
+        public Color SelectedBorder { get; set; } = ThemeColors.Accent;
 
         public StudioToolButton()
         {
@@ -71,8 +73,8 @@ namespace proyectoPaint.GraphicsCore
             BackColor = Color.Transparent;
             Size = new Size(64, 70);
             Cursor = Cursors.Hand;
-            ForeColor = Color.FromArgb(220, 229, 244);
-            Font = new Font("Segoe UI", 7.5F);
+            ForeColor = ThemeColors.TextPrimary;
+            Font = new Font("Segoe UI", 8F);
         }
 
         protected override void OnMouseEnter(EventArgs e) { hover = true; Invalidate(); base.OnMouseEnter(e); }
@@ -80,17 +82,17 @@ namespace proyectoPaint.GraphicsCore
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Color background = Parent == null ? Color.FromArgb(17, 27, 43) : Parent.BackColor;
+            Color background = Parent == null ? ThemeColors.Panel : Parent.BackColor;
             using (SolidBrush brush = new SolidBrush(background)) e.Graphics.FillRectangle(brush, ClientRectangle);
         }
 
-        // Brand-consistent accent (matches the header logo + Export button).
-        public static readonly Color Accent = Color.FromArgb(112, 79, 246);
+        // Acento de marca (logo + botón Exportar).
+        public static readonly Color Accent = ThemeColors.Accent;
 
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            Color fill = selected ? SelectedFill : (hover ? Color.FromArgb(31, 47, 70) : Color.Transparent);
+            Color fill = selected ? SelectedFill : (hover ? ThemeColors.Hover : Color.Transparent);
             if (fill != Color.Transparent)
             {
                 using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 9))
@@ -99,14 +101,24 @@ namespace proyectoPaint.GraphicsCore
             if (selected)
             {
                 using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(2, 2, Width - 4, Height - 4), 9))
-                using (Pen accent = new Pen(SelectedBorder, 1.2F))
+                using (Pen accent = new Pen(SelectedBorder, 1.4F))
                     e.Graphics.DrawPath(accent, path);
             }
-            Color ink = selected ? Color.White : Color.FromArgb(200, 215, 238);
+            Color ink = selected ? ThemeColors.TextPrimary : ThemeColors.Icon;
+            Color textInk = selected ? ThemeColors.TextPrimary : ThemeColors.TextSecondary;
+
+            if (Horizontal)
+            {
+                DrawIcon(e.Graphics, new Rectangle(14, Height / 2 - 11, 22, 22), Icon, ink);
+                if (!string.IsNullOrEmpty(Caption))
+                    TextRenderer.DrawText(e.Graphics, Caption, Font, new Rectangle(44, 0, Width - 48, Height), textInk, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                return;
+            }
+
             int iconY = Caption == "" ? Height / 2 - 12 : 10;
             DrawIcon(e.Graphics, new Rectangle(Width / 2 - 12, iconY, 24, 24), Icon, ink);
             if (Caption != "")
-                TextRenderer.DrawText(e.Graphics, Caption ?? Text, Font, new Rectangle(2, iconY + 26, Width - 4, 20), ink, TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis);
+                TextRenderer.DrawText(e.Graphics, Caption ?? Text, Font, new Rectangle(2, iconY + 26, Width - 4, 20), textInk, TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis);
         }
 
         public static void DrawIcon(Graphics g, Rectangle r, StudioIcon icon, Color color)
@@ -302,8 +314,8 @@ namespace proyectoPaint.GraphicsCore
     {
         private bool hover;
         public StudioIcon Icon { get; set; }
-        public Color Ink { get; set; } = Color.FromArgb(176, 196, 226);
-        public Color HoverInk { get; set; } = Color.White;
+        public Color Ink { get; set; } = ThemeColors.Icon;
+        public Color HoverInk { get; set; } = ThemeColors.TextPrimary;
         public bool ShowDot { get; set; }
 
         public StudioGlyphButton()
@@ -320,13 +332,13 @@ namespace proyectoPaint.GraphicsCore
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Color bg = Parent == null ? Color.FromArgb(6, 11, 21) : Parent.BackColor;
+            Color bg = Parent == null ? ThemeColors.Panel : Parent.BackColor;
             using (SolidBrush b = new SolidBrush(bg)) e.Graphics.FillRectangle(b, ClientRectangle);
             if (hover)
             {
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
                 using (GraphicsPath p = StudioCard.RoundedRect(new Rectangle(1, 1, Width - 2, Height - 2), 7))
-                using (SolidBrush b = new SolidBrush(Color.FromArgb(26, 40, 62))) e.Graphics.FillPath(b, p);
+                using (SolidBrush b = new SolidBrush(ThemeColors.Hover)) e.Graphics.FillPath(b, p);
             }
         }
 
@@ -346,7 +358,7 @@ namespace proyectoPaint.GraphicsCore
     {
         private bool on;
         public event EventHandler Toggled;
-        public Color OnColor { get; set; } = Color.FromArgb(124, 77, 255);
+        public Color OnColor { get; set; } = ThemeColors.Accent;
         public bool On
         {
             get { return on; }
@@ -372,7 +384,7 @@ namespace proyectoPaint.GraphicsCore
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Color bg = Parent == null ? Color.FromArgb(9, 16, 28) : Parent.BackColor;
+            Color bg = Parent == null ? ThemeColors.Panel : Parent.BackColor;
             using (SolidBrush b = new SolidBrush(bg)) e.Graphics.FillRectangle(b, ClientRectangle);
         }
 
@@ -381,10 +393,116 @@ namespace proyectoPaint.GraphicsCore
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle track = new Rectangle(0, (Height - 18) / 2, Width - 1, 18);
             using (GraphicsPath path = StudioCard.RoundedRect(track, 9))
-            using (SolidBrush fill = new SolidBrush(on ? OnColor : Color.FromArgb(38, 54, 76)))
+            using (SolidBrush fill = new SolidBrush(on ? OnColor : ThemeColors.Border))
                 e.Graphics.FillPath(fill, path);
             int kd = 14, ky = (Height - kd) / 2, kx = on ? Width - kd - 3 : 3;
             using (SolidBrush kb = new SolidBrush(Color.White)) e.Graphics.FillEllipse(kb, kx, ky, kd, kd);
+        }
+    }
+
+    /// <summary>Slider minimalista: pista delgada, relleno de acento y perilla redonda.</summary>
+    public class ThemeSlider : Control
+    {
+        private int _min = 0, _max = 100, _value = 0;
+        private bool _dragging;
+        public event Action<int> ValueChanged;   // solo se dispara por interacción del usuario
+
+        public ThemeSlider()
+        {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            BackColor = Color.Transparent;
+            Size = new Size(150, 24);
+            Cursor = Cursors.Hand;
+        }
+
+        public int Minimum { get { return _min; } set { _min = value; Invalidate(); } }
+        public int Maximum { get { return _max; } set { _max = value; Invalidate(); } }
+        public int Value
+        {
+            get { return _value; }
+            set { _value = Math.Max(_min, Math.Min(_max, value)); Invalidate(); }
+        }
+
+        private const int Pad = 9;
+
+        protected override void OnMouseDown(MouseEventArgs e) { _dragging = true; SetFromX(e.X); base.OnMouseDown(e); }
+        protected override void OnMouseMove(MouseEventArgs e) { if (_dragging) SetFromX(e.X); base.OnMouseMove(e); }
+        protected override void OnMouseUp(MouseEventArgs e) { _dragging = false; base.OnMouseUp(e); }
+
+        private void SetFromX(int x)
+        {
+            int usable = Math.Max(1, Width - 2 * Pad);
+            double ratio = Math.Max(0, Math.Min(1, (x - Pad) / (double)usable));
+            int next = (int)Math.Round(_min + ratio * (_max - _min));
+            if (next == _value) return;
+            _value = next;
+            Invalidate();
+            ValueChanged?.Invoke(_value);
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            Color bg = Parent == null ? ThemeColors.Panel : Parent.BackColor;
+            using (SolidBrush b = new SolidBrush(bg)) e.Graphics.FillRectangle(b, ClientRectangle);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            int cy = Height / 2;
+            int usable = Math.Max(1, Width - 2 * Pad);
+            double ratio = _max > _min ? (_value - _min) / (double)(_max - _min) : 0;
+            int knobX = Pad + (int)(ratio * usable);
+
+            using (GraphicsPath bgTrack = StudioCard.RoundedRect(new Rectangle(Pad, cy - 2, usable, 4), 2))
+            using (SolidBrush b = new SolidBrush(ThemeColors.Border))
+                e.Graphics.FillPath(b, bgTrack);
+            if (knobX > Pad)
+                using (GraphicsPath fill = StudioCard.RoundedRect(new Rectangle(Pad, cy - 2, Math.Max(1, knobX - Pad), 4), 2))
+                using (SolidBrush b = new SolidBrush(ThemeColors.Accent))
+                    e.Graphics.FillPath(b, fill);
+
+            int kr = 8;
+            using (SolidBrush kb = new SolidBrush(ThemeColors.Accent))
+                e.Graphics.FillEllipse(kb, knobX - kr, cy - kr, kr * 2, kr * 2);
+            using (SolidBrush inner = new SolidBrush(Color.White))
+                e.Graphics.FillEllipse(inner, knobX - kr + 3, cy - kr + 3, (kr - 3) * 2, (kr - 3) * 2);
+        }
+    }
+
+    /// <summary>Etiqueta tipo "pill" (recuadro redondeado con borde) para mostrar valores.</summary>
+    public class PillLabel : Control
+    {
+        public PillLabel()
+        {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            BackColor = Color.Transparent;
+            Size = new Size(56, 28);
+            ForeColor = ThemeColors.TextPrimary;
+            Font = new Font("Segoe UI Semibold", 9F);
+        }
+
+        protected override void OnTextChanged(EventArgs e) { Invalidate(); base.OnTextChanged(e); }
+
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            Color bg = Parent == null ? ThemeColors.Panel : Parent.BackColor;
+            using (SolidBrush b = new SolidBrush(bg)) e.Graphics.FillRectangle(b, ClientRectangle);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using (GraphicsPath path = StudioCard.RoundedRect(new Rectangle(0, 0, Width - 1, Height - 1), 8))
+            using (SolidBrush fill = new SolidBrush(ThemeColors.Canvas))
+            using (Pen pen = new Pen(ThemeColors.Border))
+            {
+                e.Graphics.FillPath(fill, path);
+                e.Graphics.DrawPath(pen, path);
+            }
+            TextRenderer.DrawText(e.Graphics, Text, Font, ClientRectangle, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
     }
 

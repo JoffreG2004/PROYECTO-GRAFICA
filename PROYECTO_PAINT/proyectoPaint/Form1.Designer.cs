@@ -14,12 +14,12 @@ namespace proyectoPaint
         {
             this.SuspendLayout();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(8, 14, 25);
+            this.BackColor = System.Drawing.Color.FromArgb(246, 242, 238);
             this.ClientSize = new System.Drawing.Size(1440, 900);
             this.MinimumSize = new System.Drawing.Size(1120, 720);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "proyectoPaint Studio - Computacion Grafica";
+            this.Text = "Lumina Paint - Computación Gráfica";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
         }

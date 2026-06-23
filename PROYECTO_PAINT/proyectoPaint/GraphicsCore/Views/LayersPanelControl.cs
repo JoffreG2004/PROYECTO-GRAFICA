@@ -17,7 +17,7 @@ namespace proyectoPaint.GraphicsCore
 
         public LayersPanelControl()
         {
-            BackColor = Color.FromArgb(17, 27, 43);
+            BackColor = ThemeColors.Panel;
             Build();
         }
 
@@ -32,7 +32,7 @@ namespace proyectoPaint.GraphicsCore
                 _list.Controls.Add(new Label
                 {
                     Text = "Sin capas todavía.\nDibuja algo para empezar.",
-                    ForeColor = Color.FromArgb(110, 134, 170), Font = new Font("Segoe UI", 8F),
+                    ForeColor = ThemeColors.TextSecondary, Font = new Font("Segoe UI", 8F),
                     AutoSize = false, TextAlign = ContentAlignment.MiddleCenter,
                     Location = new Point(4, 28), Size = new Size(_list.ClientSize.Width - 8, 48)
                 });
@@ -49,7 +49,7 @@ namespace proyectoPaint.GraphicsCore
                 Panel row = new Panel
                 {
                     Location = new Point(0, i * 28), Size = new Size(rowWidth, 25),
-                    BackColor = isSelected ? Color.FromArgb(48, 40, 92) : Color.FromArgb(20, 32, 50),
+                    BackColor = isSelected ? ThemeColors.Selected : ThemeColors.Background,
                     Cursor = Cursors.Hand
                 };
                 if (isSelected)
@@ -64,7 +64,7 @@ namespace proyectoPaint.GraphicsCore
                 Button eye = new Button
                 {
                     Text = shape.Visible ? "◉" : "○",
-                    ForeColor = shape.Visible ? Color.FromArgb(190, 208, 236) : Color.FromArgb(110, 130, 160),
+                    ForeColor = shape.Visible ? ThemeColors.Icon : ThemeColors.TextSecondary,
                     Font = new Font("Segoe UI", 8F), FlatStyle = FlatStyle.Flat,
                     BackColor = Color.Transparent, Size = new Size(20, 20), Location = new Point(6, 2), Cursor = Cursors.Hand
                 };
@@ -82,18 +82,18 @@ namespace proyectoPaint.GraphicsCore
                 Label name = new Label
                 {
                     Text = shape.DisplayName, AutoSize = false, Size = new Size(rowWidth - 70, 20), Location = new Point(46, 3),
-                    ForeColor = isSelected ? Color.White : (shape.Visible ? Color.FromArgb(205, 220, 242) : Color.FromArgb(130, 148, 175)),
-                    Font = new Font("Segoe UI", 7.5F), TextAlign = ContentAlignment.MiddleLeft, AutoEllipsis = true
+                    ForeColor = isSelected ? ThemeColors.TextPrimary : (shape.Visible ? ThemeColors.TextPrimary : ThemeColors.TextSecondary),
+                    Font = new Font("Segoe UI", 8F), TextAlign = ContentAlignment.MiddleLeft, AutoEllipsis = true
                 };
 
                 Button del = new Button
                 {
-                    Text = "×", ForeColor = Color.FromArgb(150, 172, 205),
+                    Text = "×", ForeColor = ThemeColors.TextSecondary,
                     Font = new Font("Segoe UI", 9F), FlatStyle = FlatStyle.Flat,
                     BackColor = Color.Transparent, Size = new Size(20, 20), Location = new Point(rowWidth - 22, 2), Cursor = Cursors.Hand
                 };
                 del.FlatAppearance.BorderSize = 0;
-                del.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 40, 60);
+                del.FlatAppearance.MouseOverBackColor = ThemeColors.Hover;
                 del.Click += (s, e) => ShapeDeleted?.Invoke(captured);
 
                 EventHandler choose = (s, e) => ShapeSelected?.Invoke(captured);
@@ -106,19 +106,26 @@ namespace proyectoPaint.GraphicsCore
 
         private void Build()
         {
-            Controls.Add(new Label { Text = "Capas", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), AutoSize = true, Location = new Point(10, 10) });
+            Controls.Add(new Label { Text = "Capas", ForeColor = ThemeColors.TextPrimary, Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold), AutoSize = true, Location = new Point(10, 10) });
 
-            Button addBtn  = new Button { Text = "+",   ForeColor = Color.FromArgb(170, 192, 224), Font = new Font("Segoe UI", 12F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(20, 20), Location = new Point(134, 7) };
-            Button moreBtn = new Button { Text = "···", ForeColor = Color.FromArgb(150, 175, 210), Font = new Font("Segoe UI", 7F),  FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(24, 20), Location = new Point(154, 7) };
+            Button addBtn  = new Button { Text = "+",   ForeColor = ThemeColors.Accent, Font = new Font("Segoe UI", 12F), FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(20, 20), Location = new Point(134, 7), Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            Button moreBtn = new Button { Text = "···", ForeColor = ThemeColors.Icon, Font = new Font("Segoe UI", 7F),  FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent, Size = new Size(24, 20), Location = new Point(154, 7), Anchor = AnchorStyles.Top | AnchorStyles.Right };
             addBtn.FlatAppearance.BorderSize  = 0;
             moreBtn.FlatAppearance.BorderSize = 0;
+            addBtn.FlatAppearance.MouseOverBackColor = ThemeColors.Hover;
+            moreBtn.FlatAppearance.MouseOverBackColor = ThemeColors.Hover;
             addBtn.Click  += (s, e) => AddLayerRequested?.Invoke();
             moreBtn.Click += (s, e) => MoreMenuRequested?.Invoke(moreBtn);
             Controls.Add(addBtn); Controls.Add(moreBtn);
 
             _list = new Panel { Location = new Point(6, 32), Size = new Size(160, 140), AutoScroll = true, BackColor = BackColor };
             Controls.Add(_list);
-            Resize += (s, e) => _list.SetBounds(6, 32, Math.Max(40, Width - 12), Math.Max(40, Height - 40));
+            Resize += (s, e) =>
+            {
+                _list.SetBounds(6, 32, Math.Max(40, Width - 12), Math.Max(40, Height - 40));
+                moreBtn.Location = new Point(Width - 30, 7);
+                addBtn.Location = new Point(Width - 54, 7);
+            };
         }
     }
 }

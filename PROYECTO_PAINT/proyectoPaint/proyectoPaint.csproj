@@ -60,6 +60,7 @@
     <Compile Include="GraphicsCore\Services\ProjectStorage.cs" />
     <Compile Include="GraphicsCore\Services\RasterSurface.cs" />
     <Compile Include="GraphicsCore\Models\Shapes.cs" />
+    <Compile Include="GraphicsCore\Views\ThemeColors.cs" />
     <Compile Include="GraphicsCore\Views\StudioControls.cs">
       <SubType>Component</SubType>
     </Compile>

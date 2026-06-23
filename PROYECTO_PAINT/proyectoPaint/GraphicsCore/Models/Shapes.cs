@@ -73,6 +73,36 @@ namespace proyectoPaint.GraphicsCore
         }
     }
 
+    public class TextShape : DrawableShape
+    {
+        public Point Position { get; set; }
+        public string Text { get; set; } = "Texto";
+        public int FontSize { get; set; } = 20;
+        public override string Kind { get { return "Texto"; } }
+        public override IEnumerable<Point> Points { get { yield return Position; } }
+
+        public override Rectangle Bounds
+        {
+            get
+            {
+                int width = Math.Max(FontSize, (Text ?? string.Empty).Length * Math.Max(8, FontSize / 2));
+                return new Rectangle(Position.X, Position.Y, width, FontSize + 8);
+            }
+        }
+
+        public override void Draw(Bitmap bmp)
+        {
+            using (Graphics graphics = Graphics.FromImage(bmp))
+            using (Font font = new Font("Segoe UI", FontSize, FontStyle.Regular, GraphicsUnit.Pixel))
+            using (SolidBrush brush = new SolidBrush(GetStrokePaint()))
+                graphics.DrawString(Text ?? string.Empty, font, brush, Position);
+        }
+
+        public override void Translate(int dx, int dy) { Position = new Point(Position.X + dx, Position.Y + dy); }
+        public override void Rotate(float degrees) { }
+        public override void Scale(float factor) { FontSize = Math.Max(8, (int)Math.Round(FontSize * factor)); }
+    }
+
     public class PolylineShape : DrawableShape
     {
         public List<Point> Vertices { get; set; } = new List<Point>();
@@ -416,6 +446,7 @@ namespace proyectoPaint.GraphicsCore
     public class FloodFillShape : DrawableShape
     {
         public Point Seed { get; set; }
+        public DrawableShape LinkedShape { get; set; }
         public int MaxSpans { get; set; } = int.MaxValue;
         public bool IsComplete { get; private set; } = true;
         private List<Point> seedOrder;
@@ -436,8 +467,32 @@ namespace proyectoPaint.GraphicsCore
             }
             IsComplete = MaxSpans >= seedOrder.Count;
         }
-        public override void Translate(int dx, int dy) { Seed = new Point(Seed.X + dx, Seed.Y + dy); }
+        public override void Translate(int dx, int dy) { TranslateWithTarget(dx, dy); }
         public override void Rotate(float degrees) { }
         public override void Scale(float factor) { }
+
+        public void TranslateWithTarget(int dx, int dy)
+        {
+            Seed = new Point(Seed.X + dx, Seed.Y + dy);
+            InvalidatePixels();
+        }
+
+        public void RotateWithTarget(Point center, float degrees)
+        {
+            Seed = GraphicsAlgorithms.RotatePoint(Seed, center, degrees);
+            InvalidatePixels();
+        }
+
+        public void ScaleWithTarget(Point center, float factor)
+        {
+            Seed = GraphicsAlgorithms.ScalePoint(Seed, center, factor);
+            InvalidatePixels();
+        }
+
+        private void InvalidatePixels()
+        {
+            seedOrder = null;
+            IsComplete = false;
+        }
     }
 }

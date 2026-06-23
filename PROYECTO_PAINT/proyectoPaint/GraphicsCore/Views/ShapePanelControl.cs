@@ -11,13 +11,13 @@ namespace proyectoPaint.GraphicsCore
 
         public ShapePanelControl()
         {
-            BackColor = Color.FromArgb(17, 27, 43);
+            BackColor = ThemeColors.Panel;
             Build();
         }
 
         private void Build()
         {
-            Controls.Add(new Label { Text = "Forma", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), AutoSize = true, Location = new Point(10, 10) });
+            Controls.Add(new Label { Text = "Formas", ForeColor = ThemeColors.TextPrimary, Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold), AutoSize = true, Location = new Point(10, 10) });
 
             var shapes = new (StudioIcon icon, PaintTool tool)[]
             {
@@ -39,20 +39,22 @@ namespace proyectoPaint.GraphicsCore
                 StudioToolButton btn = new StudioToolButton
                 {
                     Icon = shape.icon, Caption = "", Tag = shape.tool,
-                    Location = new Point(8 + col * 58, 34 + row * 58), Size = new Size(50, 50)
+                    Location = new Point(8 + col * 50, 28 + row * 46), Size = new Size(44, 42)
                 };
                 PaintTool tool = shape.tool;
                 btn.Click += (s, e) => ToolSelected?.Invoke(tool);
                 Controls.Add(btn);
             }
 
-            Label polygonLabel = new Label { Text = "Polígonos regulares", ForeColor = Color.FromArgb(180, 202, 232), Font = new Font("Segoe UI", 7.5F), AutoSize = true, Location = new Point(10, 210) };
+            Label polygonLabel = new Label { Text = "Polígonos regulares", ForeColor = ThemeColors.TextSecondary, Font = new Font("Segoe UI", 8F), AutoSize = true, Location = new Point(10, 210) };
+            polygonLabel.Location = new Point(10, 170);
             Controls.Add(polygonLabel);
             for (int sides = 3; sides <= 10; sides++)
             {
                 int value = sides, index = sides - 3;
-                Button button = new Button { Text = value.ToString(), FlatStyle = FlatStyle.Flat, ForeColor = Color.White, BackColor = Color.FromArgb(30, 46, 68), Font = new Font("Segoe UI Semibold", 7.5F), Size = new Size(36, 24), Location = new Point(8 + (index % 4) * 42, 232 + (index / 4) * 27), Cursor = Cursors.Hand };
-                button.FlatAppearance.BorderColor = Color.FromArgb(62, 88, 126);
+                Button button = new Button { Text = value.ToString(), FlatStyle = FlatStyle.Flat, ForeColor = ThemeColors.TextPrimary, BackColor = ThemeColors.Background, Font = new Font("Segoe UI Semibold", 8F), Size = new Size(34, 24), Location = new Point(8 + (index % 4) * 38, 188 + (index / 4) * 27), Cursor = Cursors.Hand };
+                button.FlatAppearance.BorderColor = ThemeColors.Border;
+                button.FlatAppearance.MouseOverBackColor = ThemeColors.Hover;
                 button.Click += (s, e) => RegularPolygonSelected?.Invoke(value);
                 Controls.Add(button);
             }
